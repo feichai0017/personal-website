@@ -44,13 +44,13 @@ export default function About() {
                                 viewport={{ once: true }}
                             >
                                 <p className="mb-4 text-morandi-text">
-                                    I'm a passionate web developer with expertise in Java, JavaScript, and GO. My journey in programming started with a fascination for creating and problem-solving, which has only grown stronger over time.
+                                    I&apos;m a passionate web developer with expertise in Java, JavaScript, and GO. My journey in programming started with a fascination for creating and problem-solving, which has only grown stronger over time.
                                 </p>
                                 <p className="mb-4 text-morandi-text">
-                                    My areas of interest include building new Web Technologies and Products, as well as exploring the exciting world of Blockchain. I'm always eager to learn and apply cutting-edge technologies to create innovative solutions.
+                                    My areas of interest include building new Web Technologies and Products, as well as exploring the exciting world of Blockchain. I&apos;m always eager to learn and apply cutting-edge technologies to create innovative solutions.
                                 </p>
                                 <p className="mb-6 text-morandi-text">
-                                    When I'm not coding, you can find me exploring new technologies, contributing to open-source projects, or sharing my knowledge through blog posts and community engagement.
+                                    When I&apos;m not coding, you can find me exploring new technologies, contributing to open-source projects, or sharing my knowledge through blog posts and community engagement.
                                 </p>
                                 <div>
                                     <h3 className="text-xl font-semibold mb-2 text-morandi-text">Skills & Technologies</h3>
