@@ -1,36 +1,98 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Modern Personal Website Template
 
-## Getting Started
+![Website Preview](https://placeholder.com/path-to-your-screenshot.png)
 
-First, run the development server:
+## 🌟 Overview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+This is a sleek, responsive personal website template built with modern web technologies. It features a clean, minimalist design with a Morandi color scheme, creating a professional and aesthetically pleasing online presence.
+
+## 🎨 Features
+
+- **Responsive Design**: Looks great on desktop, tablet, and mobile devices
+- **Dark/Light Mode**: Toggle between dark and light themes
+- **Smooth Animations**: Utilizes Framer Motion for smooth, engaging animations
+- **Interactive Sections**: 
+  - Home
+  - About
+  - Projects
+  - Experience (Timeline)
+  - Tech Stack
+  - Contact Form
+
+## 🛠 Tech Stack
+
+<div align="center">
+
+[![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?style=for-the-badge&logo=framer&logoColor=white)](https://www.framer.com/motion/)
+[![shadcn/ui](https://img.shields.io/badge/shadcn/ui-000000?style=for-the-badge&logo=shadcnui&logoColor=white)](https://ui.shadcn.com/)
+[![Lucide React](https://img.shields.io/badge/Lucide_React-5468FF?style=for-the-badge&logo=lucide&logoColor=white)](https://lucide.dev/)
+
+</div>
+
+- **Framework**: Next.js (React)
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **UI Components**: Custom components built with shadcn/ui
+- **Theming**: next-themes
+- **Type Checking**: TypeScript
+
+
+## 🚀 Getting Started
+
+1. Clone the repository:
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+git clone [https://github.com/yourusername/personal-website.git](https://github.com/yourusername/personal-website.git)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. Install dependencies:
+```
 
-## Learn More
+cd personal-website
+npm install
 
-To learn more about Next.js, take a look at the following resources:
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Run the development server:
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+npm run dev
 
-## Deploy on Vercel
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🎨 Customization
+
+- Update the content in each component file to reflect your personal information.
+- Modify the Morandi color scheme in `tailwind.config.js` to match your preferences.
+- Add or remove sections by editing the `src/app/page.tsx` file.
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/yourusername/personal-website/issues).
+
+## 👨‍💻 Author
+
+Guocheng Song
+- GitHub: [@feichai0017](https://github.com/feichai0017)
+- LinkedIn: [Guocheng Song](www.linkedin.com/in/guocheng-song-728580318)
+
+## 🙏 Acknowledgments
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Framer Motion](https://www.framer.com/motion/)
+- [shadcn/ui](https://ui.shadcn.com/)
+
+---
