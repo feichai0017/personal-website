@@ -43,6 +43,7 @@ const techStack = [
 const TechStack = () => {
     const controls = useAnimation();
     const ref = useRef(null);
+    // @ts-ignore
     const inView = useInView(ref, { once: false, threshold: 0.1 });
     const [hoveredTech, setHoveredTech] = useState(null);
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -89,11 +90,19 @@ const TechStack = () => {
             const maxRadius = Math.min(containerSize.width, containerSize.height) * 0.35;
             const radius = minRadius + Math.random() * (maxRadius - minRadius);
             const randomOffset = (Math.random() - 0.5) * 60; // Increased random offset
+
+            // Adjust positioning for mobile
+            const isMobile = containerSize.width < 640; // Assuming 640px as mobile breakpoint
+            const mobileColumns = 3;
+            const mobileRows = Math.ceil(techStack.length / mobileColumns);
+            const mobileX = isMobile ? ((i % mobileColumns) - 1) * (containerSize.width / mobileColumns) : Math.cos(angle) * radius + randomOffset;
+            const mobileY = isMobile ? (Math.floor(i / mobileColumns) - mobileRows / 2) * (containerSize.height / mobileRows) : Math.sin(angle) * radius + randomOffset;
+
             return {
                 opacity: 1,
                 scale: 1,
-                x: Math.cos(angle) * radius + randomOffset,
-                y: Math.sin(angle) * radius + randomOffset,
+                x: mobileX,
+                y: mobileY,
                 transition: {
                     type: "spring",
                     stiffness: 60,
@@ -104,6 +113,7 @@ const TechStack = () => {
         },
         hidden: { opacity: 0, scale: 0, x: 0, y: 0 },
     };
+
 
     return (
         <section id="techstack" ref={ref} className="py-16 md:py-32 min-h-screen flex items-center justify-center px-4 overflow-hidden">
@@ -124,6 +134,7 @@ const TechStack = () => {
                             custom={index}
                             variants={itemVariants}
                             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                            // @ts-ignore
                             onHoverStart={() => setHoveredTech(tech.name)}
                             onHoverEnd={() => setHoveredTech(null)}
                         >
@@ -138,7 +149,7 @@ const TechStack = () => {
                                     color={tech.color}
                                 />
                                 <motion.span
-                                    className="mt-2 text-[10px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-300"
+                                    className="mt-2 text-[10px] sm:text-xs md:text-sm text-gray-600 dark:text-gray-600"
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: hoveredTech === tech.name ? 1 : 0 }}
                                     transition={{ duration: 0.2 }}

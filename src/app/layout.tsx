@@ -11,6 +11,10 @@ export const metadata = {
     title: 'Eric - Personal Website',
     description: 'Welcome to my personal website showcasing my projects and skills.',
     viewport: 'width=device-width, initial-scale=1',
+    icons: {
+        icon: '/img/logo.png',
+        apple: '/img/logo.png',
+    },
 }
 
 export default function RootLayout({
@@ -20,6 +24,11 @@ export default function RootLayout({
 }) {
     return (
         <html lang="en" suppressHydrationWarning>
+        <head>
+            <link rel="icon" href="/img/logo.png" />
+            <link rel="apple-touch-icon" href="/img/logo.png" />
+            <link rel="shortcut icon" type="image/png" href="/img/logo.png" />
+        </head>
         <body className={`${inter.className} antialiased`}>
         <ThemeProvider
             attribute="class"
