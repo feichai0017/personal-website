@@ -56,7 +56,7 @@ const projects: Project[] = [
         status: "In Progress",
         date: "2024.6 - present",
         techStack: ["Go", "MySQL", "Redis", "Docker", "Kubernetes", "AWS S3"],
-        githubLink: "https://github.com/yourusername/distributed-file-storage",
+        githubLink: "https://github.com/feichai0017/NoRAG_distributed-filestorage",
     },
     {
         title: "Senior Financial Management Application",
@@ -64,7 +64,7 @@ const projects: Project[] = [
         status: "In Production",
         date: "2024.7 - present",
         techStack: ["React", "Java", "Python", "MySQL", "Redis", "Docker"],
-        githubLink: "https://github.com/yourusername/financial-management-app",
+        githubLink: "https://github.com/CSUYSD/Anti-Scam-Financial-Management-Assistant",
     },
     {
         title: "Personal Website",
@@ -72,7 +72,7 @@ const projects: Project[] = [
         status: "In Production",
         date: "2024 - present",
         techStack: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
-        githubLink: "https://github.com/yourusername/personal-website",
+        githubLink: "https://github.com/feichai0017/personal-website",
     },
     {
         title: "Notion-like Application",
@@ -80,7 +80,7 @@ const projects: Project[] = [
         status: "In Progress",
         date: "2024 - present",
         techStack: ["Go", "React", "TypeScript", "PostgreSQL", "Docker"],
-        githubLink: "https://github.com/yourusername/notion-like-app",
+        githubLink: "https://github.com/feichai0017/notion-like",
     },
     {
         title: "Billion-scale Distributed IM System",
@@ -88,7 +88,7 @@ const projects: Project[] = [
         status: "In Progress",
         date: "2024 - present",
         techStack: ["Go", "Kafka", "Redis", "Kubernetes", "Prometheus", "Grafana"],
-        githubLink: "https://github.com/yourusername/billion-scale-im",
+        githubLink: "https://github.com/feichai0017/plato_distributed-IM-system",
     }
 ];
 

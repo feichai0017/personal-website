@@ -67,13 +67,13 @@ const Home = () => {
                             <motion.div variants={iconVariants} whileHover="hover">
                                 <FaDownload />
                             </motion.div>
-                            Download Experience
+                            Download Resume
                         </a>
                     </Button>
                 </motion.div>
                 <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                     <Button size="lg" className="flex items-center gap-2">
-                        <a href="https://linkedin.com/in/your-profile" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                        <a href="www.linkedin.com/in/guocheng-song-728580318" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                             <motion.div variants={iconVariants} whileHover="hover">
                                 <FaLinkedin />
                             </motion.div>
@@ -83,7 +83,7 @@ const Home = () => {
                 </motion.div>
                 <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                     <Button size="lg" className="flex items-center gap-2">
-                        <a href="https://github.com/your-username" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                        <a href="https://github.com/feichai0017" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                             <motion.div variants={iconVariants} whileHover="hover">
                                 <FaGithub />
                             </motion.div>
