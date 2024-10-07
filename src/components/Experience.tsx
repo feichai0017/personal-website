@@ -45,7 +45,6 @@ const experiences = [
 ]
 
 const ExperienceItem = ({ experience, index }) => {
-    const { theme } = useTheme()
     const ref = useRef(null)
     const { scrollYProgress } = useScroll({
         target: ref,

@@ -20,7 +20,7 @@ const navItems = [
 const blogLink = "https://ericsgc-blog.netlify.app/"
 
 export default function Navbar() {
-    const { theme, setTheme } = useTheme()
+    const { theme } = useTheme()
     const activeSection = useActiveSection(navItems.map(item => item.href))
     const [isMenuOpen, setIsMenuOpen] = React.useState(false)
 

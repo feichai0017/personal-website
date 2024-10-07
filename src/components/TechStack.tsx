@@ -108,7 +108,7 @@ const TechStack = () => {
     return (
         <section id="techstack" ref={ref} className="py-16 md:py-32 min-h-screen flex items-center justify-center px-4 overflow-hidden">
             <div className="container mx-auto">
-                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-16 text-center text-gray-800 dark:text-gray-200">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-16 text-center text-gray-800 dark:text-gray-800">
                     My Tech Stack
                 </h2>
                 <motion.div
