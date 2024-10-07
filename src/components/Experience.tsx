@@ -107,7 +107,6 @@ const ExperienceItem = ({ experience, index }) => {
 }
 
 export default function Experience() {
-    const { theme } = useTheme()
     const ref = useRef(null)
     const [timelineStart, setTimelineStart] = useState(0)
     const [timelineEnd, setTimelineEnd] = useState(0)
