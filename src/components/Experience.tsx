@@ -2,7 +2,6 @@
 
 import React, { useRef, useEffect, useState } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
-import { useTheme } from 'next-themes'
 import { Card, CardContent } from "@/components/ui/card"
 import { School, Briefcase } from 'lucide-react'
 
