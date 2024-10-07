@@ -1,10 +1,10 @@
 "use client"
 
-import React, { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import React, { useRef, useEffect, useState } from 'react'
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { School, Briefcase } from 'lucide-react'
 
 const experiences = [
     {
@@ -49,56 +49,58 @@ const ExperienceItem = ({ experience, index }) => {
     const ref = useRef(null)
     const { scrollYProgress } = useScroll({
         target: ref,
-        offset: ["start end", "end start"]
+        offset: ["start end", "center center"]
     })
-    const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0])
-    const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.8, 1, 1, 0.8])
+    const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0.8])
+    const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.8, 1, 1, 0.95])
+    const y = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [50, 0, 0, 20])
+    const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
+
+    const springOpacity = useSpring(opacity, springConfig)
+    const springScale = useSpring(scale, springConfig)
+    const springY = useSpring(y, springConfig)
 
     return (
         <motion.div
             ref={ref}
-            style={{ opacity, scale }}
-            className={`mb-12 flex items-center ${index % 2 === 0 ? 'flex-row' : 'flex-row-reverse'}`}
+            style={{ opacity: springOpacity, scale: springScale, y: springY }}
+            className={`mb-16 flex flex-col md:flex-row items-center ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}
         >
-            <div className="w-5/12">
-                <Card className={`shadow-lg hover:shadow-xl transition-shadow duration-300 ${
-                    theme === 'dark'
-                        ? 'bg-gray-800 text-white'
-                        : 'bg-white text-gray-800'
-                }`}>
-                    <CardContent className="p-6">
-                        <h3 className="text-xl font-semibold mb-2">{experience.title}</h3>
-                        <p className={`text-sm mb-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{experience.organization}</p>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-700'}`}>{experience.description}</p>
+            <div className="w-full md:w-5/12 mb-4 md:mb-0">
+                <Card className="shadow-lg hover:shadow-xl transition-all duration-500 bg-gradient-to-br from-morandi-light to-morandi-hover dark:from-morandi-dark dark:to-morandi-text">
+                    <CardContent className="p-6 backdrop-blur-sm bg-white/30 dark:bg-black/30 rounded-lg transition-all duration-500">
+                        <h3 className="text-xl font-semibold mb-2 text-morandi-dark dark:text-morandi-light transition-colors duration-500">{experience.title}</h3>
+                        <p className="text-sm mb-2 text-morandi-text dark:text-morandi-accent transition-colors duration-500">{experience.organization}</p>
+                        <p className="text-sm text-morandi-text dark:text-morandi-light transition-colors duration-500">{experience.description}</p>
                     </CardContent>
                 </Card>
             </div>
-            <div className="w-2/12 flex justify-center">
+            <div className="w-full md:w-2/12 flex justify-center my-4 md:my-0">
                 <div className="relative">
                     <motion.div
-                        className={`w-12 h-12 rounded-full ${experience.type === 'education' ? 'bg-blue-500' : 'bg-green-500'} flex items-center justify-center shadow-md z-10`}
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        transition={{ duration: 0.3, delay: 0.2 }}
+                        className={`w-16 h-16 rounded-full ${
+                            experience.type === 'education' ? 'bg-gradient-to-br from-morandi-accent to-morandi-text' : 'bg-gradient-to-br from-morandi-text to-morandi-accent'
+                        } flex items-center justify-center shadow-md z-10 transition-all duration-500`}
+                        initial={{ scale: 0, rotate: -180 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        transition={{ type: "spring", stiffness: 260, damping: 20 }}
                     >
-                        <Badge variant="secondary" className="text-xs font-semibold text-white">
-                            {experience.type === 'education' ? 'Edu' : 'Work'}
-                        </Badge>
+                        {experience.type === 'education' ? (
+                            <School className="w-8 h-8 text-white transition-all duration-500" />
+                        ) : (
+                            <Briefcase className="w-8 h-8 text-white transition-all duration-500" />
+                        )}
                     </motion.div>
                 </div>
             </div>
-            <div className="w-5/12 flex justify-center">
+            <div className="w-full md:w-5/12 flex justify-center">
                 <motion.div
-                    className={`px-4 py-2 rounded-full inline-block shadow-md ${
-                        theme === 'dark'
-                            ? 'bg-gray-700 text-gray-200'
-                            : 'bg-gray-100 text-gray-800'
-                    }`}
+                    className="px-4 py-2 rounded-full inline-block shadow-md bg-gradient-to-r from-morandi-light to-morandi-hover dark:from-morandi-dark dark:to-morandi-text transition-all duration-500"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.3 }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20, delay: 0.2 }}
                 >
-                    <span className="text-sm font-semibold">{experience.period}</span>
+                    <span className="text-sm font-semibold text-morandi-dark dark:text-morandi-light transition-colors duration-500">{experience.period}</span>
                 </motion.div>
             </div>
         </motion.div>
@@ -107,19 +109,63 @@ const ExperienceItem = ({ experience, index }) => {
 
 export default function Experience() {
     const { theme } = useTheme()
+    const ref = useRef(null)
+    const [timelineStart, setTimelineStart] = useState(0)
+    const [timelineEnd, setTimelineEnd] = useState(0)
+
+    const { scrollYProgress } = useScroll({
+        target: ref,
+        offset: ["start end", "end start"]
+    })
+
+    const scaleProgress = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+    })
+
+    useEffect(() => {
+        const updateTimelinePositions = () => {
+            if (ref.current) {
+                const { top: sectionTop } = ref.current.getBoundingClientRect()
+                const icons = ref.current.querySelectorAll('.rounded-full')
+                if (icons.length > 0) {
+                    const firstIcon = icons[0]
+                    const lastIcon = icons[icons.length - 1]
+                    const { top: firstIconTop } = firstIcon.getBoundingClientRect()
+                    const { bottom: lastIconBottom } = lastIcon.getBoundingClientRect()
+                    setTimelineStart(firstIconTop - sectionTop)
+                    setTimelineEnd(lastIconBottom - sectionTop)
+                }
+            }
+        }
+
+        updateTimelinePositions()
+        window.addEventListener('resize', updateTimelinePositions)
+        return () => window.removeEventListener('resize', updateTimelinePositions)
+    }, [])
 
     return (
-        <section id="experience" className="min-h-screen flex items-center justify-center py-24 px-4">
+        <section id="experience" ref={ref} className="min-h-screen flex items-center justify-center py-24 px-4 overflow-hidden bg-gradient-to-br from-morandi-light to-morandi-hover dark:from-morandi-dark dark:to-morandi-text transition-all duration-500">
             <div className="w-full max-w-6xl">
-                <h2 className={`text-4xl font-bold mb-16 text-center ${
-                    theme === 'dark' ? 'text-white' : 'text-gray-800'
-                }`}>
+                <motion.h2
+                    className="text-3xl md:text-4xl font-bold mb-16 text-center text-morandi-dark dark:text-morandi-light transition-colors duration-500"
+                    initial={{ opacity: 0, y: -50 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ type: "spring", stiffness: 100, damping: 20 }}
+                >
                     My Experience
-                </h2>
+                </motion.h2>
                 <div className="relative">
-                    <div className={`absolute left-1/2 transform -translate-x-1/2 w-0.5 h-full ${
-                        theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'
-                    }`}></div>
+                    <motion.div
+                        className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-morandi-accent via-morandi-text to-morandi-hover dark:from-morandi-text dark:via-morandi-accent dark:to-morandi-light transition-all duration-500"
+                        style={{
+                            scaleY: scaleProgress,
+                            originY: 0,
+                            height: `${timelineEnd - timelineStart}px`,
+                            top: `${timelineStart}px`
+                        }}
+                    />
 
                     {experiences.map((exp, index) => (
                         <ExperienceItem key={index} experience={exp} index={index} />

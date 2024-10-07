@@ -108,21 +108,21 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
             style={{ opacity, scale }}
             className="mb-16"
         >
-            <Card className={`w-[720px] h-[320px] mx-auto flex flex-col ${
+            <Card className={`w-full md:w-[720px] h-auto md:h-[320px] mx-auto flex flex-col ${
                 theme === 'dark'
                     ? 'bg-gray-800 text-white'
                     : 'bg-white text-gray-800'
             } transition-colors duration-300`}>
                 <CardHeader className="flex-grow">
                     <div className="flex justify-between items-start">
-                        <CardTitle className="text-2xl font-semibold">
+                        <CardTitle className="text-xl md:text-2xl font-semibold">
                             {project.title}
                         </CardTitle>
                         <a href={project.githubLink} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-600 transition-colors">
                             <Github size={24} />
                         </a>
                     </div>
-                    <p className={`text-base mt-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{project.description}</p>
+                    <p className={`text-sm md:text-base mt-4 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>{project.description}</p>
                 </CardHeader>
                 <CardContent>
                     <div className="flex items-center gap-2 mb-4">
@@ -137,7 +137,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
                             {project.status === "In Progress" ? <Clock size={14} /> : <CheckCircle size={14} />}
                             {project.status}
                         </Badge>
-                        <span className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{project.date}</span>
+                        <span className={`text-xs md:text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>{project.date}</span>
                     </div>
                     <div className="flex flex-wrap gap-2">
                         {project.techStack.map((tech) => {
@@ -153,7 +153,7 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
                                     } flex items-center gap-1 px-2 py-1 transition-colors duration-300`}
                                 >
                                     {IconComponent && <IconComponent size={14} color={color} />}
-                                    <span className="ml-1">{tech}</span>
+                                    <span className="ml-1 text-xs md:text-sm">{tech}</span>
                                 </Badge>
                             );
                         })}
@@ -166,9 +166,9 @@ const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
 
 const Projects: React.FC = () => {
     return (
-        <section id="projects" className="py-16">
-            <div className="container mx-auto px-4">
-                <h2 className="text-4xl font-bold mb-16 text-center">My Projects</h2>
+        <section id="projects" className="py-16 px-4">
+            <div className="container mx-auto">
+                <h2 className="text-3xl md:text-4xl font-bold mb-16 text-center">My Projects</h2>
                 <div className="space-y-16">
                     {projects.map((project) => (
                         <ProjectCard key={project.title} project={project} />
