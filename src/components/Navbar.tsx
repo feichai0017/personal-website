@@ -55,7 +55,6 @@ export default function Navbar() {
         tap: { scale: 0.95 }
     }
 
-    // @ts-ignore
     const renderNavItem = (item, isMobile = false) => (
         <motion.li key={item.title} variants={linkVariants} whileHover="hover" whileTap="tap">
             <a

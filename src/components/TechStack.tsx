@@ -43,7 +43,6 @@ const techStack = [
 const TechStack = () => {
     const controls = useAnimation();
     const ref = useRef(null);
-    // @ts-ignore
     const inView = useInView(ref, { once: false, threshold: 0.1 });
     const [hoveredTech, setHoveredTech] = useState(null);
     const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
@@ -134,7 +133,6 @@ const TechStack = () => {
                             custom={index}
                             variants={itemVariants}
                             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                            // @ts-ignore
                             onHoverStart={() => setHoveredTech(tech.name)}
                             onHoverEnd={() => setHoveredTech(null)}
                         >
