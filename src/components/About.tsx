@@ -69,7 +69,7 @@ export default function About() {
                                     transition={{ duration: 0.5, delay: 0.4 }}
                                     className="text-morandi-text/80 leading-relaxed"
                                 >
-                                    I&quote;m a passionate web developer with expertise in Java, JavaScript, and GO. My journey in programming started with a fascination for creating and problem-solving, which has only grown stronger over time.
+                                    I&apos;m a passionate web developer with expertise in Java, JavaScript, and GO. My journey in programming started with a fascination for creating and problem-solving, which has only grown stronger over time.
                                 </motion.p>
                                 <motion.p
                                     initial={{ opacity: 0, x: 20 }}
@@ -77,7 +77,7 @@ export default function About() {
                                     transition={{ duration: 0.5, delay: 0.6 }}
                                     className="text-morandi-text/80 leading-relaxed"
                                 >
-                                    My areas of interest include building new Web Technologies and Products, as well as exploring the exciting world of Blockchain. I&quote;m always eager to learn and apply cutting-edge technologies to create innovative solutions.
+                                    My areas of interest include building new Web Technologies and Products, as well as exploring the exciting world of Blockchain. I&apos;m always eager to learn and apply cutting-edge technologies to create innovative solutions.
                                 </motion.p>
                                 <motion.div
                                     initial={{ opacity: 0, y: 20 }}
