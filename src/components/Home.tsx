@@ -73,7 +73,7 @@ const Home = () => {
                 </motion.div>
                 <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
                     <Button size="lg" className="flex items-center gap-2">
-                        <a href="www.linkedin.com/in/guocheng-song-728580318" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
+                        <a href="https://www.linkedin.com/in/guocheng-song-728580318/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                             <motion.div variants={iconVariants} whileHover="hover">
                                 <FaLinkedin />
                             </motion.div>
