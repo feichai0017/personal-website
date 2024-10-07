@@ -133,7 +133,8 @@ export default function Navbar() {
                     >
                         <ul className={cn(
                             "rounded-2xl shadow-lg py-2",
-                            theme === 'dark' ? 'bg-morandi-dark' : 'bg-morandi-light'
+                            theme === 'dark' ? 'bg-morandi-dark/95' : 'bg-morandi-muted/95',
+                            "backdrop-blur-md"
                         )}>
                             {navItems.map(item => renderNavItem(item, true))}
                             <motion.li

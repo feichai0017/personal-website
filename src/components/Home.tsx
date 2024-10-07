@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useAnimation } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { FaLinkedin, FaGithub, FaDownload } from 'react-icons/fa'
 import { Button } from "@/components/ui/button"
@@ -12,6 +12,7 @@ const titles = ["Full Stack Developer", "Software Engineer", "DevOps Engineer"]
 const Home = () => {
     const { theme } = useTheme()
     const [currentTitleIndex, setCurrentTitleIndex] = useState(0)
+    const controls = useAnimation()
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -20,6 +21,13 @@ const Home = () => {
         return () => clearInterval(interval)
     }, [])
 
+    useEffect(() => {
+        controls.start({
+            rotate: [0, 360],
+            transition: { duration: 120, repeat: Infinity, ease: "linear" }
+        })
+    }, [controls])
+
     const buttonVariants = {
         hover: { scale: 1.05, transition: { duration: 0.2 } },
         tap: { scale: 0.95, transition: { duration: 0.2 } },
@@ -27,6 +35,12 @@ const Home = () => {
 
     const iconVariants = {
         hover: { rotate: 360, transition: { duration: 0.5 } },
+    }
+
+    const shapeVariants = {
+        initial: { opacity: 0, scale: 0 },
+        animate: { opacity: 0.6, scale: 1 },
+        hover: { scale: 1.1, opacity: 0.8 },
     }
 
     return (
@@ -109,55 +123,86 @@ const Home = () => {
                 </motion.div>
             </motion.div>
 
-            {/* Background shapes with more dynamic effects */}
-            <div className="absolute inset-0 z-0">
+            {/* Improved 3D-like background shapes */}
+            <motion.div
+                className="absolute inset-0 z-0"
+                animate={controls}
+                style={{
+                    transformStyle: "preserve-3d",
+                    perspective: "1000px",
+                    transformOrigin: "center center"
+                }}
+            >
                 <motion.div
-                    initial={{ opacity: 0, scale: 0, x: -100 }}
-                    animate={{ opacity: 0.2, scale: 1, x: 0 }}
+                    variants={shapeVariants}
+                    initial="initial"
+                    animate="animate"
+                    whileHover="hover"
                     transition={{ duration: 1, delay: 0.5 }}
-                    className={`absolute top-20 left-20 w-32 md:w-64 h-32 md:h-64 rounded-full ${
+                    className={`absolute top-1/3 left-1/3 w-48 h-48 md:w-64 md:h-64 rounded-full ${
                         theme === 'dark' ? 'bg-morandi-accent' : 'bg-morandi-secondary'
                     }`}
+                    style={{
+                        filter: 'blur(40px)',
+                        boxShadow: '0 0 40px rgba(0,0,0,0.2)',
+                        transform: 'translateZ(50px) rotateX(45deg) rotateY(-45deg)'
+                    }}
                 />
                 <motion.div
-                    initial={{ opacity: 0, scale: 0, x: 100 }}
-                    animate={{ opacity: 0.2, scale: 1, x: 0 }}
+                    variants={shapeVariants}
+                    initial="initial"
+                    animate="animate"
+                    whileHover="hover"
                     transition={{ duration: 1, delay: 0.7 }}
-                    className={`absolute bottom-20 right-20 w-48 md:w-96 h-48 md:h-96 rounded-full ${
+                    className={`absolute bottom-1/3 right-1/3 w-56 h-56 md:w-80 md:h-80 rounded-full ${
                         theme === 'dark' ? 'bg-morandi-secondary' : 'bg-morandi-accent'
                     }`}
+                    style={{
+                        filter: 'blur(50px)',
+                        boxShadow: '0 0 60px rgba(0,0,0,0.2)',
+                        transform: 'translateZ(100px) rotateX(-30deg) rotateY(30deg)'
+                    }}
                 />
                 <motion.div
-                    initial={{ opacity: 0, scale: 0, y: 100 }}
-                    animate={{ opacity: 0.15, scale: 1, y: 0 }}
+                    variants={shapeVariants}
+                    initial="initial"
+                    animate="animate"
+                    whileHover="hover"
                     transition={{ duration: 1, delay: 0.9 }}
-                    className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-36 md:w-72 h-36 md:h-72 rounded-full ${
+                    className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 rounded-full ${
                         theme === 'dark' ? 'bg-morandi-primary' : 'bg-morandi-primary'
                     }`}
+                    style={{
+                        filter: 'blur(60px)',
+                        boxShadow: '0 0 80px rgba(0,0,0,0.2)',
+                        transform: 'translateZ(75px) rotateX(15deg) rotateY(-15deg)'
+                    }}
                 />
-            </div>
+            </motion.div>
 
-            {/* Floating elements */}
+            {/* Subtle floating elements */}
             <motion.div
-                className="absolute top-1/4 left-1/4 w-4 h-4 rounded-full bg-morandi-accent"
+                className="absolute top-1/3 left-1/3 w-3 h-3 rounded-full bg-morandi-accent"
                 animate={{
-                    y: [0, -10, 0],
-                    opacity: [0.5, 1, 0.5],
+                    y: [0, -15, 0],
+                    x: [0, 15, 0],
+                    opacity: [0.3, 0.7, 0.3],
                 }}
                 transition={{
-                    duration: 4,
+                    duration: 6,
                     repeat: Infinity,
                     ease: "easeInOut",
                 }}
             />
             <motion.div
-                className="absolute bottom-1/4 right-1/4 w-6 h-6 rounded-full bg-morandi-secondary"
+                className="absolute bottom-1/3 right-1/3 w-4 h-4 rounded-full bg-morandi-secondary"
                 animate={{
-                    y: [0, 15, 0],
-                    opacity: [0.5, 1, 0.5],
+                    y: [0, 20, 0],
+                    x: [0, -20, 0],
+                    opacity: [0.3, 0.7, 0.3],
                 }}
                 transition={{
-                    duration: 5,
+                    duration: 8,
                     repeat: Infinity,
                     ease: "easeInOut",
                 }}

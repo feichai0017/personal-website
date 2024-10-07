@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useEffect, useState } from 'react'
+import React, { useRef } from 'react'
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { Card, CardContent } from "@/components/ui/card"
 import { School, Briefcase } from 'lucide-react'
@@ -107,40 +107,6 @@ const ExperienceItem = ({ experience, index }) => {
 
 export default function Experience() {
     const ref = useRef(null)
-    const [timelineStart, setTimelineStart] = useState(0)
-    const [timelineEnd, setTimelineEnd] = useState(0)
-
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ["start end", "end start"]
-    })
-
-    const scaleProgress = useSpring(scrollYProgress, {
-        stiffness: 100,
-        damping: 30,
-        restDelta: 0.001
-    })
-
-    useEffect(() => {
-        const updateTimelinePositions = () => {
-            if (ref.current) {
-                const { top: sectionTop } = ref.current.getBoundingClientRect()
-                const icons = ref.current.querySelectorAll('.rounded-full')
-                if (icons.length > 0) {
-                    const firstIcon = icons[0]
-                    const lastIcon = icons[icons.length - 1]
-                    const { top: firstIconTop } = firstIcon.getBoundingClientRect()
-                    const { bottom: lastIconBottom } = lastIcon.getBoundingClientRect()
-                    setTimelineStart(firstIconTop - sectionTop)
-                    setTimelineEnd(lastIconBottom - sectionTop)
-                }
-            }
-        }
-
-        updateTimelinePositions()
-        window.addEventListener('resize', updateTimelinePositions)
-        return () => window.removeEventListener('resize', updateTimelinePositions)
-    }, [])
 
     return (
         <section id="experience" ref={ref} className="min-h-screen flex items-center justify-center py-24 px-4 overflow-hidden bg-gradient-to-br from-morandi-light to-morandi-hover dark:from-morandi-dark dark:to-morandi-text transition-all duration-500">
@@ -154,16 +120,6 @@ export default function Experience() {
                     My Experience
                 </motion.h2>
                 <div className="relative">
-                    <motion.div
-                        className="absolute left-1/2 transform -translate-x-1/2 w-1 bg-gradient-to-b from-morandi-accent via-morandi-text to-morandi-hover dark:from-morandi-text dark:via-morandi-accent dark:to-morandi-light transition-all duration-500"
-                        style={{
-                            scaleY: scaleProgress,
-                            originY: 0,
-                            height: `${timelineEnd - timelineStart}px`,
-                            top: `${timelineStart}px`
-                        }}
-                    />
-
                     {experiences.map((exp, index) => (
                         <ExperienceItem key={index} experience={exp} index={index} />
                     ))}
