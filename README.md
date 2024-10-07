@@ -1,6 +1,6 @@
 # Modern Personal Website Template
 
-![Website Preview](https://placeholder.com/path-to-your-screenshot.png)
+![Website Preview](public/img/demo.png)
 
 ## 🌟 Overview
 
