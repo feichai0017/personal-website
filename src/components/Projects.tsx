@@ -14,7 +14,23 @@ import {
 import { FaJava, FaAws } from 'react-icons/fa';
 import { TbBrandGolang } from 'react-icons/tb';
 
-const techStackIcons = {
+// 定义 Project 接口
+interface Project {
+    title: string;
+    description: string;
+    status: "In Progress" | "In Production";
+    date: string;
+    techStack: string[];
+    githubLink: string;
+}
+
+// 定义 techStackIcons 的类型
+type TechStackIcon = {
+    icon: React.ComponentType;
+    color: string;
+};
+
+const techStackIcons: Record<string, TechStackIcon> = {
     'React': { icon: SiReact, color: '#61DAFB' },
     'Java': { icon: FaJava, color: '#007396' },
     'Python': { icon: SiPython, color: '#3776AB' },
@@ -33,7 +49,7 @@ const techStackIcons = {
     'Grafana': { icon: SiGrafana, color: '#F46800' },
 };
 
-const projects = [
+const projects: Project[] = [
     {
         title: "Distributed File Storage System",
         description: "High-performance distributed file storage solution with public and private cloud support.",
@@ -76,7 +92,7 @@ const projects = [
     }
 ];
 
-const ProjectCard = ({ project }) => {
+const ProjectCard: React.FC<{ project: Project }> = ({ project }) => {
     const { theme } = useTheme();
     const ref = useRef(null);
     const { scrollYProgress } = useScroll({
@@ -148,7 +164,7 @@ const ProjectCard = ({ project }) => {
     );
 };
 
-export default function Projects() {
+const Projects: React.FC = () => {
     return (
         <section id="projects" className="py-16">
             <div className="container mx-auto px-4">
@@ -161,4 +177,6 @@ export default function Projects() {
             </div>
         </section>
     );
-}
+};
+
+export default Projects;

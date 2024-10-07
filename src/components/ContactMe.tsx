@@ -24,19 +24,19 @@ export default function ContactMe() {
     }
 
     return (
-        <section id="contact" className="min-h-screen flex items-center justify-center py-24 px-4 bg-gray-100 dark:bg-gray-900">
+        <section id="contact" className="min-h-screen flex items-center justify-center py-24 px-4 bg-morandi-bg">
             <Card className={`w-full max-w-2xl shadow-xl ${
                 theme === 'dark'
-                    ? 'bg-gray-800 text-white'
-                    : 'bg-white text-gray-800'
+                    ? 'bg-morandi-dark text-morandi-light'
+                    : 'bg-morandi-light text-morandi-dark'
             } transition-colors duration-300`}>
                 <CardHeader className="pb-8">
                     <CardTitle className="text-4xl font-bold text-center">Contact Me</CardTitle>
                 </CardHeader>
                 <CardContent className="px-8 pb-8">
-                    <p className={`mb-8 text-center text-lg ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                    <p className={`mb-8 text-center text-lg ${theme === 'dark' ? 'text-morandi-light-accent' : 'text-morandi-dark-accent'}`}>
                         Please contact me directly at{' '}
-                        <a href="mailto:Ericsgc@outlook.com" className="text-blue-500 hover:underline">
+                        <a href="mailto:Ericsgc@outlook.com" className="text-morandi-accent hover:underline">
                             Ericsgc@outlook.com
                         </a>{' '}
                         or through this form.
@@ -50,7 +50,9 @@ export default function ContactMe() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 className={`w-full text-lg py-3 ${
-                                    theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'
+                                    theme === 'dark'
+                                        ? 'bg-morandi-dark-accent text-morandi-light'
+                                        : 'bg-morandi-light-accent text-morandi-dark'
                                 }`}
                             />
                         </div>
@@ -61,13 +63,19 @@ export default function ContactMe() {
                                 onChange={(e) => setMessage(e.target.value)}
                                 required
                                 className={`w-full h-48 text-lg py-3 ${
-                                    theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-800'
+                                    theme === 'dark'
+                                        ? 'bg-morandi-dark-accent text-morandi-light'
+                                        : 'bg-morandi-light-accent text-morandi-dark'
                                 }`}
                             />
                         </div>
                         <Button
                             type="submit"
-                            className="w-full text-lg py-6 flex items-center justify-center gap-2"
+                            className={`w-full text-lg py-6 flex items-center justify-center gap-2 ${
+                                theme === 'dark'
+                                    ? 'bg-morandi-accent text-morandi-light hover:bg-morandi-accent-hover'
+                                    : 'bg-morandi-accent text-morandi-dark hover:bg-morandi-accent-hover'
+                            }`}
                         >
                             Submit <Send size={24} />
                         </Button>
