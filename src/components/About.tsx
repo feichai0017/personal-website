@@ -165,7 +165,7 @@ export default function About() {
                                             transition: { type: "spring", stiffness: 400, damping: 8 }
                                         }}
                                     >
-                                        Guocheng Song
+                                        About Me
                                     </motion.h1>
                                     <motion.p
                                         className="text-base md:text-lg text-morandi-text mb-6"
