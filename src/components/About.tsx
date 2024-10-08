@@ -2,9 +2,9 @@
 
 import React, { useState, useRef, useEffect, useCallback } from "react"
 import Image from "next/image"
-import { motion, useAnimation, useMotionValue, useTransform, useScroll, AnimatePresence } from "framer-motion"
+import { motion, useMotionValue, useTransform, useScroll, AnimatePresence } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
-import { Users, Globe, Gamepad2, PenTool, Plane, TrendingUp, Chrome, Cpu } from 'lucide-react'
+import { Users, Globe, Gamepad2, PenTool, TrendingUp, Chrome, Cpu } from 'lucide-react'
 
 interface Skill {
     name: string;
