@@ -107,7 +107,7 @@ export default function About() {
 
         const drawParticles = () => {
             ctx!.clearRect(0, 0, canvas.width, canvas.height);
-            for (let particle of particles) {
+            for (const particle of particles) {
                 ctx!.beginPath();
                 ctx!.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
                 ctx!.fillStyle = particle.color;
@@ -165,7 +165,7 @@ export default function About() {
                                             transition: { type: "spring", stiffness: 400, damping: 8 }
                                         }}
                                     >
-                                        About Me
+                                        Guocheng Song
                                     </motion.h1>
                                     <motion.p
                                         className="text-base md:text-lg text-morandi-text mb-6"
@@ -250,7 +250,7 @@ export default function About() {
                     className="relative w-full md:w-[600px] h-[300px] md:h-[600px] flex items-center justify-center"
                     style={{ scale, opacity }}
                 >
-                    {skills.map((skill, index) => (
+                    {skills.map((skill) => (
                         <motion.div
                             key={skill.name}
                             className="absolute"
@@ -292,7 +292,7 @@ export default function About() {
                                     }}
 
                                     whileHover={{
-                                        backgroundColor: skill.name === "Me" ? 'transparent' : 'rgba(var(--morandi-muted-rgb), 0.8)',
+                                        backgroundColor: skill.name === "Me" ?   'transparent' : 'rgba(var(--morandi-muted-rgb), 0.8)',
                                         boxShadow: `0 0 20px ${skill.color}`,
                                         scale: 1.1,
                                     }}
