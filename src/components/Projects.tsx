@@ -57,7 +57,7 @@ const projects: Project[] = [
         date: "2024.6 - present",
         techStack: ["Go", "MySQL", "Redis", "Docker", "Kubernetes", "AWS S3"],
         githubLink: "https://github.com/feichai0017/NoRAG_distributed-filestorage",
-        backgroundImage: "/placeholder.svg?height=400&width=600",
+        backgroundImage: "/projects/distributed-file-system.png?height=400&width=600",
     },
     {
         title: "Senior Financial Management Application",
@@ -66,7 +66,7 @@ const projects: Project[] = [
         date: "2024.7 - present",
         techStack: ["React", "Java", "Python", "MySQL", "Redis", "Docker"],
         githubLink: "https://github.com/CSUYSD/Anti-Scam-Financial-Management-Assistant",
-        backgroundImage: "/placeholder.svg?height=400&width=600",
+        backgroundImage: "/projects/fin-care.png?height=400&width=600",
     },
     {
         title: "Personal Website",
@@ -75,7 +75,7 @@ const projects: Project[] = [
         date: "2024 - present",
         techStack: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
         githubLink: "https://github.com/feichai0017/personal-website",
-        backgroundImage: "/placeholder.svg?height=400&width=600",
+        backgroundImage: "/projects/portfolio.png?height=400&width=600",
     },
     {
         title: "Notion-like Application",
@@ -84,7 +84,7 @@ const projects: Project[] = [
         date: "2024 - present",
         techStack: ["Go", "React", "TypeScript", "PostgreSQL", "Docker"],
         githubLink: "https://github.com/feichai0017/notion-like",
-        backgroundImage: "/placeholder.svg?height=400&width=600",
+        backgroundImage: "/projects/notion-like.png?height=400&width=600",
     },
     {
         title: "Billion-scale Distributed IM System",
@@ -93,7 +93,7 @@ const projects: Project[] = [
         date: "2024 - present",
         techStack: ["Go", "Kafka", "Redis", "Kubernetes", "Prometheus", "Grafana"],
         githubLink: "https://github.com/feichai0017/plato_distributed-IM-system",
-        backgroundImage: "/placeholder.svg?height=400&width=600",
+        backgroundImage: "/projects/IM-system.png?height=400&width=600",
     }
 ];
 

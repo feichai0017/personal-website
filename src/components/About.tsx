@@ -245,7 +245,7 @@ export default function About() {
                     </motion.div>
                 </motion.div>
 
-                {/* Orbiting icons */}
+                {/* Orbiting projects */}
                 <motion.div
                     className="relative w-full md:w-[600px] h-[300px] md:h-[600px] flex items-center justify-center"
                     style={{ scale, opacity }}
