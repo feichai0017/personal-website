@@ -228,10 +228,6 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
 const Projects: React.FC = () => {
     const controls = useAnimation();
     const ref = useRef(null);
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ["start end", "end start"]
-    });
 
     useEffect(() => {
         controls.start({
@@ -298,7 +294,7 @@ const ParticleBackground: React.FC = () => {
 
             particles.forEach(particle => {
                 ctx.beginPath();
-                ctx.arc(particle.x,   particle.y, particle.radius, 0, Math.PI * 2);
+                ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
                 ctx.fillStyle = theme === 'dark' ? particle.color : `${particle.color}80`;
                 ctx.fill();
 
@@ -306,7 +302,7 @@ const ParticleBackground: React.FC = () => {
                 particle.y += particle.dy;
 
                 if (particle.x < 0 || particle.x > canvas.width) particle.dx *= -1;
-                if (particle.y < 0 || particle.y > canvas.height) particle.dy *= -1;
+                if (particle.y < 0 || particle.y > canvas.height) particle.dy  *= -1;
             });
         }
 
