@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react"
 import Image from "next/image"
-import { motion, useMotionValue, useTransform, useScroll, AnimatePresence } from "framer-motion"
+import { motion, useMotionValue, useTransform, useScroll, AnimatePresence, useSpring } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Users, Globe, TrendingUp, Bitcoin, Wallet } from 'lucide-react'
 
@@ -45,6 +45,10 @@ export default function About() {
 
     const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 0.8])
     const opacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.5, 1, 0.5])
+
+    const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 }
+    const scaleSpring = useSpring(scale, springConfig)
+    const opacitySpring = useSpring(opacity, springConfig)
 
     const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
         const rect = cardRef.current?.getBoundingClientRect()
@@ -131,13 +135,13 @@ export default function About() {
     }, []);
 
     return (
-        <section id="about" className="min-h-screen relative flex items-center justify-center bg-morandi-bg overflow-hidden px-4 md:px-8 lg:px-16" ref={containerRef}>
+        <section id="about" className="min-h-screen relative flex items-center justify-center bg-morandi-bg overflow-hidden px-4 py-8 md:px-8 lg:px-16" ref={containerRef}>
             <canvas id="particle-canvas" className="absolute inset-0 z-0 opacity-30"></canvas>
-            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 z-10">
+            <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-16 z-10 w-full max-w-7xl">
                 {/* Card */}
                 <motion.div
-                    className="w-full max-w-[500px] perspective-1000"
-                    style={{ scale, opacity }}
+                    className="w-full md:w-1/2 max-w-[500px] perspective-1000"
+                    style={{ scale: scaleSpring, opacity: opacitySpring }}
                 >
                     <motion.div
                         ref={cardRef}
@@ -247,8 +251,8 @@ export default function About() {
 
                 {/* Orbiting projects */}
                 <motion.div
-                    className="relative w-full md:w-[600px] h-[300px] md:h-[600px] flex items-center justify-center"
-                    style={{ scale, opacity }}
+                    className="relative w-full md:w-1/2 h-[300px] md:h-[600px] flex items-center justify-center"
+                    style={{ scale: scaleSpring, opacity: opacitySpring }}
                 >
                     {skills.map((skill) => (
                         <motion.div
@@ -282,7 +286,7 @@ export default function About() {
                                 <motion.div
                                     className={`flex items-center justify-center rounded-full transition-all duration-300 cursor-pointer ${activeSkill.name === skill.name ? 'ring-4 ring-morandi-accent' : ''}`}
                                     style={{
-                                        width: `${48 * skill.size}px`,
+                                        width: `${48 *    skill.size}px`,
                                         height: `${48 * skill.size}px`,
                                         backgroundColor: skill.name === "Me" ? 'transparent' : 'rgba(var(--morandi-muted-rgb), 0.6)',
                                         backdropFilter: 'blur(5px)',
@@ -290,9 +294,8 @@ export default function About() {
                                         color: skill.color,
                                         overflow: 'hidden',
                                     }}
-
                                     whileHover={{
-                                        backgroundColor: skill.name === "Me" ?   'transparent' : 'rgba(var(--morandi-muted-rgb), 0.8)',
+                                        backgroundColor: skill.name === "Me" ? 'transparent' : 'rgba(var(--morandi-muted-rgb), 0.8)',
                                         boxShadow: `0 0 20px ${skill.color}`,
                                         scale: 1.1,
                                     }}
