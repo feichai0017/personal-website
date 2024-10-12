@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform, useSpring, useAnimation, AnimatePresen
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Github, Clock, CheckCircle, ExternalLink } from 'lucide-react';
+import { Github, Clock, CheckCircle, ExternalLink, Hexagon } from 'lucide-react';
 import {
     SiReact, SiPython, SiDocker, SiKubernetes, SiMysql, SiRedis,
     SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql,
@@ -108,10 +108,12 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
     const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
     const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.8, 1, 1, 0.8]);
     const x = useTransform(scrollYProgress, [0, 1], [index % 2 === 0 ? -100 : 100, 0]);
+    const rotateY = useTransform(scrollYProgress, [0, 0.5, 1], [index % 2 === 0 ? 45 : -45, 0, index % 2 === 0 ? -45 : 45]);
 
     const springConfig = { stiffness: 100, damping: 30, restDelta: 0.001 };
     const springX = useSpring(x, springConfig);
     const springScale = useSpring(scale, springConfig);
+    const springRotateY = useSpring(rotateY, springConfig);
 
     return (
         <motion.div
@@ -120,6 +122,8 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
                 opacity,
                 scale: springScale,
                 x: springX,
+                rotateY: springRotateY,
+                perspective: 1000,
             }}
             className="mb-16"
             onHoverStart={() => setIsHovered(true)}
@@ -134,29 +138,42 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
                     className="absolute inset-0 bg-cover bg-center z-0"
                     style={{
                         backgroundImage: `url(${project.backgroundImage})`,
-                        filter: isHovered ? 'blur(5px)' : 'blur(10px)',
+                        filter: isHovered ? 'blur(0px)' : 'blur(10px)',
+                        opacity: isHovered ? 1 : 0.7,
                     }}
-                    animate={{ scale: isHovered ? 1.1 : 1 }}
-                    transition={{ duration: 0.3 }}
+                    animate={{ scale: isHovered ? 1.05 : 1, filter: isHovered ? 'blur(0px)' : 'blur(10px)', opacity: isHovered ? 1 : 0.7 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
                 />
-                <div className="relative z-10 flex flex-col h-full">
+                <motion.div
+                    className="absolute inset-0 bg-black z-1"
+                    style={{
+                        opacity: isHovered ? 0.6 : 0,
+                    }}
+                    animate={{
+                        opacity: isHovered ? 0.6 : 0,
+                    }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                />
+                <div className="relative z-20 flex flex-col h-full">
                     <CardHeader className="flex-grow">
                         <div className="flex justify-between items-start">
-                            <CardTitle className="text-xl md:text-2xl font-bold text-morandi-text">
+                            <CardTitle className={`text-xl md:text-2xl font-bold transition-all duration-300 ${isHovered ? 'text-white drop-shadow-lg' : 'text-morandi-text'}`}>
                                 {project.title}
                             </CardTitle>
                             <motion.a
                                 href={project.githubLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-morandi-accent hover:text-morandi-text transition-colors"
+                                className={`transition-all duration-300 ${isHovered ? 'text-white' : 'text-morandi-accent'} hover:text-morandi-text`}
                                 whileHover={{ scale: 1.2, rotate: 360 }}
                                 transition={{ type: "spring", stiffness: 260, damping: 20 }}
                             >
-                                <Github size={24} />
+                                <Github size={24} className={isHovered ? 'drop-shadow-lg' : ''} />
                             </motion.a>
                         </div>
-                        <p className="text-sm md:text-base mt-4 text-morandi-text">{project.description}</p>
+                        <p className={`text-sm md:text-base mt-4 transition-all duration-300 ${isHovered ? 'text-white drop-shadow-lg' : 'text-morandi-text'}`}>
+                            {project.description}
+                        </p>
                     </CardHeader>
                     <CardContent>
                         <div className="flex items-center gap-2 mb-4">
@@ -179,16 +196,17 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
                                 return (
                                     <motion.div
                                         key={tech}
-                                        whileHover={{ scale: 1.1 }}
+                                        whileHover={{ scale: 1.1, rotate: 5 }}
                                         transition={{ type: "spring", stiffness: 400, damping: 10 }}
                                     >
                                         <Badge
                                             variant="outline"
-                                            className="flex items-center gap-1 px-2 py-1 transition-colors duration-300"
+                                            className="flex items-center gap-1 px-2 py-1 transition-all duration-300"
                                             style={{
                                                 backgroundColor: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : bgColor,
                                                 color: theme === 'dark' ? 'white' : color,
                                                 borderColor: color,
+                                                boxShadow: `0 0 10px ${color}`,
                                             }}
                                         >
                                             {IconComponent && <IconComponent size={14} />}
@@ -241,6 +259,7 @@ const Projects: React.FC = () => {
         <section id="projects" className="py-16 px-4 relative overflow-hidden bg-morandi-bg" ref={ref}>
             <div className="absolute inset-0 z-0">
                 <ParticleBackground />
+                <BlockchainBackground />
             </div>
             <div className="container mx-auto relative z-10">
                 <motion.h2
@@ -302,7 +321,7 @@ const ParticleBackground: React.FC = () => {
                 particle.y += particle.dy;
 
                 if (particle.x < 0 || particle.x > canvas.width) particle.dx *= -1;
-                if (particle.y < 0 || particle.y > canvas.height) particle.dy  *= -1;
+                if (particle.y < 0 || particle.y > canvas.height) particle.dy *= -1;
             });
         }
 
@@ -321,6 +340,36 @@ const ParticleBackground: React.FC = () => {
     }, [theme]);
 
     return <canvas ref={canvasRef} className="absolute inset-0" />;
+};
+
+const BlockchainBackground: React.FC = () => {
+    return (
+        <div className="absolute inset-0 overflow-hidden">
+            {[...Array(20)].map((_, index) => (
+                <motion.div
+                    key={index}
+                    className="absolute"
+                    style={{
+                        left: `${Math.random() * 100}%`,
+                        top: `${Math.random() * 100}%`,
+                        opacity: 0.1,
+                    }}
+                    animate={{
+                        y: [0, -10, 0],
+                        rotate: [0, 360],
+                        scale: [1, 1.1, 1],
+                    }}
+                    transition={{
+                        duration: Math.random() * 5 + 5,
+                        repeat: Infinity,
+                        ease: "linear",
+                    }}
+                >
+                    <Hexagon size={Math.random() * 30 + 20} />
+                </motion.div>
+            ))}
+        </div>
+    );
 };
 
 export default Projects;
