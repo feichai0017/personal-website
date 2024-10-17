@@ -1,37 +1,54 @@
-import type { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest, NextApiResponse } from 'next'
+import { google } from 'googleapis'
 import nodemailer from 'nodemailer'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    if (req.method === 'POST') {
-        const { email, message } = req.body
+const oauth2Client = new google.auth.OAuth2(
+    process.env.GMAIL_CLIENT_ID,
+    process.env.GMAIL_CLIENT_SECRET,
+    'https://developers.google.com/oauthplayground'
+)
 
-        // Create a transporter using SMTP
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: parseInt(process.env.SMTP_PORT || '587'),
+oauth2Client.setCredentials({
+    refresh_token: process.env.GMAIL_REFRESH_TOKEN
+})
+
+const sendMail = async (req: NextApiRequest, res: NextApiResponse) => {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ message: 'Method not allowed' })
+    }
+
+    const { email, message } = req.body
+
+    try {
+        const accessToken = await oauth2Client.getAccessToken()
+
+        const transport = nodemailer.createTransport({
+            service: 'gmail',
             auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS,
+                type: 'OAuth2',
+                user: 'songguocheng348@gmail.com',
+                clientId: process.env.GMAIL_CLIENT_ID,
+                clientSecret: process.env.GMAIL_CLIENT_SECRET,
+                refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+                accessToken: accessToken as string,
             },
         })
 
-        try {
-            // Send email
-            await transporter.sendMail({
-                from: process.env.SMTP_FROM,
-                to: 'Ericsgc@outlook.com', // Your email address
-                subject: 'New message from your website',
-                text: `From: ${email}\n\nMessage: ${message}`,
-                html: `<p><strong>From:</strong> ${email}</p><p><strong>Message:</strong> ${message}</p>`,
-            })
-
-            res.status(200).json({ message: 'Email sent successfully' })
-        } catch (error) {
-            console.error('Failed to send email:', error)
-            res.status(500).json({ message: 'Failed to send email' })
+        const mailOptions = {
+            from: 'your-email@gmail.com',
+            to: 'Ericsgc@outlook.com',
+            subject: 'New Contact Form Submission',
+            text: `You have a new submission from ${email}:\n\n${message}`,
+            html: `<p>You have a new submission from ${email}:</p><p>${message}</p>`,
         }
-    } else {
-        res.setHeader('Allow', ['POST'])
-        res.status(405).end(`Method ${req.method} Not Allowed`)
+
+        await transport.sendMail(mailOptions)
+
+        res.status(200).json({ message: 'Email sent successfully' })
+    } catch (error) {
+        console.error('Error sending email:', error)
+        res.status(500).json({ message: 'Error sending email' })
     }
 }
+
+export default sendMail
