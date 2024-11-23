@@ -8,11 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import { Github, Clock, CheckCircle, ExternalLink, Hexagon } from 'lucide-react';
 import {
     SiReact, SiPython, SiDocker, SiKubernetes, SiMysql, SiRedis,
-    SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql,
-    SiApachekafka, SiPrometheus, SiGrafana
+    SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql, SiSupabase,
+    SiApachekafka, SiPrometheus, SiGrafana, SiClerk
 } from 'react-icons/si';
 import { FaJava, FaAws } from 'react-icons/fa';
 import { TbBrandGolang } from 'react-icons/tb';
+import { ConvexIcon, EdgeStoreIcon } from "@/components/Icons";
 
 interface Project {
     title: string;
@@ -47,6 +48,10 @@ const techStackIcons: Record<string, TechStackIcon> = {
     'Kafka': { icon: SiApachekafka, color: '#231F20', bgColor: '#FFFFFF' },
     'Prometheus': { icon: SiPrometheus, color: '#E6522C', bgColor: '#FFFFFF' },
     'Grafana': { icon: SiGrafana, color: '#F46800', bgColor: '#FFFFFF' },
+    'Convex': { icon: ConvexIcon, color: '#FFA500', bgColor: '#FFFFFF' },
+    'Clerk': { icon: SiClerk, color: '#0000FF', bgColor: '#FFFFFF' },
+    'EdgeStore': { icon: EdgeStoreIcon, color: '#800080', bgColor: '#FFFFFF' },
+    'Supabase': { icon: SiSupabase, color: '#3ECF8E', bgColor: '#FFFFFF' },
 };
 
 const projects: Project[] = [
@@ -72,7 +77,7 @@ const projects: Project[] = [
         title: "Personal Website",
         description: "My personal portfolio website showcasing projects and skills.",
         status: "In Production",
-        date: "2024 - present",
+        date: "2024.9 - 2024.9",
         techStack: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
         githubLink: "https://github.com/feichai0017/personal-website",
         backgroundImage: "/projects/portfolio.png?height=400&width=600",
@@ -80,10 +85,10 @@ const projects: Project[] = [
     {
         title: "Notion-like Application",
         description: "A powerful and flexible application for document management and collaborative work.",
-        status: "In Progress",
-        date: "2024 - present",
-        techStack: ["Go", "React", "TypeScript", "PostgreSQL", "Docker"],
-        githubLink: "https://github.com/feichai0017/notion-like",
+        status: "In Production",
+        date: "2024.10 - 2024.11",
+        techStack: ["Clerk", "Next.js", "TypeScript", "Tailwind CSS", "Convex", "EdgeStore"],
+        githubLink: "https://github.com/feichai0017/NoteLab",
         backgroundImage: "/projects/notion-like.png?height=400&width=600",
     },
     {
