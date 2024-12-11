@@ -4,7 +4,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react"
 import Image from "next/image"
 import { motion, useMotionValue, useTransform, useScroll, AnimatePresence, useSpring } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
-import { Users, Globe, TrendingUp, Bitcoin, Wallet, Terminal, Database, Code, Settings, Layout } from 'lucide-react'
+import { Terminal, Database, Code, Settings, Layout } from 'lucide-react'
 
 interface Skill {
     name: string;
