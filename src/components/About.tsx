@@ -4,7 +4,7 @@ import React, { useState, useRef, useCallback, useEffect } from "react"
 import Image from "next/image"
 import { motion, useMotionValue, useTransform, useScroll, AnimatePresence, useSpring } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
-import { Users, Globe, TrendingUp, Bitcoin, Wallet } from 'lucide-react'
+import { Users, Globe, TrendingUp, Bitcoin, Wallet, Terminal, Database, Code, Settings, Layout } from 'lucide-react'
 
 interface Skill {
     name: string;
@@ -17,12 +17,12 @@ interface Skill {
 }
 
 const skills: Skill[] = [
-    { name: "Me", icon: "/img/my.png", description: "Blockchain Enthusiast", size: 2.2, speed: 0, clockwise: false, color: "#E2C2B9" },
-    { name: "Community", icon: <Users />, description: "Web3 Community Builder", size: 1.5, speed: 25, clockwise: true, color: "#6E56CF" },
-    { name: "DeFi", icon: <Wallet />, description: "DeFi Protocol Developer", size: 1.3, speed: 30, clockwise: false, color: "#1AD1A5" },
-    { name: "Web3", icon: <Globe />, description: "Decentralized App Developer", size: 1.4, speed: 35, clockwise: true, color: "#3B82F6" },
-    { name: "Crypto", icon: <Bitcoin />, description: "Cryptocurrency Analyst", size: 1.4, speed: 27, clockwise: true, color: "#F59E0B" },
-    { name: "Trading", icon: <TrendingUp />, description: "Algorithmic Trading Expert", size: 1.2, speed: 32, clockwise: false, color: "#EC4899" },
+    { name: "Me", icon: "/img/my.png", description: "Full Stack Engineer", size: 2.2, speed: 0, clockwise: false, color: "#E2C2B9" },
+    { name: "Backend", icon: <Code />, description: "Backend Development Expert", size: 1.5, speed: 25, clockwise: true, color: "#6E56CF" },
+    { name: "DevOps", icon: <Terminal />, description: "DevOps & Infrastructure Engineer", size: 1.3, speed: 30, clockwise: false, color: "#1AD1A5" },
+    { name: "Database", icon: <Database />, description: "Database Architecture & Design", size: 1.4, speed: 35, clockwise: true, color: "#3B82F6" },
+    { name: "System", icon: <Settings />, description: "System Design & Architecture", size: 1.4, speed: 27, clockwise: true, color: "#F59E0B" },
+    { name: "Frontend", icon: <Layout />, description: "Frontend Development", size: 1.2, speed: 32, clockwise: false, color: "#EC4899" },
 ]
 
 export default function About() {
@@ -78,9 +78,9 @@ export default function About() {
     }
 
     const paragraphs = [
-        "I'm a passionate blockchain developer with expertise in various Web3 technologies.",
-        "My journey in the crypto space started with a fascination for decentralized systems and innovative problem-solving.",
-        "I'm always eager to learn and apply cutting-edge blockchain technologies to create innovative decentralized solutions."
+        "I'm a passionate software engineer specializing in backend development and DevOps.",
+        "My journey in tech started with backend systems and has grown to encompass full stack development and infrastructure management.",
+        "I'm always eager to learn and apply cutting-edge technologies to build scalable, robust software solutions."
     ]
 
     useEffect(() => {
@@ -180,7 +180,7 @@ export default function About() {
                                             transition: { type: "spring", stiffness: 400, damping: 8 }
                                         }}
                                     >
-                                        Eric | Blockchain Developer
+                                        Eric | Software Engineer
                                     </motion.p>
                                     <AnimatePresence mode="wait">
                                         <motion.div

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Send, Coffee, Loader2 } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { toast } from 'react-hot-toast'
+import emailjs from '@emailjs/browser';
 
 export default function ContactMe() {
     const { theme } = useTheme()
@@ -17,31 +18,30 @@ export default function ContactMe() {
     const [isSubmitting, setIsSubmitting] = useState(false)
 
     const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault()
-        setIsSubmitting(true)
-        try {
-            const response = await fetch('/api/send-email', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, message }),
-            })
+        e.preventDefault();
+        setIsSubmitting(true);
 
-            if (response.ok) {
-                toast.success('Message sent successfully!')
-                setEmail('')
-                setMessage('')
-            } else {
-                throw new Error('Failed to send email')
-            }
+        try {
+            await emailjs.send(
+                process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+                process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+                {
+                    from_email: email,
+                    message: message
+                },
+                process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+            );
+
+            toast.success('Message sent successfully!');
+            setEmail('');
+            setMessage('');
         } catch (error) {
-            console.error('Error sending email:', error)
-            toast.error('Failed to send message. Please try again.')
+            console.error('Error:', error);
+            toast.error('Failed to send message');
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
-    }
+    };
 
     const handleBuyMeACoffee = () => {
         window.open('https://buymeacoffee.com/eric.sgc', '_blank')
