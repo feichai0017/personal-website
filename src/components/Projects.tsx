@@ -68,7 +68,7 @@ const projects: Project[] = [
         title: "Senior Financial Management Application",
         description: "Multi-agent financial system with AI-powered transaction analysis.",
         status: "In Production",
-        date: "2024.7 - present",
+        date: "2024.7 - 2024.11",
         techStack: ["React", "Java", "Python", "MySQL", "Redis", "Docker"],
         githubLink: "https://github.com/CSUYSD/Anti-Scam-Financial-Management-Assistant",
         backgroundImage: "/projects/fin-care.png?height=400&width=600",
@@ -261,22 +261,18 @@ const Projects: React.FC = () => {
     }, [controls]);
 
     return (
-        <section id="projects" className="py-16 px-4 relative overflow-hidden bg-morandi-bg" ref={ref}>
+        <section id="projects" className="min-h-screen py-16 px-4 relative bg-morandi-bg"  ref={ref}>
             <div className="absolute inset-0 z-0">
                 <ParticleBackground />
                 <BlockchainBackground />
             </div>
-            <div className="container mx-auto relative z-10">
-                <motion.h2
-                    className="text-4xl md:text-5xl font-bold mb-16 text-center text-morandi-text"
-                    initial={{ opacity: 0, y: -50 }}
-                    animate={controls}
-                >
+            <div className="relative z-10 min-h-screen container mx-auto">
+                <motion.h2 className="text-4xl md:text-5xl font-bold mb-16 text-center text-morandi-text">
                     My Projects
                 </motion.h2>
                 <div className="space-y-16">
                     {projects.map((project, index) => (
-                        <ProjectCard key={project.title} project={project} index={index} />
+                        <ProjectCard key={project.title} project={project} index={index}/>
                     ))}
                 </div>
             </div>
@@ -286,7 +282,7 @@ const Projects: React.FC = () => {
 
 const ParticleBackground: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const { theme } = useTheme();
+    const {theme} = useTheme();
 
     useEffect(() => {
         const canvas = canvasRef.current;
