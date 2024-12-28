@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform, useSpring, useAnimation, AnimatePresen
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Github, Clock, CheckCircle, ExternalLink, Hexagon } from 'lucide-react';
+import {Github, Clock, CheckCircle, ExternalLink, Hexagon, Network, Code, Database} from 'lucide-react';
 import {
     SiReact, SiPython, SiDocker, SiKubernetes, SiMysql, SiRedis,
     SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql, SiSupabase,
@@ -52,20 +52,24 @@ const techStackIcons: Record<string, TechStackIcon> = {
     'Clerk': { icon: SiClerk, color: '#0000FF', bgColor: '#FFFFFF' },
     'EdgeStore': { icon: EdgeStoreIcon, color: '#800080', bgColor: '#FFFFFF' },
     'Supabase': { icon: SiSupabase, color: '#3ECF8E', bgColor: '#FFFFFF' },
+    'LSM Tree': { icon: Database, color: '#4A90E2', bgColor: '#FFFFFF' },
+    'Lock-free': { icon: Code, color: '#FF6B6B', bgColor: '#FFFFFF' },
+    'MVCC': { icon: Network, color: '#50C878', bgColor: '#FFFFFF' },
+    'Raft': { icon: Hexagon, color: '#9B59B6', bgColor: '#FFFFFF' },
 };
 
 const projects: Project[] = [
     {
-        title: "Distributed File Storage System",
-        description: "High-performance distributed file storage solution with public and private cloud support.",
-        status: "In Progress",
-        date: "2024.6 - present",
-        techStack: ["Go", "MySQL", "Redis", "Docker", "Kubernetes", "AWS S3"],
-        githubLink: "https://github.com/feichai0017/NoRAG_distributed-filestorage",
-        backgroundImage: "/projects/distributed-file-system.png?height=400&width=600",
+        title: "NoKV",
+        description: "High-performance key-value storage engine implementing LSM tree and lock-free skiplist with MVCC support.",
+        status: "In Production",
+        date: "2024.6 - 2024.9",
+        techStack: ["Go", "LSM Tree", "Lock-free", "MVCC", "Raft"],
+        githubLink: "https://github.com/feichai0017/NoKV",
+        backgroundImage: "/projects/nokv-logo.svg?height=150&width=200",
     },
     {
-        title: "Senior Financial Management Application",
+        title: "Financial AI",
         description: "Multi-agent financial system with AI-powered transaction analysis.",
         status: "In Production",
         date: "2024.7 - 2024.11",
