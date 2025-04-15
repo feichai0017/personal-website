@@ -9,7 +9,7 @@ import {Github, Clock, CheckCircle, ExternalLink, Hexagon, Network, Code, Databa
 import {
     SiReact, SiPython, SiDocker, SiKubernetes, SiMysql, SiRedis,
     SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql, SiSupabase,
-    SiApachekafka, SiPrometheus, SiGrafana, SiClerk
+    SiApachekafka, SiPrometheus, SiGrafana, SiClerk, SiRust, SiSqlite
 } from 'react-icons/si';
 import { FaJava, FaAws } from 'react-icons/fa';
 import { TbBrandGolang } from 'react-icons/tb';
@@ -26,7 +26,7 @@ interface Project {
 }
 
 type TechStackIcon = {
-    icon: React.ComponentType<{ size?: number }>;
+    icon: React.ComponentType<any>;
     color: string;
     bgColor: string;
 };
@@ -52,13 +52,25 @@ const techStackIcons: Record<string, TechStackIcon> = {
     'Clerk': { icon: SiClerk, color: '#0000FF', bgColor: '#FFFFFF' },
     'EdgeStore': { icon: EdgeStoreIcon, color: '#800080', bgColor: '#FFFFFF' },
     'Supabase': { icon: SiSupabase, color: '#3ECF8E', bgColor: '#FFFFFF' },
-    'LSM Tree': { icon: Database, color: '#4A90E2', bgColor: '#FFFFFF' },
-    'Lock-free': { icon: Code, color: '#FF6B6B', bgColor: '#FFFFFF' },
-    'MVCC': { icon: Network, color: '#50C878', bgColor: '#FFFFFF' },
-    'Raft': { icon: Hexagon, color: '#9B59B6', bgColor: '#FFFFFF' },
+    'LSM Tree': { icon: Database as React.ComponentType<any>, color: '#4A90E2', bgColor: '#FFFFFF' },
+    'Lock-free': { icon: Code as React.ComponentType<any>, color: '#FF6B6B', bgColor: '#FFFFFF' },
+    'MVCC': { icon: Network as React.ComponentType<any>, color: '#50C878', bgColor: '#FFFFFF' },
+    'Raft': { icon: Hexagon as React.ComponentType<any>, color: '#9B59B6', bgColor: '#FFFFFF' },
+    'Rust': { icon: SiRust, color: '#B7410E', bgColor: '#FFFFFF' },
+    'SQL': { icon: SiSqlite, color: '#003B57', bgColor: '#FFFFFF' },
+    'Bitcask': { icon: Database as React.ComponentType<any>, color: '#FF8C00', bgColor: '#FFFFFF' },
 };
 
 const projects: Project[] = [
+    {
+        title: "QuillSQL",
+        description: "A Lightweight Relational SQL Database in Rust, implementing Bitcask storage model with MVCC concurrency control.",
+        status: "In Production",
+        date: "Feb 2025 - Apr 2025",
+        techStack: ["Rust", "SQL", "Database", "Bitcask", "MVCC"],
+        githubLink: "https://github.com/feichai0017/QuillSQL",
+        backgroundImage: "/projects/quillsql-logo.png?height=150&width=200",
+    },
     {
         title: "NoKV",
         description: "High-performance key-value storage engine implementing LSM tree and lock-free skiplist with MVCC support.",
@@ -314,19 +326,19 @@ const ParticleBackground: React.FC = () => {
 
         function animate() {
             requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx!.clearRect(0, 0, canvas!.width, canvas!.height);
 
             particles.forEach(particle => {
-                ctx.beginPath();
-                ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-                ctx.fillStyle = theme === 'dark' ? particle.color : `${particle.color}80`;
-                ctx.fill();
+                ctx!.beginPath();
+                ctx!.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+                ctx!.fillStyle = theme === 'dark' ? particle.color : `${particle.color}80`;
+                ctx!.fill();
 
                 particle.x += particle.dx;
                 particle.y += particle.dy;
 
-                if (particle.x < 0 || particle.x > canvas.width) particle.dx *= -1;
-                if (particle.y < 0 || particle.y > canvas.height) particle.dy *= -1;
+                if (particle.x < 0 || particle.x > canvas!.width) particle.dx *= -1;
+                if (particle.y < 0 || particle.y > canvas!.height) particle.dy *= -1;
             });
         }
 

@@ -5,7 +5,22 @@ import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
 import { Card, CardContent } from "@/components/ui/card"
 import { School, Briefcase } from 'lucide-react'
 
-const experiences = [
+interface Experience {
+    title: string;
+    organization: string;
+    period: string;
+    description: string;
+    type: "education" | "work";
+}
+
+const experiences: Experience[] = [
+    {
+        title: "Research Assistant",
+        organization: "UNSW",
+        period: "Feb 2025 - Present",
+        description: "Researching database optimization techniques, focusing on SQL query optimization and low-level performance enhancement.",
+        type: "work"
+    },
     {
         title: "Master of Computer Science",
         organization: "University of Sydney",
@@ -43,7 +58,12 @@ const experiences = [
     }
 ]
 
-const ExperienceItem = ({ experience, index }) => {
+interface ExperienceItemProps {
+    experience: Experience;
+    index: number;
+}
+
+const ExperienceItem = ({ experience, index }: ExperienceItemProps) => {
     const ref = useRef(null)
     const { scrollYProgress } = useScroll({
         target: ref,
