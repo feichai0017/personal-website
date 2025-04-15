@@ -5,7 +5,7 @@ import { motion, useScroll, useTransform, useSpring, useAnimation, AnimatePresen
 import { useTheme } from 'next-themes';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {Github, Clock, CheckCircle, ExternalLink, Hexagon, Network, Code, Database, LucideProps} from 'lucide-react';
+import {Github, Clock, CheckCircle, ExternalLink, Hexagon, Network, Code, Database} from 'lucide-react';
 import {
     SiReact, SiPython, SiDocker, SiKubernetes, SiMysql, SiRedis,
     SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql, SiSupabase,
@@ -25,16 +25,8 @@ interface Project {
     backgroundImage: string;
 }
 
-interface ReactIconProps {
-    size?: number;
-}
-
-interface LucideIconProps {
-    size?: number | string;
-}
-
 type TechStackIcon = {
-    icon: React.ComponentType<ReactIconProps> | React.ComponentType<LucideIconProps>;
+    icon: React.ComponentType<any>;
     color: string;
     bgColor: string;
 };
@@ -60,14 +52,13 @@ const techStackIcons: Record<string, TechStackIcon> = {
     'Clerk': { icon: SiClerk, color: '#0000FF', bgColor: '#FFFFFF' },
     'EdgeStore': { icon: EdgeStoreIcon, color: '#800080', bgColor: '#FFFFFF' },
     'Supabase': { icon: SiSupabase, color: '#3ECF8E', bgColor: '#FFFFFF' },
-    'LSM Tree': { icon: Database, color: '#4A90E2', bgColor: '#FFFFFF' },
-    'Lock-free': { icon: Code, color: '#FF6B6B', bgColor: '#FFFFFF' },
-    'MVCC': { icon: Network, color: '#50C878', bgColor: '#FFFFFF' },
-    'Raft': { icon: Hexagon, color: '#9B59B6', bgColor: '#FFFFFF' },
+    'LSM Tree': { icon: Database as React.ComponentType<any>, color: '#4A90E2', bgColor: '#FFFFFF' },
+    'Lock-free': { icon: Code as React.ComponentType<any>, color: '#FF6B6B', bgColor: '#FFFFFF' },
+    'MVCC': { icon: Network as React.ComponentType<any>, color: '#50C878', bgColor: '#FFFFFF' },
+    'Raft': { icon: Hexagon as React.ComponentType<any>, color: '#9B59B6', bgColor: '#FFFFFF' },
     'Rust': { icon: SiRust, color: '#B7410E', bgColor: '#FFFFFF' },
     'SQL': { icon: SiSqlite, color: '#003B57', bgColor: '#FFFFFF' },
-    'Bitcask': { icon: Database, color: '#FF8C00', bgColor: '#FFFFFF' },
-    'Database': { icon: Database, color: '#4A90E2', bgColor: '#FFFFFF' },
+    'Bitcask': { icon: Database as React.ComponentType<any>, color: '#FF8C00', bgColor: '#FFFFFF' },
 };
 
 const projects: Project[] = [
@@ -144,10 +135,6 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
     const springX = useSpring(x, springConfig);
     const springScale = useSpring(scale, springConfig);
     const springRotateY = useSpring(rotateY, springConfig);
-
-    const renderIcon = (IconComponent: React.ComponentType<ReactIconProps> | React.ComponentType<LucideIconProps>) => {
-        return <IconComponent size={14} />;
-    };
 
     return (
         <motion.div
@@ -243,7 +230,7 @@ const ProjectCard: React.FC<{ project: Project; index: number }> = ({ project, i
                                                 boxShadow: `0 0 10px ${color}`,
                                             }}
                                         >
-                                            {IconComponent && renderIcon(IconComponent)}
+                                            {IconComponent && <IconComponent size={14} />}
                                             <span className="ml-1 text-xs md:text-sm">{tech}</span>
                                         </Badge>
                                     </motion.div>
