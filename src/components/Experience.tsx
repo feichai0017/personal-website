@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useRef, useState, useEffect } from 'react'
-import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring } from 'framer-motion'
+import { motion, AnimatePresence, useInView, useScroll, useSpring } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -567,16 +567,13 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
 
 // Main Experience Section Component
 export default function ExperienceTreeSection() {
-    const sectionRef = useRef(null);
+    const sectionRef = useRef<HTMLDivElement>(null);
     const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
         offset: ["start end", "end start"] // Animate based on section visibility
     });
-
-    // Create a springy version of scrollYProgress for the line
-    const springyScrollY = useSpring(scrollYProgress, { stiffness: 200, damping: 50 });
 
     const [sortedExperiences, setSortedExperiences] = useState<Experience[]>([]);
 
