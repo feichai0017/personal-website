@@ -5,7 +5,7 @@ import { motion, AnimatePresence, useInView, useScroll, useTransform, useSpring 
 import { useTheme } from 'next-themes'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { School, Briefcase, Calendar, Building2, ArrowUpRight, MapPin, Clock } from 'lucide-react'
+import { School, Briefcase, Building2, ArrowUpRight, MapPin, Clock } from 'lucide-react'
 
 // Interface and Data (experiencesData) remain the same as you provided
 interface Experience {
@@ -109,10 +109,9 @@ function getStartDate(periodString: string): Date {
 interface TimelineExperienceCardProps {
     experience: Experience;
     onSelect: (exp: Experience) => void;
-    isLeft: boolean; // To potentially adjust internal alignment if needed
 }
 
-const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experience, onSelect, isLeft }) => {
+const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experience, onSelect }) => {
     const { theme } = useTheme();
     const [isHovered, setIsHovered] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
@@ -338,7 +337,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                         }`} />
                 </motion.div>
                 <motion.div variants={itemVariants} className="w-full max-w-md">
-                    <TimelineExperienceCard experience={experience} onSelect={onSelect} isLeft={false} />
+                    <TimelineExperienceCard experience={experience} onSelect={onSelect} />
                 </motion.div>
             </div>
 
@@ -348,7 +347,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                 <div className="w-[calc(50%-16px)] flex items-center justify-end">
                     {isLeft ? (
                         <motion.div variants={itemVariants} className="w-full max-w-md pr-8">
-                            <TimelineExperienceCard experience={experience} onSelect={onSelect} isLeft={true} />
+                            <TimelineExperienceCard experience={experience} onSelect={onSelect} />
                         </motion.div>
                     ) : <div />}
                 </div>
@@ -416,7 +415,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                 <div className="w-[calc(50%-16px)] flex items-center">
                     {!isLeft ? (
                         <motion.div variants={itemVariants} className="w-full max-w-md pl-8">
-                            <TimelineExperienceCard experience={experience} onSelect={onSelect} isLeft={false} />
+                            <TimelineExperienceCard experience={experience} onSelect={onSelect} />
                         </motion.div>
                     ) : <div />}
                 </div>
@@ -578,7 +577,6 @@ export default function ExperienceTreeSection() {
 
     // Create a springy version of scrollYProgress for the line
     const springyScrollY = useSpring(scrollYProgress, { stiffness: 200, damping: 50 });
-    const timelineHeight = useTransform(springyScrollY, [0, 1], ["0%", "100%"]); // Line grows from 0% to 100%
 
     const [sortedExperiences, setSortedExperiences] = useState<Experience[]>([]);
 

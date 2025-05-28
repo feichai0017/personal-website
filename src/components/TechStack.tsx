@@ -1,7 +1,7 @@
 "use client"
 
-import React, { useRef, useEffect, useState } from 'react';
-import { motion, useAnimation, useInView, AnimatePresence } from 'framer-motion';
+import React, { useRef, useState } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -90,7 +90,6 @@ interface TechCardProps {
 
 const TechCard: React.FC<TechCardProps> = React.memo(({
     tech,
-    index,
     theme,
     hoveredTech,
     setHoveredTech,

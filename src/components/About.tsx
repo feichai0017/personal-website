@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from "react"
 import Image from "next/image"
-import { motion, useMotionValue, useTransform, AnimatePresence, useSpring } from "framer-motion"
+import { motion, useTransform, AnimatePresence, useSpring } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Code, Terminal, Database, Cpu, Layout, Layers } from 'lucide-react'
 import { useTheme } from 'next-themes'
