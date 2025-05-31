@@ -34,7 +34,7 @@ const skills: Skill[] = [
         ],
         color: "#6E56CF",
         angle: 0,
-        radius: 540,
+        radius: 580,
         speed: 0.3
     },
     {
@@ -51,7 +51,7 @@ const skills: Skill[] = [
         ],
         color: "#1AD1A5",
         angle: 60,
-        radius: 700,
+        radius: 620,
         speed: -0.4
     },
     {
@@ -85,7 +85,7 @@ const skills: Skill[] = [
         ],
         color: "#F59E0B",
         angle: 180,
-        radius: 680,
+        radius: 640,
         speed: -0.25
     },
     {
@@ -102,7 +102,7 @@ const skills: Skill[] = [
         ],
         color: "#EC4899",
         angle: 240,
-        radius: 540,
+        radius: 580,
         speed: 0.45
     },
     {
@@ -119,7 +119,7 @@ const skills: Skill[] = [
         ],
         color: "#8B5CF6",
         angle: 300,
-        radius: 620,
+        radius: 610,
         speed: -0.3
     }
 ];
@@ -130,27 +130,42 @@ const SkillOrbit: React.FC<{
     onHover: () => void;
     onHoverEnd: () => void;
     currentAngle: number;
-}> = ({ skill, isActive, onHover, onHoverEnd, currentAngle }) => {
+    containerSize: { width: number; height: number };
+}> = ({ skill, isActive, onHover, onHoverEnd, currentAngle, containerSize }) => {
     const { theme } = useTheme();
     const angle = (currentAngle * Math.PI) / 180;
     const x = Math.cos(angle) * skill.radius;
-    const y = Math.sin(angle) * skill.radius * 0.8;
-    const scale = (y + skill.radius * 0.8) / (skill.radius * 1.6); // Adjusted scale calculation for y-axis compression
-    const zIndex = Math.round(scale * 100) + 5; // Ensure orbits are generally above flat backgrounds but below active card
+    const y = Math.sin(angle) * skill.radius * 0.4;
+    const scale = (y + skill.radius * 0.4) / (skill.radius * 0.8);
+    const zIndex = Math.round(scale * 50) + 5;
+
+    const tagWidth = 120;
+    const tagHeight = 40;
+    const margin = 20;
+
+    const absoluteX = containerSize.width / 2 + x;
+    const absoluteY = containerSize.height / 2 + y;
+
+    const isOutOfBounds =
+        absoluteX - tagWidth / 2 < margin ||
+        absoluteX + tagWidth / 2 > containerSize.width - margin ||
+        absoluteY - tagHeight / 2 < margin ||
+        absoluteY + tagHeight / 2 > containerSize.height - margin;
 
     return (
         <motion.div
-            className="absolute pointer-events-auto" // Ensure individual orbits are interactive
+            className="absolute pointer-events-auto"
             style={{
                 left: '50%',
                 top: '50%',
                 x: x,
                 y: y,
-                zIndex: isActive ? 150 : zIndex, // Active orbit item slightly more prominent
+                zIndex: isActive ? 80 : zIndex,
+                opacity: isOutOfBounds ? 0 : 1,
             }}
             animate={{
                 scale: 0.8 + scale * 0.4,
-                opacity: 0.7 + scale * 0.3,
+                opacity: isOutOfBounds ? 0 : (0.7 + scale * 0.3),
             }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
         >
@@ -158,9 +173,9 @@ const SkillOrbit: React.FC<{
                 className={`relative cursor-pointer group`}
                 onMouseEnter={onHover}
                 onMouseLeave={onHoverEnd}
-                whileHover={{ scale: 1.25 }} // Slightly more pronounced hover for orbit items
+                whileHover={{ scale: 1.25 }}
                 animate={{
-                    y: isActive ? -10 : 0, // Lift active orbit item more
+                    y: isActive ? -10 : 0,
                 }}
             >
                 <motion.div
@@ -177,10 +192,10 @@ const SkillOrbit: React.FC<{
                 <motion.div
                     className={`relative px-4 py-2 rounded-full flex items-center gap-2
                         ${theme === 'dark'
-                            ? 'bg-morandi-dark/85 border-morandi-accent/40' // Slightly more opaque
+                            ? 'bg-morandi-dark/85 border-morandi-accent/40'
                             : 'bg-morandi-light/85 border-morandi-accent/40'
                         }
-                        border backdrop-blur-lg`} // Slightly stronger blur
+                        border backdrop-blur-lg`}
                     style={{
                         boxShadow: isActive
                             ? `0 0 35px ${skill.color}90`
@@ -199,38 +214,6 @@ const SkillOrbit: React.FC<{
                         {skill.label}
                     </span>
                 </motion.div>
-                {/* Connection line logic can be complex with 3D tilts. 
-                    For simplicity with the tilted orbit plane, ensure the SVG correctly maps coordinates.
-                    The previous SVG logic for lines might need significant adjustment if the orbit plane itself is tilted.
-                    For now, I'll keep the existing logic, but it might not look perfect with the new orbit plane tilt.
-                */}
-                {isActive && (
-                    <svg
-                        className="absolute left-1/2 top-1/2 pointer-events-none"
-                        style={{
-                            width: Math.max(100, Math.abs(x) * 2 + 50), // Ensure SVG is large enough
-                            height: Math.max(100, Math.abs(y) * 2 + 50),
-                            transform: 'translate(-50%, -50%)', // Center SVG on the item
-                        }}
-                    // viewBox might need dynamic adjustment based on x, y relative to the center of the orbit system.
-                    >
-                        <motion.line
-                            x1="50%" // Center of the SVG (which is centered on the item)
-                            y1="50%"
-                            // Target point needs to be the projection of the main card's center onto the orbit item's plane
-                            // This is a simplified line to the item's original position relative to SVG center
-                            // For a true line to the screen center, calculations would be more complex
-                            x2={x > 0 ? "0%" : "100%"} // This draws line from item towards global center
-                            y2={y > 0 ? "0%" : "100%"} // (assuming item is away from center)
-                            stroke={skill.color}
-                            strokeWidth="1"
-                            strokeDasharray="4 4"
-                            initial={{ pathLength: 0, opacity: 0 }}
-                            animate={{ pathLength: 1, opacity: 0.5 }}
-                            transition={{ duration: 0.5 }}
-                        />
-                    </svg>
-                )}
             </motion.div>
         </motion.div>
     );
@@ -240,6 +223,8 @@ const SkillOrbit: React.FC<{
 export default function About() {
     const [activeSkill, setActiveSkill] = useState<Skill | null>(null);
     const [angles, setAngles] = useState<Record<string, number>>({});
+    const [hoveredSkills, setHoveredSkills] = useState<Set<string>>(new Set());
+    const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
     const containerRef = useRef<HTMLDivElement>(null);
     const requestRef = useRef<number>();
     const { theme } = useTheme();
@@ -250,12 +235,25 @@ export default function About() {
     const mouseY = useSpring(0, { stiffness: 120, damping: 20 });
     const scaleSpring = useSpring(1, { stiffness: 180, damping: 20 });
 
-    const cardRotateX = useTransform(mouseY, [-1, 1], [-12, 12]); // Reduced max rotation
-    const cardRotateY = useTransform(mouseX, [-1, 1], [12, -12]); // Reduced max rotation
-    const cardFloatY = useTransform(mouseY, [-1, 1], [-15, 15]); // Reduced float
+    const cardRotateX = useTransform(mouseY, [-1, 1], [-12, 12]);
+    const cardRotateY = useTransform(mouseX, [-1, 1], [12, -12]);
+    const cardFloatY = useTransform(mouseY, [-1, 1], [-15, 15]);
 
     const glareX = useTransform(mouseX, [-1, 1], [100, -100]);
     const glareY = useTransform(mouseY, [-1, 1], [100, -100]);
+
+    useEffect(() => {
+        const updateSize = () => {
+            if (containerRef.current) {
+                const rect = containerRef.current.getBoundingClientRect();
+                setContainerSize({ width: rect.width, height: rect.height });
+            }
+        };
+
+        updateSize();
+        window.addEventListener('resize', updateSize);
+        return () => window.removeEventListener('resize', updateSize);
+    }, []);
 
     useEffect(() => {
         const initialAngles: Record<string, number> = {};
@@ -269,12 +267,14 @@ export default function About() {
         setAngles(prevAngles => {
             const newAngles = { ...prevAngles };
             skills.forEach(skill => {
-                newAngles[skill.name] = (newAngles[skill.name] + skill.speed) % 360;
+                if (!hoveredSkills.has(skill.name)) {
+                    newAngles[skill.name] = (newAngles[skill.name] + skill.speed) % 360;
+                }
             });
             return newAngles;
         });
         requestRef.current = requestAnimationFrame(animateOrbit);
-    }, []);
+    }, [hoveredSkills]);
 
     useEffect(() => {
         requestRef.current = requestAnimationFrame(animateOrbit);
@@ -284,6 +284,20 @@ export default function About() {
             }
         };
     }, [animateOrbit]);
+
+    const handleSkillHover = (skillName: string) => {
+        setActiveSkill(skills.find(s => s.name === skillName) || null);
+        setHoveredSkills(prev => new Set(prev).add(skillName));
+    };
+
+    const handleSkillHoverEnd = (skillName: string) => {
+        setActiveSkill(null);
+        setHoveredSkills(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(skillName);
+            return newSet;
+        });
+    };
 
     const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!cardRef.current) return;
@@ -303,11 +317,6 @@ export default function About() {
         }
     };
 
-    useEffect(() => {
-        // No explicit reset needed here now as springs naturally return to 0 when mouseX/Y are set to 0
-    }, [cardHover]);
-
-
     const defaultInfo = {
         title: "Eric",
         subtitle: "Full Stack Engineer",
@@ -324,31 +333,30 @@ export default function About() {
         description: activeSkill.details
     } : defaultInfo;
 
-    const cardBaseColor = theme === 'dark' ? 'rgba(30, 30, 40, 0.65)' : 'rgba(245, 245, 240, 0.65)'; // Slightly more opaque for better separation
-    const cardBorderColor = theme === 'dark' ? 'rgba(166, 139, 111, 0.15)' : 'rgba(139, 115, 85, 0.25)'; // Slightly softer border
-    const activeCardBorderColor = activeSkill ? `${activeSkill.color}B3` : (theme === 'dark' ? 'rgba(199, 179, 151, 0.4)' : 'rgba(169, 135, 105, 0.5)');
-
+    const cardBaseColor = theme === 'dark' ? 'rgba(30, 30, 40, 0.85)' : 'rgba(245, 245, 240, 0.85)';
+    const cardBorderColor = theme === 'dark' ? 'rgba(166, 139, 111, 0.2)' : 'rgba(139, 115, 85, 0.3)';
+    const activeCardBorderColor = activeSkill ? `${activeSkill.color}B3` : (theme === 'dark' ? 'rgba(199, 179, 151, 0.5)' : 'rgba(169, 135, 105, 0.6)');
 
     return (
         <section
             id="about"
             ref={containerRef}
-            className="relative min-h-screen flex flex-col items-center justify-center bg-morandi-bg dark:bg-morandi-dark overflow-hidden px-4 py-10 md:py-20" // Adjusted padding
+            className="relative min-h-screen flex flex-col items-center justify-center bg-morandi-bg dark:bg-morandi-dark overflow-hidden px-4 py-10 md:py-20"
         >
-            {/* Background effects - made even more subtle */}
-            <div className="absolute inset-0 -z-20"> {/* Pushed further back */}
+            {/* Background effects */}
+            <div className="absolute inset-0 -z-20">
                 <div className="absolute inset-0 bg-gradient-to-br from-morandi-accent/3 via-transparent to-morandi-hover/3" />
                 {[...Array(5)].map((_, i) => (
                     <motion.div
                         key={i}
                         className="absolute rounded-full"
                         style={{
-                            width: 300 + i * 150, // Spaced out more
+                            width: 300 + i * 150,
                             height: 300 + i * 150,
                             left: '50%', top: '50%', x: '-50%', y: '-50%',
                             border: '1px solid',
-                            borderColor: theme === 'dark' ? 'rgba(166, 139, 111, 0.02)' : 'rgba(139, 115, 85, 0.02)', // Even fainter
-                            opacity: 0.5, // Reduced opacity
+                            borderColor: theme === 'dark' ? 'rgba(166, 139, 111, 0.02)' : 'rgba(139, 115, 85, 0.02)',
+                            opacity: 0.5,
                         }}
                         animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
                         transition={{ duration: 120 + i * 30, repeat: Infinity, ease: "linear" }}
@@ -360,7 +368,7 @@ export default function About() {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
-                className="text-center mb-12 md:mb-20" // Adjusted margin
+                className="text-center mb-12 md:mb-20"
             >
                 <h2 className="text-4xl md:text-5xl font-bold mb-4 text-morandi-dark dark:text-morandi-light">
                     About Me
@@ -370,29 +378,29 @@ export default function About() {
                 </p>
             </motion.div>
 
-            {/* Main Interaction Area with explicit 3D context */}
+            {/* Main Interaction Area */}
             <div
                 className="relative flex items-center justify-center"
                 style={{
                     width: '100%',
-                    maxWidth: '1400px', // Max width for the interaction area
-                    height: 'calc(min(80vh, 900px))', // Responsive height
-                    transformStyle: 'preserve-3d', // Key for better 3D layering
-                    perspective: '2000px', // Perspective for the whole interaction area
+                    maxWidth: '2000px',
+                    height: '1100px',
+                    transformStyle: 'preserve-3d',
+                    perspective: '2000px',
                 }}
             >
-                {/* Orbit system container */}
+
                 <div
-                    className="absolute inset-0 flex items-center justify-center pointer-events-none" // 전체 컨테이너는 포인터 이벤트 무시
+                    className="absolute inset-0 flex items-center justify-center pointer-events-none"
                     style={{ transformStyle: 'preserve-3d' }}
                 >
                     <div
                         className="relative"
                         style={{
-                            width: '1px', // Center point for orbit system, actual size determined by radius
+                            width: '1px',
                             height: '1px',
                             transformStyle: 'preserve-3d',
-                            transform: 'rotateX(25deg) rotateY(0deg) translateZ(-100px)', // Tilt the entire orbit plane and push back
+                            transform: 'rotateX(15deg) rotateY(0deg)',
                         }}
                     >
                         {skills.map((skill) => (
@@ -400,10 +408,10 @@ export default function About() {
                                 key={skill.name}
                                 skill={skill}
                                 isActive={activeSkill?.name === skill.name}
-                                // MODIFIED: Removed !cardHover condition
-                                onHover={() => setActiveSkill(skill)}
-                                onHoverEnd={() => setActiveSkill(null)}
+                                onHover={() => handleSkillHover(skill.name)}
+                                onHoverEnd={() => handleSkillHoverEnd(skill.name)}
                                 currentAngle={angles[skill.name] || skill.angle}
+                                containerSize={containerSize}
                             />
                         ))}
                     </div>
@@ -412,21 +420,17 @@ export default function About() {
                 {/* Central Card Wrapper */}
                 <motion.div
                     ref={cardRef}
-                    className="relative" // zIndex managed by style prop
+                    className="relative"
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ duration: 0.5, ease: "easeOut" }}
                     style={{
                         transformStyle: 'preserve-3d',
-                        // perspective: '1200px', // Perspective now on parent
                         rotateX: cardRotateX,
                         rotateY: cardRotateY,
                         translateY: cardFloatY,
                         scale: scaleSpring,
-                        zIndex: cardHover || activeSkill ? 100 : 20, // Card is prominent if hovered or skill active
-                        boxShadow: cardHover
-                            ? `0 ${15 + Math.abs(cardFloatY.get())}px 60px -10px ${activeSkill?.color || '#A68B6F'}66, 0 0 30px -5px ${activeSkill?.color || '#A68B6F'}44`
-                            : `0 6px 28px -8px rgba(0,0,0,0.2)`,
+                        zIndex: 100,
                     }}
                     onMouseMove={handleCardMouseMove}
                     onMouseEnter={() => handleCardHover(true)}
@@ -440,8 +444,13 @@ export default function About() {
                             borderColor: cardHover ? activeCardBorderColor : cardBorderColor,
                             backdropFilter: 'blur(24px) saturate(160%)',
                             WebkitBackdropFilter: 'blur(24px) saturate(160%)',
-                            transform: 'translateZ(80px)', // Bring card forward
-                            boxShadow: `inset 0 0 70px ${theme === 'dark' ? 'rgba(0,0,0,0.25)' : 'rgba(255,255,255,0.25)'}`,
+                            transform: 'translateZ(80px)',
+                            boxShadow: cardHover
+                                ? `0 ${15}px 40px -10px rgba(0,0,0,0.3), 
+                                   0 0 30px -5px ${activeSkill?.color || '#A68B6F'}44,
+                                   inset 0 0 70px ${theme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'}`
+                                : `0 6px 20px -8px rgba(0,0,0,0.2),
+                                   inset 0 0 60px ${theme === 'dark' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)'}`,
                         }}
                     >
                         <motion.div
@@ -450,18 +459,18 @@ export default function About() {
                                 background: `radial-gradient(circle at ${50 + glareX.get() / 2.5}% ${50 + glareY.get() / 2.5}%, ${activeSkill?.color || (theme === 'dark' ? '#FFFFFF' : '#000000')}1A, transparent 55%)`,
                                 opacity: cardHover ? 0.9 : 0,
                                 transition: 'opacity 0.3s',
-                                mixBlendMode: theme === 'dark' ? 'overlay' : 'hard-light', // Different blend for light theme
+                                mixBlendMode: theme === 'dark' ? 'overlay' : 'hard-light',
                             }}
                         />
                         <motion.div
-                            className="absolute inset-0 z-0 opacity-25" // Softer aurora
+                            className="absolute inset-0 z-0 opacity-25"
                             style={{
                                 backgroundImage: `radial-gradient(circle at center, ${activeSkill?.color || '#A68B6F'}22 0%, transparent 65%)`,
                                 scale: cardHover ? 1.6 : 1.3,
                                 x: useTransform(mouseX, [-1, 1], [-15, 15]),
                                 y: useTransform(mouseY, [-1, 1], [-15, 15]),
                                 transition: 'scale 0.5s ease-out',
-                                filter: 'blur(35px)', // More blur
+                                filter: 'blur(35px)',
                             }}
                         />
                         <motion.div
@@ -471,7 +480,7 @@ export default function About() {
                                 y: useTransform(mouseY, v => v * (activeSkill ? -7 : -4)),
                             }}
                         >
-                            <CardContent className="p-6 md:p-8"> {/* Responsive padding */}
+                            <CardContent className="p-6 md:p-8">
                                 <AnimatePresence mode="wait">
                                     <motion.div
                                         key={currentInfo.title}
@@ -548,7 +557,7 @@ export default function About() {
                                                     className="flex items-center gap-2.5 md:gap-3"
                                                 >
                                                     <div
-                                                        className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full flex-shrink-0" // Added flex-shrink-0
+                                                        className="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full flex-shrink-0"
                                                         style={{
                                                             backgroundColor: activeSkill?.color || (theme === 'dark' ? '#A68B6F' : '#8B7355'),
                                                             boxShadow: `0 0 4px ${(activeSkill?.color || (theme === 'dark' ? '#A68B6F' : '#8B7355'))}70`

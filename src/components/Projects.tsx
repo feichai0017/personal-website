@@ -157,15 +157,30 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
         setMousePosition({ x, y });
     };
 
+    // 3D倾斜效果
+    const rotateX = isHovered ? (mousePosition.y - 0.5) * 10 : 0;
+    const rotateY = isHovered ? (mousePosition.x - 0.5) * -10 : 0;
+    const translateZ = isHovered ? 50 : 0;
+
     const floatingAnimation = {
-        y: [0, -10, 0],
+        y: [0, -8, 0],
         transition: {
-            duration: 3 + index * 0.5,
+            duration: 3 + index * 0.3,
             repeat: Infinity,
             ease: "easeInOut",
-            delay: index * 0.2
+            delay: index * 0.1
         }
     };
+
+    // 根据类别定义颜色
+    const categoryColors = {
+        database: { primary: '#7899AB', secondary: '#A3B8C8', accent: '#E6ECF0' },  // 莫兰迪蓝
+        web: { primary: '#A68B9F', secondary: '#C5AEC0', accent: '#F0E8EF' },      // 莫兰迪紫
+        system: { primary: '#8FA68E', secondary: '#B3C5B2', accent: '#E8F0E8' },   // 莫兰迪绿
+        ai: { primary: '#C5A572', secondary: '#D9C2A0', accent: '#F5EFE6' }        // 莫兰迪橙
+    };
+
+    const colors = categoryColors[project.category] || categoryColors.web;
 
     return (
         <motion.div
@@ -173,61 +188,97 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
             className="relative group cursor-pointer"
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 50, scale: 0.9 }}
-            transition={{ duration: 0.6, delay: index * 0.1, type: "spring", stiffness: 100 }}
+            transition={{ duration: 0.5, delay: index * 0.08, type: "spring", stiffness: 120 }}
             onHoverStart={() => setIsHovered(true)}
             onHoverEnd={() => setIsHovered(false)}
             onMouseMove={handleMouseMove}
             onClick={() => onSelect(project)}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.98 }}
+            style={{
+                perspective: "1200px",
+                transformStyle: "preserve-3d"
+            }}
         >
             <motion.div
                 className="relative h-[420px]"
                 animate={floatingAnimation}
+                style={{
+                    transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(${translateZ}px)`,
+                    transformStyle: "preserve-3d",
+                    transition: "transform 0.2s ease-out"
+                }}
             >
-                <Card className={`h-full overflow-hidden backdrop-blur-sm
-                    ${theme === 'dark'
-                        ? 'bg-gradient-to-br from-morandi-dark/80 via-morandi-muted/60 to-morandi-dark/80'
-                        : 'bg-gradient-to-br from-morandi-light/80 via-morandi-hover/40 to-morandi-light/80'
-                    }
-                    border-morandi-accent/20 shadow-lg hover:shadow-2xl
-                    transition-all duration-500`}
+                {/* 卡片主体 - 独特的形状 */}
+                <Card className="relative h-full overflow-hidden"
+                    style={{
+                        borderRadius: '24px 24px 24px 80px', // 不对称圆角
+                        background: theme === 'dark'
+                            ? `linear-gradient(135deg, rgba(30, 30, 40, 0.95) 0%, rgba(40, 40, 50, 0.9) 100%)`
+                            : `linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 250, 0.95) 100%)`,
+                        backdropFilter: 'blur(20px)',
+                        border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.08)'}`,
+                        boxShadow: isHovered
+                            ? `0 20px 40px -10px ${colors.primary}20, 0 15px 30px -15px rgba(0, 0, 0, 0.3)`
+                            : '0 10px 25px -10px rgba(0, 0, 0, 0.1)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                    }}
                 >
-                    {/* 背景图片 */}
+                    {/* 背景装饰 */}
                     <div className="absolute inset-0 overflow-hidden">
+                        {/* 背景图片 */}
                         <motion.div
                             className="absolute inset-0"
                             animate={{
-                                scale: isHovered ? 1.1 : 1,
+                                scale: isHovered ? 1.05 : 1,
                             }}
-                            transition={{ duration: 0.6 }}
+                            transition={{ duration: 0.4, ease: "easeOut" }}
                         >
                             <Image
                                 src={project.backgroundImage}
                                 alt={project.title}
                                 fill
-                                className="object-cover opacity-20"
+                                className="object-cover"
+                                style={{
+                                    opacity: 0.08,
+                                    filter: isHovered ? 'blur(0px) brightness(1.1)' : 'blur(2px) brightness(1)'
+                                }}
                                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                         </motion.div>
 
-                        {/* 渐变遮罩 */}
-                        <div className={`absolute inset-0 bg-gradient-to-t 
-                            ${theme === 'dark'
-                                ? 'from-morandi-dark via-morandi-dark/80 to-transparent'
-                                : 'from-morandi-light via-morandi-light/80 to-transparent'
-                            }`}
+                        {/* 彩色渐变叠加 */}
+                        <motion.div
+                            className="absolute inset-0"
+                            animate={{
+                                opacity: isHovered ? 0.15 : 0.08
+                            }}
+                            style={{
+                                background: `radial-gradient(circle at 70% 30%, ${colors.primary}20, transparent 50%)`
+                            }}
                         />
 
-                        {/* 动态光效 */}
+                        {/* 动态光波效果 */}
                         <motion.div
-                            className="absolute inset-0 opacity-0"
+                            className="absolute inset-0"
                             animate={{
-                                opacity: isHovered ? 0.4 : 0,
-                                background: `radial-gradient(600px circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, ${theme === 'dark' ? 'rgba(166, 139, 111, 0.3)' : 'rgba(139, 115, 85, 0.2)'
-                                    }, transparent 40%)`
+                                background: isHovered
+                                    ? `radial-gradient(circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, ${colors.secondary}15, transparent 40%)`
+                                    : `radial-gradient(circle at 50% 50%, transparent, transparent)`
                             }}
-                            transition={{ duration: 0.3 }}
+                            transition={{ duration: 0.2 }}
+                        />
+
+                        {/* 右下角装饰圆 */}
+                        <motion.div
+                            className="absolute -bottom-10 -right-10 w-40 h-40 rounded-full"
+                            animate={{
+                                scale: isHovered ? 1.2 : 1,
+                                opacity: isHovered ? 0.15 : 0.08
+                            }}
+                            transition={{ duration: 0.4 }}
+                            style={{
+                                background: colors.primary,
+                                filter: 'blur(40px)'
+                            }}
                         />
                     </div>
 
@@ -235,128 +286,192 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                         {/* 头部 */}
                         <div className="flex justify-between items-start mb-6">
                             <motion.div
-                                className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-morandi-accent/20' : 'bg-morandi-hover/30'
-                                    } backdrop-blur-md`}
-                                whileHover={{ scale: 1.1, rotate: 360 }}
-                                transition={{ duration: 0.5 }}
+                                className="relative"
+                                whileHover={{ scale: 1.1 }}
+                                transition={{ type: "spring", stiffness: 400, damping: 15 }}
                             >
-                                <CategoryIcon size={24} className="text-morandi-accent" />
+                                {/* 图标容器 - 六边形设计 */}
+                                <div
+                                    className="relative p-3"
+                                    style={{
+                                        background: `linear-gradient(135deg, ${colors.primary}10, ${colors.secondary}10)`,
+                                        clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                                        backdropFilter: 'blur(10px)'
+                                    }}
+                                >
+                                    <motion.div
+                                        animate={{
+                                            rotate: isHovered ? 360 : 0
+                                        }}
+                                        transition={{ duration: 0.8, ease: "easeInOut" }}
+                                    >
+                                        <CategoryIcon size={24} style={{ color: colors.primary }} />
+                                    </motion.div>
+                                </div>
+
+                                {/* 脉冲效果 */}
+                                <motion.div
+                                    className="absolute inset-0"
+                                    animate={{
+                                        scale: isHovered ? [1, 1.4, 1] : 1,
+                                        opacity: isHovered ? [0.5, 0, 0.5] : 0
+                                    }}
+                                    transition={{ duration: 2, repeat: Infinity }}
+                                    style={{
+                                        background: colors.primary,
+                                        clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)',
+                                        filter: 'blur(8px)'
+                                    }}
+                                />
                             </motion.div>
 
-                            <Badge
-                                variant="secondary"
-                                className={`backdrop-blur-md ${project.status === "In Progress"
-                                    ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400 border-yellow-500/30"
-                                    : "bg-green-500/20 text-green-600 dark:text-green-400 border-green-500/30"
-                                    } border`}
+                            <motion.div
+                                animate={{
+                                    y: isHovered ? -2 : 0
+                                }}
+                                transition={{ duration: 0.2 }}
                             >
-                                {project.status === "In Progress" ? (
-                                    <Clock size={14} className="mr-1 animate-pulse" />
-                                ) : (
-                                    <CheckCircle size={14} className="mr-1" />
-                                )}
-                                {project.status}
-                            </Badge>
+                                <Badge
+                                    className={`px-3 py-1 text-xs font-medium ${project.status === "In Progress"
+                                        ? "bg-amber-100 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400"
+                                        : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400"
+                                        } border-0`}
+                                >
+                                    {project.status === "In Progress" ? (
+                                        <motion.div className="flex items-center gap-1">
+                                            <Clock size={12} className="animate-pulse" />
+                                            {project.status}
+                                        </motion.div>
+                                    ) : (
+                                        <div className="flex items-center gap-1">
+                                            <CheckCircle size={12} />
+                                            {project.status}
+                                        </div>
+                                    )}
+                                </Badge>
+                            </motion.div>
                         </div>
 
                         {/* 内容 */}
                         <div className="flex-1">
                             <motion.h3
-                                className="text-2xl md:text-3xl font-bold mb-3 text-morandi-dark dark:text-morandi-light"
+                                className="text-2xl font-bold mb-3 text-morandi-dark dark:text-morandi-light"
                                 animate={{
-                                    opacity: isHovered ? 1 : 0.9,
+                                    x: isHovered ? 4 : 0
                                 }}
-                                transition={{ duration: 0.3 }}
+                                transition={{ duration: 0.2 }}
                             >
                                 {project.title}
                             </motion.h3>
 
                             <motion.p
-                                className="text-morandi-text dark:text-morandi-light/80 mb-4 line-clamp-3"
-                                animate={{
-                                    opacity: isHovered ? 1 : 0.8,
-                                }}
+                                className="text-morandi-text dark:text-morandi-light/80 mb-4 line-clamp-3 text-sm leading-relaxed"
                             >
                                 {project.description}
                             </motion.p>
 
-                            <p className="text-sm text-morandi-text/60 dark:text-morandi-light/60 mb-6">
+                            <p className="text-xs text-morandi-text/60 dark:text-morandi-light/60 mb-6">
                                 {project.date}
                             </p>
                         </div>
 
-                        {/* 技术栈 */}
+                        {/* 技术栈 - 优雅的标签设计 */}
                         <div className="flex flex-wrap gap-2 mb-4">
-                            <AnimatePresence>
-                                {project.techStack.slice(0, 4).map((tech, i) => {
-                                    const { icon: IconComponent, color } = techStackIcons[tech] || {};
-                                    return (
-                                        <motion.div
-                                            key={tech}
-                                            initial={{ opacity: 0, scale: 0, y: 20 }}
-                                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                                            exit={{ opacity: 0, scale: 0, y: -20 }}
-                                            transition={{
-                                                delay: isHovered ? i * 0.05 : 0,
-                                                type: "spring",
-                                                stiffness: 300
+                            {project.techStack.slice(0, 4).map((tech, i) => {
+                                const { icon: IconComponent, color } = techStackIcons[tech] || {};
+                                return (
+                                    <motion.div
+                                        key={tech}
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{
+                                            delay: isHovered ? i * 0.05 : 0,
+                                            type: "spring",
+                                            stiffness: 300
+                                        }}
+                                        whileHover={{ scale: 1.1, y: -2 }}
+                                    >
+                                        <div
+                                            className="px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5"
+                                            style={{
+                                                background: theme === 'dark'
+                                                    ? `linear-gradient(135deg, ${color}15, ${color}10)`
+                                                    : `linear-gradient(135deg, ${color}10, ${color}05)`,
+                                                border: `1px solid ${color}20`,
+                                                color: theme === 'dark' ? color : color
                                             }}
-                                            whileHover={{ y: -3, scale: 1.1 }}
                                         >
-                                            <Badge
-                                                variant="outline"
-                                                className="backdrop-blur-md border-morandi-accent/30 bg-morandi-light/30 dark:bg-morandi-dark/30"
-                                                style={{ borderColor: `${color}50` }}
-                                            >
-                                                {IconComponent && <IconComponent size={14} className="mr-1" style={{ color }} />}
-                                                {tech}
-                                            </Badge>
-                                        </motion.div>
-                                    );
-                                })}
-                            </AnimatePresence>
+                                            {IconComponent && <IconComponent size={12} />}
+                                            <span>{tech}</span>
+                                        </div>
+                                    </motion.div>
+                                );
+                            })}
                             {project.techStack.length > 4 && (
-                                <Badge variant="outline" className="border-morandi-accent/30 backdrop-blur-md">
+                                <div className="px-3 py-1.5 rounded-full text-xs font-medium"
+                                    style={{
+                                        background: theme === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)',
+                                        border: `1px solid ${theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)'}`
+                                    }}
+                                >
                                     +{project.techStack.length - 4}
-                                </Badge>
+                                </div>
                             )}
                         </div>
 
-                        {/* 查看详情提示 */}
+                        {/* 底部操作区 - 流畅的悬停效果 */}
                         <motion.div
-                            className="flex items-center justify-center gap-2 text-sm text-morandi-accent"
+                            className="relative h-10 flex items-center justify-between overflow-hidden"
                             animate={{
-                                opacity: isHovered ? [0.5, 1, 0.5] : 0.3,
-                                x: isHovered ? [0, 5, 0] : 0
+                                x: isHovered ? 0 : -10,
+                                opacity: isHovered ? 1 : 0.6
                             }}
-                            transition={{ duration: 2, repeat: Infinity }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
                         >
-                            <span>Click to view details</span>
-                            <ArrowUpRight size={16} />
+                            <div
+                                className="flex items-center gap-2 text-sm font-medium"
+                                style={{ color: colors.primary }}
+                            >
+                                <span>Explore Project</span>
+                                <motion.div
+                                    animate={{
+                                        x: isHovered ? [0, 4, 0] : 0
+                                    }}
+                                    transition={{ duration: 1, repeat: Infinity }}
+                                >
+                                    <ArrowUpRight size={16} />
+                                </motion.div>
+                            </div>
+
+                            {/* 滑动指示器 */}
+                            <motion.div
+                                className="absolute bottom-0 left-0 h-0.5"
+                                animate={{
+                                    width: isHovered ? '100%' : '0%'
+                                }}
+                                transition={{ duration: 0.3, ease: "easeOut" }}
+                                style={{
+                                    background: `linear-gradient(90deg, ${colors.primary}, ${colors.secondary})`
+                                }}
+                            />
                         </motion.div>
                     </div>
                 </Card>
-            </motion.div>
 
-            {/* 悬浮装饰效果 */}
-            <motion.div
-                className="absolute -inset-0.5 rounded-2xl opacity-0"
-                animate={{
-                    opacity: isHovered ? 1 : 0,
-                    background: `linear-gradient(45deg, ${theme === 'dark'
-                        ? 'rgba(166, 139, 111, 0.3)'
-                        : 'rgba(139, 115, 85, 0.2)'
-                        }, transparent, ${theme === 'dark'
-                            ? 'rgba(200, 184, 161, 0.3)'
-                            : 'rgba(232, 232, 232, 0.4)'
-                        })`,
-                }}
-                transition={{ duration: 0.3 }}
-                style={{
-                    filter: 'blur(20px)',
-                    zIndex: -1
-                }}
-            />
+                {/* 悬浮光晕效果 */}
+                <motion.div
+                    className="absolute -inset-1 rounded-[24px_24px_24px_80px] opacity-0 pointer-events-none"
+                    animate={{
+                        opacity: isHovered ? 0.5 : 0,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    style={{
+                        background: `linear-gradient(135deg, ${colors.primary}20, ${colors.secondary}20)`,
+                        filter: 'blur(20px)',
+                        zIndex: -1
+                    }}
+                />
+            </motion.div>
         </motion.div>
     );
 };
@@ -364,141 +479,357 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
 // 详情弹窗组件
 const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> = ({ project, onClose }) => {
     const { theme } = useTheme();
+    const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+    const [isClosing, setIsClosing] = useState(false);
 
     if (!project) return null;
 
     const CategoryIcon = categoryIcons[project.category];
+
+    // 根据类别定义颜色
+    const categoryColors = {
+        database: { primary: '#7899AB', secondary: '#A3B8C8', accent: '#E6ECF0' },  // 莫兰迪蓝
+        web: { primary: '#A68B9F', secondary: '#C5AEC0', accent: '#F0E8EF' },      // 莫兰迪紫
+        system: { primary: '#8FA68E', secondary: '#B3C5B2', accent: '#E8F0E8' },   // 莫兰迪绿
+        ai: { primary: '#C5A572', secondary: '#D9C2A0', accent: '#F5EFE6' }        // 莫兰迪橙
+    };
+
+    const colors = categoryColors[project.category] || categoryColors.web;
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        setMousePosition({ x, y });
+    };
+
+    const handleClose = () => {
+        setIsClosing(true);
+        setTimeout(() => {
+            onClose();
+            setIsClosing(false);
+        }, 300);
+    };
 
     return (
         <AnimatePresence>
             {project && (
                 <motion.div
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    animate={{ opacity: isClosing ? 0 : 1 }}
                     exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md"
-                    onClick={onClose}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4"
+                    onClick={handleClose}
+                    style={{
+                        background: 'rgba(0, 0, 0, 0.85)',
+                        backdropFilter: 'blur(20px)',
+                        WebkitBackdropFilter: 'blur(20px)'
+                    }}
                 >
                     <motion.div
-                        initial={{ scale: 0.8, y: 50 }}
-                        animate={{ scale: 1, y: 0 }}
-                        exit={{ scale: 0.8, y: 50 }}
+                        initial={{ scale: 0.8, y: 50, opacity: 0, rotateX: -15 }}
+                        animate={{
+                            scale: isClosing ? 0.8 : 1,
+                            y: isClosing ? 50 : 0,
+                            opacity: isClosing ? 0 : 1,
+                            rotateX: isClosing ? 15 : 0
+                        }}
+                        exit={{ scale: 0.8, y: 50, opacity: 0, rotateX: 15 }}
                         transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                        className="relative w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl"
+                        className="relative w-full max-w-5xl max-h-[90vh] overflow-hidden"
                         onClick={(e) => e.stopPropagation()}
+                        onMouseMove={handleMouseMove}
+                        style={{
+                            transformStyle: 'preserve-3d',
+                            perspective: '1200px',
+                            borderRadius: '32px'
+                        }}
                     >
-                        <Card className={`relative h-full overflow-y-auto
-                            ${theme === 'dark'
-                                ? 'bg-gradient-to-br from-morandi-dark via-morandi-muted to-morandi-dark'
-                                : 'bg-gradient-to-br from-morandi-light via-morandi-hover/30 to-morandi-light'
-                            } border-morandi-accent/30`}
+                        {/* 彩色边框光效 */}
+                        <motion.div
+                            className="absolute -inset-[2px] rounded-[32px] opacity-60"
+                            animate={{
+                                background: [
+                                    `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+                                    `linear-gradient(135deg, ${colors.secondary}, ${colors.primary})`,
+                                    `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`
+                                ]
+                            }}
+                            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                        />
+
+                        <Card className="relative h-full overflow-y-auto rounded-[32px]"
+                            style={{
+                                background: theme === 'dark'
+                                    ? 'linear-gradient(135deg, rgba(20, 20, 30, 0.98) 0%, rgba(30, 30, 40, 0.95) 100%)'
+                                    : 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 252, 0.95) 100%)',
+                                backdropFilter: 'blur(30px)',
+                                border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)'}`,
+                                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.4)'
+                            }}
                         >
-                            {/* 背景图片 */}
-                            <div className="relative h-64 overflow-hidden">
-                                <Image
-                                    src={project.backgroundImage}
-                                    alt={project.title}
-                                    fill
-                                    className="object-cover"
-                                    sizes="(max-width: 1200px) 100vw, 896px"
+                            {/* 头部背景区域 */}
+                            <div className="relative h-80 overflow-hidden">
+                                {/* 背景图片 */}
+                                <motion.div
+                                    initial={{ scale: 1.2 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ duration: 1, ease: "easeOut" }}
+                                    className="absolute inset-0"
+                                >
+                                    <Image
+                                        src={project.backgroundImage}
+                                        alt={project.title}
+                                        fill
+                                        className="object-cover"
+                                        style={{
+                                            opacity: 0.2,
+                                            filter: 'blur(0px) brightness(1.2)'
+                                        }}
+                                        sizes="(max-width: 1200px) 100vw, 1280px"
+                                    />
+                                </motion.div>
+
+                                {/* 渐变遮罩 */}
+                                <div className="absolute inset-0"
+                                    style={{
+                                        background: `linear-gradient(135deg, 
+                                            ${colors.primary}30 0%, 
+                                            ${colors.secondary}20 50%, 
+                                            ${theme === 'dark' ? 'rgba(20, 20, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)'} 100%)`
+                                    }}
                                 />
-                                <div className={`absolute inset-0 bg-gradient-to-t 
-                                    ${theme === 'dark'
-                                        ? 'from-morandi-dark to-transparent'
-                                        : 'from-morandi-light to-transparent'
-                                    }`}
+
+                                {/* 动态光效 */}
+                                <motion.div
+                                    className="absolute inset-0 opacity-30"
+                                    animate={{
+                                        background: `radial-gradient(circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 
+                                            ${colors.primary}40, transparent 50%)`
+                                    }}
+                                    transition={{ type: 'tween', duration: 0.3 }}
+                                />
+
+                                {/* 浮动几何装饰 */}
+                                <motion.div
+                                    className="absolute top-10 right-10 w-32 h-32"
+                                    animate={{
+                                        rotate: 360,
+                                        scale: [1, 1.1, 1]
+                                    }}
+                                    transition={{
+                                        rotate: { duration: 20, repeat: Infinity, ease: "linear" },
+                                        scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+                                    }}
+                                    style={{
+                                        background: `linear-gradient(135deg, ${colors.primary}20, ${colors.secondary}20)`,
+                                        clipPath: 'polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)',
+                                        filter: 'blur(1px)'
+                                    }}
                                 />
 
                                 {/* 关闭按钮 */}
                                 <motion.button
-                                    className={`absolute top-4 right-4 p-2 rounded-full backdrop-blur-md
-                                        ${theme === 'dark'
-                                            ? 'bg-morandi-dark/50 hover:bg-morandi-dark/70'
-                                            : 'bg-morandi-light/50 hover:bg-morandi-light/70'
-                                        } transition-colors`}
-                                    onClick={onClose}
-                                    whileHover={{ scale: 1.1 }}
+                                    className="absolute top-6 right-6 p-3 rounded-full backdrop-blur-md"
+                                    onClick={handleClose}
+                                    whileHover={{ scale: 1.1, rotate: 90 }}
                                     whileTap={{ scale: 0.9 }}
+                                    style={{
+                                        background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                        border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.1)'}`,
+                                        transition: 'all 0.3s ease'
+                                    }}
                                 >
-                                    <X size={24} />
+                                    <X size={24} className={theme === 'dark' ? 'text-white' : 'text-gray-800'} />
                                 </motion.button>
                             </div>
 
-                            <div className="p-8">
-                                {/* 头部信息 */}
-                                <div className="flex items-start justify-between mb-6">
-                                    <div className="flex items-center gap-4">
+                            <div className="p-10">
+                                {/* 头部信息 - 重新设计 */}
+                                <div className="flex items-start justify-between mb-10">
+                                    <div className="flex items-center gap-6">
+                                        {/* 悬浮图标 */}
                                         <motion.div
-                                            className={`p-3 rounded-xl ${theme === 'dark' ? 'bg-morandi-accent/20' : 'bg-morandi-hover/30'
-                                                }`}
-                                            initial={{ rotate: -180, scale: 0 }}
-                                            animate={{ rotate: 0, scale: 1 }}
-                                            transition={{ type: "spring", stiffness: 200 }}
+                                            className="relative"
+                                            initial={{ scale: 0, rotate: -180 }}
+                                            animate={{ scale: 1, rotate: 0 }}
+                                            transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
                                         >
-                                            <CategoryIcon size={32} className="text-morandi-accent" />
+                                            <motion.div
+                                                className="relative p-5"
+                                                animate={{
+                                                    y: [0, -5, 0]
+                                                }}
+                                                transition={{
+                                                    duration: 3,
+                                                    repeat: Infinity,
+                                                    ease: "easeInOut"
+                                                }}
+                                                style={{
+                                                    background: `linear-gradient(135deg, ${colors.primary}15, ${colors.secondary}15)`,
+                                                    borderRadius: '20px',
+                                                    border: `2px solid ${colors.primary}20`,
+                                                    boxShadow: `0 8px 32px ${colors.primary}20`
+                                                }}
+                                            >
+                                                <CategoryIcon size={36} style={{ color: colors.primary }} />
+
+                                                {/* 环形动画 */}
+                                                <motion.div
+                                                    className="absolute inset-0 rounded-2xl"
+                                                    style={{
+                                                        border: `2px solid ${colors.primary}`,
+                                                        opacity: 0.3
+                                                    }}
+                                                    animate={{
+                                                        scale: [1, 1.3, 1],
+                                                        opacity: [0.3, 0, 0.3]
+                                                    }}
+                                                    transition={{
+                                                        duration: 2,
+                                                        repeat: Infinity,
+                                                        ease: "easeOut"
+                                                    }}
+                                                />
+                                            </motion.div>
                                         </motion.div>
+
                                         <div>
-                                            <h2 className="text-3xl font-bold text-morandi-dark dark:text-morandi-light">
+                                            <motion.h2
+                                                className="text-4xl font-bold mb-2"
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.3 }}
+                                                style={{
+                                                    background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+                                                    WebkitBackgroundClip: 'text',
+                                                    WebkitTextFillColor: 'transparent',
+                                                    backgroundClip: 'text'
+                                                }}
+                                            >
                                                 {project.title}
-                                            </h2>
-                                            <p className="text-morandi-text/60 dark:text-morandi-light/60">
+                                            </motion.h2>
+                                            <motion.p
+                                                className="text-morandi-text/60 dark:text-morandi-light/60 text-lg"
+                                                initial={{ opacity: 0, x: -20 }}
+                                                animate={{ opacity: 1, x: 0 }}
+                                                transition={{ delay: 0.4 }}
+                                            >
                                                 {project.date}
-                                            </p>
+                                            </motion.p>
                                         </div>
                                     </div>
-                                    <Badge
-                                        variant="secondary"
-                                        className={`${project.status === "In Progress"
-                                            ? "bg-yellow-500/20 text-yellow-600 dark:text-yellow-400"
-                                            : "bg-green-500/20 text-green-600 dark:text-green-400"
-                                            }`}
+
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{ delay: 0.5, type: "spring" }}
                                     >
-                                        {project.status === "In Progress" ? (
-                                            <Clock size={16} className="mr-2 animate-pulse" />
-                                        ) : (
-                                            <CheckCircle size={16} className="mr-2" />
-                                        )}
-                                        {project.status}
-                                    </Badge>
+                                        <Badge
+                                            className={`px-5 py-2 text-sm font-medium backdrop-blur-md ${project.status === "In Progress"
+                                                ? "bg-amber-100/10 text-amber-600 dark:text-amber-400 border border-amber-200/20"
+                                                : "bg-emerald-100/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200/20"
+                                                }`}
+                                        >
+                                            {project.status === "In Progress" ? (
+                                                <Clock size={16} className="mr-2 animate-pulse inline" />
+                                            ) : (
+                                                <CheckCircle size={16} className="mr-2 inline" />
+                                            )}
+                                            {project.status}
+                                        </Badge>
+                                    </motion.div>
                                 </div>
 
-                                {/* 描述 */}
-                                <p className="text-lg text-morandi-text dark:text-morandi-light/90 mb-8">
-                                    {project.description}
-                                </p>
+                                {/* 描述卡片 */}
+                                <motion.div
+                                    className="mb-10 p-6 rounded-2xl"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 0.6 }}
+                                    style={{
+                                        background: theme === 'dark'
+                                            ? 'rgba(255, 255, 255, 0.03)'
+                                            : 'rgba(0, 0, 0, 0.02)',
+                                        border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`
+                                    }}
+                                >
+                                    <p className="text-xl text-morandi-text dark:text-morandi-light/90 leading-relaxed">
+                                        {project.description}
+                                    </p>
+                                </motion.div>
 
-                                {/* 特性列表 */}
+                                {/* 特性网格 - 卡片式设计 */}
                                 {project.features && (
-                                    <div className="mb-8">
-                                        <h3 className="text-xl font-semibold mb-4 text-morandi-dark dark:text-morandi-light">
+                                    <motion.div
+                                        className="mb-10"
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        transition={{ delay: 0.7 }}
+                                    >
+                                        <h3 className="text-2xl font-semibold mb-6 text-morandi-dark dark:text-morandi-light">
                                             Key Features
                                         </h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                             {project.features.map((feature, index) => (
                                                 <motion.div
                                                     key={index}
-                                                    initial={{ opacity: 0, x: -20 }}
-                                                    animate={{ opacity: 1, x: 0 }}
-                                                    transition={{ delay: index * 0.1 }}
-                                                    className={`flex items-center gap-2 p-3 rounded-lg
-                                                        ${theme === 'dark'
-                                                            ? 'bg-morandi-muted/30'
-                                                            : 'bg-morandi-hover/20'
-                                                        }`}
+                                                    initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                                    transition={{ delay: 0.8 + index * 0.1 }}
+                                                    whileHover={{
+                                                        scale: 1.02,
+                                                        boxShadow: `0 8px 32px ${colors.primary}15`
+                                                    }}
+                                                    className="relative p-5 rounded-2xl backdrop-blur-md overflow-hidden cursor-pointer"
+                                                    style={{
+                                                        background: theme === 'dark'
+                                                            ? `linear-gradient(135deg, ${colors.primary}05, ${colors.secondary}05)`
+                                                            : `linear-gradient(135deg, ${colors.primary}03, ${colors.secondary}03)`,
+                                                        border: `1px solid ${colors.primary}15`
+                                                    }}
                                                 >
-                                                    <Sparkles size={16} className="text-morandi-accent" />
-                                                    <span className="text-morandi-text dark:text-morandi-light/80">
-                                                        {feature}
-                                                    </span>
+                                                    {/* 悬浮光效 */}
+                                                    <motion.div
+                                                        className="absolute inset-0 opacity-0"
+                                                        whileHover={{ opacity: 1 }}
+                                                        style={{
+                                                            background: `radial-gradient(circle at 50% 50%, ${colors.primary}10, transparent 70%)`
+                                                        }}
+                                                    />
+
+                                                    <div className="relative flex items-center gap-3">
+                                                        <motion.div
+                                                            className="w-2 h-2 rounded-full"
+                                                            style={{ backgroundColor: colors.primary }}
+                                                            animate={{
+                                                                scale: [1, 1.2, 1],
+                                                                opacity: [0.8, 1, 0.8]
+                                                            }}
+                                                            transition={{
+                                                                duration: 2,
+                                                                repeat: Infinity,
+                                                                delay: index * 0.2
+                                                            }}
+                                                        />
+                                                        <span className="text-morandi-text dark:text-morandi-light/85 font-medium">
+                                                            {feature}
+                                                        </span>
+                                                    </div>
                                                 </motion.div>
                                             ))}
                                         </div>
-                                    </div>
+                                    </motion.div>
                                 )}
 
-                                {/* 技术栈 */}
-                                <div className="mb-8">
-                                    <h3 className="text-xl font-semibold mb-4 text-morandi-dark dark:text-morandi-light">
+                                {/* 技术栈展示 - 增强版 */}
+                                <motion.div
+                                    className="mb-10"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ delay: 0.9 }}
+                                >
+                                    <h3 className="text-2xl font-semibold mb-6 text-morandi-dark dark:text-morandi-light">
                                         Technology Stack
                                     </h3>
                                     <div className="flex flex-wrap gap-3">
@@ -507,51 +838,93 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                             return (
                                                 <motion.div
                                                     key={tech}
-                                                    initial={{ opacity: 0, scale: 0 }}
-                                                    animate={{ opacity: 1, scale: 1 }}
+                                                    initial={{ opacity: 0, scale: 0, rotate: -180 }}
+                                                    animate={{ opacity: 1, scale: 1, rotate: 0 }}
                                                     transition={{
-                                                        delay: index * 0.05,
+                                                        delay: 1 + index * 0.05,
                                                         type: "spring",
-                                                        stiffness: 300
+                                                        stiffness: 200
                                                     }}
-                                                    whileHover={{ scale: 1.1, y: -3 }}
+                                                    whileHover={{
+                                                        scale: 1.1,
+                                                        y: -5,
+                                                        rotate: 5
+                                                    }}
+                                                    className="relative"
                                                 >
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="px-4 py-2 border-morandi-accent/30"
-                                                        style={{ borderColor: `${color}50` }}
+                                                    <div
+                                                        className="px-5 py-3 rounded-2xl backdrop-blur-md flex items-center gap-2 cursor-pointer"
+                                                        style={{
+                                                            background: theme === 'dark'
+                                                                ? `linear-gradient(135deg, ${color}15, ${color}10)`
+                                                                : `linear-gradient(135deg, ${color}10, ${color}05)`,
+                                                            border: `1px solid ${color}30`,
+                                                            boxShadow: `0 4px 12px ${color}10`
+                                                        }}
                                                     >
                                                         {IconComponent && (
-                                                            <IconComponent
-                                                                size={18}
-                                                                className="mr-2"
-                                                                style={{ color }}
-                                                            />
+                                                            <motion.div
+                                                                animate={{
+                                                                    rotate: [0, 360]
+                                                                }}
+                                                                transition={{
+                                                                    duration: 20,
+                                                                    repeat: Infinity,
+                                                                    ease: "linear"
+                                                                }}
+                                                            >
+                                                                <IconComponent
+                                                                    size={20}
+                                                                    style={{ color }}
+                                                                />
+                                                            </motion.div>
                                                         )}
-                                                        {tech}
-                                                    </Badge>
+                                                        <span className="text-base font-medium" style={{ color }}>
+                                                            {tech}
+                                                        </span>
+                                                    </div>
                                                 </motion.div>
                                             );
                                         })}
                                     </div>
-                                </div>
+                                </motion.div>
 
-                                {/* GitHub链接 */}
+                                {/* GitHub链接 - 悬浮按钮 */}
                                 <motion.a
                                     href={project.githubLink}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className={`inline-flex items-center gap-3 px-6 py-3 rounded-xl font-medium
-                                        ${theme === 'dark'
-                                            ? 'bg-morandi-accent/20 hover:bg-morandi-accent/30 text-morandi-light'
-                                            : 'bg-morandi-hover/40 hover:bg-morandi-hover/60 text-morandi-dark'
-                                        } transition-all duration-300`}
-                                    whileHover={{ scale: 1.05 }}
+                                    className="inline-flex items-center gap-3 px-8 py-4 rounded-2xl font-medium text-lg"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: 1.2 }}
+                                    whileHover={{
+                                        scale: 1.05,
+                                        boxShadow: `0 12px 32px ${colors.primary}30`
+                                    }}
                                     whileTap={{ scale: 0.95 }}
+                                    style={{
+                                        background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
+                                        color: 'white',
+                                        border: 'none',
+                                        position: 'relative',
+                                        overflow: 'hidden'
+                                    }}
                                 >
-                                    <Github size={20} />
-                                    <span>View on GitHub</span>
-                                    <ExternalLink size={16} />
+                                    {/* 悬浮光效 */}
+                                    <motion.div
+                                        className="absolute inset-0"
+                                        initial={{ x: '-100%' }}
+                                        whileHover={{ x: '100%' }}
+                                        transition={{ duration: 0.6 }}
+                                        style={{
+                                            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)'
+                                        }}
+                                    />
+
+                                    <Github size={24} />
+                                    <span className="relative">View Source Code</span>
+                                    <ExternalLink size={18} />
                                 </motion.a>
                             </div>
                         </Card>
@@ -569,6 +942,7 @@ const Projects: React.FC = () => {
         target: ref,
         offset: ["start start", "end start"]
     });
+    const { theme } = useTheme();
 
     const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -200]);
 
@@ -591,34 +965,62 @@ const Projects: React.FC = () => {
             ref={ref}
             className="relative min-h-screen py-20 px-4 overflow-hidden bg-morandi-bg dark:bg-morandi-dark transition-colors duration-500"
         >
-            {/* 动态背景 */}
+            {/* CSS动画定义 */}
+            <style jsx>{`
+                @keyframes gradient-shift {
+                    0% { background-position: 0% 50%; }
+                    50% { background-position: 100% 50%; }
+                    100% { background-position: 0% 50%; }
+                }
+                @keyframes float-up {
+                    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+                    10% { opacity: 1; }
+                    90% { opacity: 1; }
+                    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+                }
+            `}</style>
+
+            {/* 增强背景效果 */}
             <motion.div
                 className="absolute inset-0 -z-10"
                 style={{ y: backgroundY }}
             >
-                {/* 浮动圆形 */}
-                {[...Array(6)].map((_, i) => (
+                {/* 主渐变背景 */}
+                <div className="absolute inset-0"
+                    style={{
+                        background: theme === 'dark'
+                            ? 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.05) 0%, transparent 50%)'
+                            : 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.03) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.03) 0%, transparent 50%)'
+                    }}
+                />
+
+                {/* 动态网格 */}
+                <div className="absolute inset-0"
+                    style={{
+                        backgroundImage: `linear-gradient(${theme === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)'} 1px, transparent 1px), linear-gradient(90deg, ${theme === 'dark' ? 'rgba(255, 255, 255, 0.02)' : 'rgba(0, 0, 0, 0.02)'} 1px, transparent 1px)`,
+                        backgroundSize: '80px 80px',
+                        animation: 'gradient-shift 20s ease infinite'
+                    }}
+                />
+
+                {/* 浮动元素 */}
+                {[...Array(5)].map((_, i) => (
                     <motion.div
                         key={i}
-                        className="absolute rounded-full"
+                        className="absolute"
                         style={{
-                            width: Math.random() * 300 + 100,
-                            height: Math.random() * 300 + 100,
+                            width: `${20 + i * 10}px`,
+                            height: `${20 + i * 10}px`,
                             left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            background: `radial-gradient(circle, ${i % 2 === 0
-                                ? 'rgba(139, 115, 85, 0.08)'
-                                : 'rgba(200, 184, 161, 0.08)'
-                                }, transparent)`,
-                        }}
-                        animate={{
-                            x: [0, Math.random() * 50 - 25, 0],
-                            y: [0, Math.random() * 50 - 25, 0],
-                        }}
-                        transition={{
-                            duration: 20 + i * 2,
-                            repeat: Infinity,
-                            ease: "easeInOut",
+                            bottom: '-100px',
+                            background: theme === 'dark'
+                                ? 'rgba(166, 139, 111, 0.08)'
+                                : 'rgba(139, 115, 85, 0.05)',
+                            borderRadius: i % 2 === 0 ? '50%' : '0',
+                            transform: i % 2 === 0 ? 'none' : 'rotate(45deg)',
+                            animation: `float-up ${20 + i * 5}s linear infinite`,
+                            animationDelay: `${i * 4}s`,
+                            backdropFilter: 'blur(2px)'
                         }}
                     />
                 ))}
@@ -629,17 +1031,96 @@ const Projects: React.FC = () => {
                     initial={{ opacity: 0, y: -30 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className="text-center mb-16"
+                    className="text-center mb-20"
                 >
-                    <h2 className="text-4xl md:text-5xl font-bold mb-4 text-morandi-dark dark:text-morandi-light">
+                    <motion.h2
+                        className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-morandi-dark dark:text-morandi-light"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.1 }}
+                    >
                         My Projects
-                    </h2>
-                    <p className="text-lg text-morandi-text dark:text-morandi-light/80 max-w-2xl mx-auto">
-                        Exploring creativity through code, one project at a time
-                    </p>
+                    </motion.h2>
+                    <motion.p
+                        className="text-lg md:text-xl text-morandi-text dark:text-morandi-light/80 max-w-3xl mx-auto"
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                    >
+                        Exploring creativity through code, building solutions that make a difference
+                    </motion.p>
+
+                    {/* 分类指示器 - 莫兰迪色系 */}
+                    <motion.div
+                        className="flex justify-center gap-6 mt-10"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.5 }}
+                    >
+                        {Object.entries(categoryIcons).map(([category, Icon], index) => {
+                            const count = projects.filter(p => p.category === category).length;
+
+                            return (
+                                <motion.div
+                                    key={category}
+                                    className="relative group cursor-pointer"
+                                    initial={{ opacity: 0, scale: 0 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ delay: 0.6 + index * 0.1, type: "spring" }}
+                                    whileHover={{ scale: 1.05 }}
+                                >
+                                    <motion.div
+                                        className="relative p-4 rounded-2xl backdrop-blur-md"
+                                        style={{
+                                            background: theme === 'dark'
+                                                ? 'rgba(255, 255, 255, 0.05)'
+                                                : 'rgba(0, 0, 0, 0.03)',
+                                            border: `1px solid ${theme === 'dark'
+                                                ? 'rgba(255, 255, 255, 0.1)'
+                                                : 'rgba(0, 0, 0, 0.08)'}`,
+                                            transition: 'all 0.3s ease'
+                                        }}
+                                        whileHover={{
+                                            backgroundColor: theme === 'dark'
+                                                ? 'rgba(166, 139, 111, 0.1)'
+                                                : 'rgba(139, 115, 85, 0.08)'
+                                        }}
+                                    >
+                                        <Icon
+                                            size={24}
+                                            className="text-morandi-accent"
+                                        />
+                                        <motion.div
+                                            className="absolute -top-2 -right-2 px-2 py-1 rounded-full text-xs font-bold bg-morandi-accent text-white"
+                                        >
+                                            {count}
+                                        </motion.div>
+
+                                        {/* 标签提示 */}
+                                        <motion.div
+                                            className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 whitespace-nowrap"
+                                            initial={{ opacity: 0, y: -10 }}
+                                            whileHover={{ opacity: 1, y: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            <span className="text-xs font-medium text-morandi-text/60 dark:text-morandi-light/60">
+                                                {category.charAt(0).toUpperCase() + category.slice(1)}
+                                            </span>
+                                        </motion.div>
+                                    </motion.div>
+                                </motion.div>
+                            );
+                        })}
+                    </motion.div>
                 </motion.div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* 项目网格 - 响应式布局 */}
+                <motion.div
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5, delay: 0.2 }}
+                >
                     {projects.map((project, index) => (
                         <ProjectCard
                             key={project.title}
@@ -648,7 +1129,23 @@ const Projects: React.FC = () => {
                             onSelect={setSelectedProject}
                         />
                     ))}
-                </div>
+                </motion.div>
+
+                {/* 底部装饰 */}
+                <motion.div
+                    className="mt-20 text-center"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    <motion.div
+                        className="inline-flex items-center gap-2 text-sm text-morandi-text/50 dark:text-morandi-light/50"
+                        whileHover={{ scale: 1.05 }}
+                    >
+                        <Sparkles size={16} />
+                        <span>More projects coming soon</span>
+                    </motion.div>
+                </motion.div>
             </div>
 
             {/* 详情弹窗 */}
