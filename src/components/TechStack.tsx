@@ -106,72 +106,107 @@ const TechCard: React.FC<TechCardProps> = React.memo(({
                     y: 0,
                     transition: {
                         type: "spring",
-                        stiffness: 100,
-                        damping: 15,
+                        stiffness: 200,
+                        damping: 20,
                     },
                 },
                 hidden: {
                     opacity: 0,
-                    scale: 0.9,
-                    y: 20
+                    scale: 0.8,
+                    y: 30
                 },
             }}
             onHoverStart={() => setHoveredTech(tech.name)}
             onHoverEnd={() => setHoveredTech(null)}
             onClick={() => setSelectedTech(tech)}
             className="cursor-pointer"
-            whileHover={{ scale: 1.05, y: -5 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ y: -8, scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
         >
-            <Card className={`relative overflow-hidden h-full backdrop-blur-sm
+            <Card className={`relative overflow-hidden h-full border-0
                 ${theme === 'dark'
-                    ? 'bg-gradient-to-br from-morandi-dark/60 to-morandi-muted/40'
-                    : 'bg-gradient-to-br from-morandi-light/60 to-morandi-hover/30'
+                    ? 'bg-white/[0.02]'
+                    : 'bg-white/80'
                 }
-                border-morandi-accent/20 
-                ${isHovered ? 'shadow-lg' : 'shadow-md'}
-                transition-all duration-300`}
+                backdrop-blur-xl
+                transition-all duration-500 ease-out`}
+                style={{
+                    borderRadius: '16px'
+                }}
             >
-                {/* 背景装饰 */}
-                <motion.div
-                    className="absolute -top-10 -right-10 w-32 h-32 rounded-full opacity-10"
-                    animate={{
-                        scale: isHovered ? 1.2 : 1,
-                        rotate: isHovered ? 180 : 0,
-                    }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <tech.Icon size={128} color={tech.color} />
-                </motion.div>
-
-                <div className="relative z-10 p-6 flex flex-col items-center text-center">
+                {/* 极简设计内容 */}
+                <div className="relative z-10 p-6 flex flex-col items-center text-center h-full">
+                    {/* 悬停阴影效果 */}
                     <motion.div
-                        className={`p-4 rounded-xl mb-4 ${theme === 'dark' ? 'bg-morandi-accent/10' : 'bg-morandi-hover/20'
-                            }`}
-                        whileHover={{ rotate: 360 }}
-                        transition={{ duration: 0.5 }}
+                        className="absolute inset-0 rounded-2xl"
+                        animate={{
+                            boxShadow: isHovered
+                                ? `0 20px 40px -15px ${tech.color}20`
+                                : '0 4px 20px -8px rgba(0,0,0,0.05)'
+                        }}
+                        transition={{ duration: 0.4 }}
+                    />
+
+                    {/* 图标区域 */}
+                    <motion.div
+                        className="relative mb-4"
+                        whileHover={{ scale: 1.1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
                     >
-                        <tech.Icon size={48} color={tech.color} />
+                        <motion.div
+                            className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                            style={{
+                                background: `${tech.color}08`,
+                                border: `1px solid ${tech.color}15`
+                            }}
+                            animate={{
+                                rotate: isHovered ? [0, 5, -5, 0] : 0
+                            }}
+                            transition={{ duration: 0.6 }}
+                        >
+                            <tech.Icon size={32} color={tech.color} />
+                        </motion.div>
+
+                        {/* 脉动效果 */}
+                        <motion.div
+                            className="absolute inset-0 rounded-2xl"
+                            style={{
+                                border: `2px solid ${tech.color}30`,
+                                opacity: 0.5
+                            }}
+                            animate={{
+                                scale: isHovered ? [1, 1.2, 1] : 1,
+                                opacity: isHovered ? [0.5, 0, 0.5] : 0
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: isHovered ? Infinity : 0,
+                                ease: "easeOut"
+                            }}
+                        />
                     </motion.div>
 
-                    <h3 className="text-lg font-semibold mb-2 text-morandi-dark dark:text-morandi-light">
-                        {tech.name}
-                    </h3>
+                    <div className="flex-1 flex flex-col justify-center">
+                        <motion.h3
+                            className="text-lg font-semibold mb-2 text-morandi-dark dark:text-morandi-light"
+                            animate={{
+                                color: isHovered ? tech.color : undefined
+                            }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {tech.name}
+                        </motion.h3>
 
-                    <p className="text-sm text-morandi-text/70 dark:text-morandi-light/70">
-                        {tech.description}
-                    </p>
-
-                    {/* 悬停时显示的光效 */}
-                    <motion.div
-                        className="absolute inset-0 pointer-events-none"
-                        animate={{
-                            opacity: isHovered ? 0.2 : 0,
-                        }}
-                        style={{
-                            background: `radial-gradient(circle at center, ${tech.color}40, transparent 70%)`,
-                        }}
-                    />
+                        <motion.p
+                            className="text-sm text-morandi-text/70 dark:text-morandi-light/70 leading-relaxed"
+                            animate={{
+                                opacity: isHovered ? 1 : 0.8
+                            }}
+                            transition={{ duration: 0.3 }}
+                        >
+                            {tech.description}
+                        </motion.p>
+                    </div>
                 </div>
             </Card>
         </motion.div>
@@ -209,41 +244,22 @@ const TechStack = () => {
 
     return (
         <section id="techstack" ref={ref} className="relative py-20 px-4 min-h-screen overflow-hidden bg-morandi-bg dark:bg-morandi-dark transition-colors duration-500">
-            {/* 背景动画 */}
-            <div className="absolute inset-0 -z-10">
-                {[...Array(8)].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute rounded-full"
-                        style={{
-                            width: Math.random() * 200 + 50,
-                            height: Math.random() * 200 + 50,
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            background: `radial-gradient(circle, ${i % 2 === 0
-                                ? 'rgba(139, 115, 85, 0.05)'
-                                : 'rgba(200, 184, 161, 0.05)'
-                                }, transparent)`,
-                        }}
-                        animate={{
-                            x: [0, Math.random() * 30 - 15, 0],
-                            y: [0, Math.random() * 30 - 15, 0],
-                            scale: [1, 1.1, 1],
-                        }}
-                        transition={{
-                            duration: 15 + i * 2,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                        }}
-                    />
-                ))}
+            {/* 极简背景 */}
+            <div className="absolute inset-0 -z-10 opacity-30">
+                <div className="absolute inset-0"
+                    style={{
+                        background: theme === 'dark'
+                            ? 'radial-gradient(circle at 30% 70%, rgba(166, 139, 111, 0.02) 0%, transparent 60%)'
+                            : 'radial-gradient(circle at 30% 70%, rgba(139, 115, 85, 0.01) 0%, transparent 60%)'
+                    }}
+                />
             </div>
 
             <div className="container mx-auto max-w-7xl relative z-10">
                 <motion.div
-                    initial={{ opacity: 0, y: -30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6 }}
+                    transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
                     className="text-center mb-16"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold mb-4 text-morandi-dark dark:text-morandi-light">
@@ -254,46 +270,46 @@ const TechStack = () => {
                     </p>
                 </motion.div>
 
-                {/* 分类过滤器 */}
+                {/* 极简分类过滤器 */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="flex flex-wrap justify-center gap-3 mb-12"
+                    className="flex flex-wrap justify-center gap-2 mb-12"
                 >
-                    <Badge
-                        variant={selectedCategory === null ? "default" : "outline"}
-                        className={`px-4 py-2 cursor-pointer transition-all ${selectedCategory === null
+                    <motion.button
+                        className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === null
                             ? 'bg-morandi-accent text-white'
-                            : 'border-morandi-accent/30 hover:bg-morandi-accent/10'
+                            : 'text-morandi-text/70 dark:text-morandi-light/70 hover:text-morandi-dark dark:hover:text-morandi-light'
                             }`}
                         onClick={() => setSelectedCategory(null)}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                     >
-                        <Sparkles size={16} className="mr-2" />
-                        All
-                    </Badge>
+                        All ({techStack.length})
+                    </motion.button>
                     {Object.entries(categoryNames).map(([key, name]) => {
-                        const Icon = categoryIcons[key as keyof typeof categoryIcons];
+                        const count = techStack.filter(t => t.category === key).length;
                         return (
-                            <Badge
+                            <motion.button
                                 key={key}
-                                variant={selectedCategory === key ? "default" : "outline"}
-                                className={`px-4 py-2 cursor-pointer transition-all ${selectedCategory === key
+                                className={`px-6 py-2 rounded-full text-sm font-medium transition-all duration-300 ${selectedCategory === key
                                     ? 'bg-morandi-accent text-white'
-                                    : 'border-morandi-accent/30 hover:bg-morandi-accent/10'
+                                    : 'text-morandi-text/70 dark:text-morandi-light/70 hover:text-morandi-dark dark:hover:text-morandi-light'
                                     }`}
                                 onClick={() => setSelectedCategory(key)}
+                                whileHover={{ scale: 1.05 }}
+                                whileTap={{ scale: 0.95 }}
                             >
-                                <Icon size={16} className="mr-2" />
-                                {name}
-                            </Badge>
+                                {name} ({count})
+                            </motion.button>
                         );
                     })}
                 </motion.div>
 
-                {/* 技术栈网格 */}
+                {/* 极简技术栈网格 */}
                 <motion.div
-                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+                    className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 md:gap-6"
                     variants={containerVariants}
                     initial="hidden"
                     animate={inView ? "visible" : "hidden"}
@@ -311,44 +327,7 @@ const TechStack = () => {
                     ))}
                 </motion.div>
 
-                {/* 统计信息 */}
-                <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={inView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-                    transition={{ delay: 0.5 }}
-                    className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6"
-                >
-                    {[
-                        { label: "Languages", count: techStack.filter(t => t.category === "language").length, icon: Code2 },
-                        { label: "Frameworks", count: techStack.filter(t => t.category === "framework").length, icon: Layers },
-                        { label: "Databases", count: techStack.filter(t => t.category === "database").length, icon: Database },
-                        { label: "Tools", count: techStack.filter(t => t.category === "tool").length, icon: Terminal },
-                    ].map((stat, index) => (
-                        <motion.div
-                            key={stat.label}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={inView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-                            transition={{ delay: 0.6 + index * 0.1 }}
-                            whileHover={{ scale: 1.05 }}
-                        >
-                            <Card className={`text-center p-6 backdrop-blur-sm
-                                ${theme === 'dark'
-                                    ? 'bg-morandi-muted/30'
-                                    : 'bg-morandi-hover/20'
-                                }
-                                border-morandi-accent/20`}
-                            >
-                                <stat.icon size={32} className="mx-auto mb-3 text-morandi-accent" />
-                                <h3 className="text-2xl font-bold text-morandi-dark dark:text-morandi-light">
-                                    {stat.count}
-                                </h3>
-                                <p className="text-sm text-morandi-text/70 dark:text-morandi-light/70">
-                                    {stat.label}
-                                </p>
-                            </Card>
-                        </motion.div>
-                    ))}
-                </motion.div>
+
             </div>
 
             {/* 技术详情弹窗 */}

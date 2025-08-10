@@ -178,28 +178,63 @@ const SkillOrbit: React.FC<{
                     y: isActive ? -10 : 0,
                 }}
             >
+                {/* 增强的光环效果 */}
                 <motion.div
-                    className="absolute inset-0 rounded-full blur-xl"
+                    className="absolute inset-0 rounded-full"
                     style={{
-                        background: skill.color,
-                        opacity: isActive ? 0.7 : 0.35,
+                        background: `conic-gradient(from 0deg, ${skill.color}40, transparent, ${skill.color}40)`,
+                        filter: 'blur(20px)',
                     }}
                     animate={{
-                        scale: isActive ? 1.6 : 1,
+                        scale: isActive ? 2 : 1.2,
+                        rotate: 360,
+                        opacity: isActive ? 0.8 : 0.4,
                     }}
-                    transition={{ type: "spring", stiffness: 200, damping: 15 }}
+                    transition={{
+                        scale: { type: "spring", stiffness: 200, damping: 15 },
+                        rotate: { duration: 4, repeat: Infinity, ease: "linear" },
+                        opacity: { duration: 0.3 }
+                    }}
                 />
+
+                {/* 脉冲光环 */}
+                <motion.div
+                    className="absolute inset-0 rounded-full border-2"
+                    style={{
+                        borderColor: skill.color,
+                        opacity: isActive ? 0.6 : 0,
+                    }}
+                    animate={{
+                        scale: isActive ? [1, 1.8, 1] : 1,
+                        opacity: isActive ? [0.6, 0, 0.6] : 0,
+                    }}
+                    transition={{
+                        duration: 2,
+                        repeat: isActive ? Infinity : 0,
+                        ease: "easeOut"
+                    }}
+                />
+
                 <motion.div
                     className={`relative px-4 py-2 rounded-full flex items-center gap-2
                         ${theme === 'dark'
-                            ? 'bg-morandi-dark/85 border-morandi-accent/40'
-                            : 'bg-morandi-light/85 border-morandi-accent/40'
+                            ? 'bg-morandi-dark/90 border-morandi-accent/30'
+                            : 'bg-morandi-light/90 border-morandi-accent/30'
                         }
-                        border backdrop-blur-lg`}
+                        border backdrop-blur-xl`}
                     style={{
                         boxShadow: isActive
-                            ? `0 0 35px ${skill.color}90`
-                            : `0 0 20px ${skill.color}50`,
+                            ? `0 8px 32px ${skill.color}50, 0 0 20px ${skill.color}30`
+                            : `0 4px 16px ${skill.color}30`,
+                        borderColor: isActive ? `${skill.color}60` : undefined,
+                    }}
+                    animate={{
+                        y: isActive ? [0, -2, 0] : 0,
+                    }}
+                    transition={{
+                        duration: 2,
+                        repeat: isActive ? Infinity : 0,
+                        ease: "easeInOut"
                     }}
                 >
                     <div style={{ color: skill.color }}>
@@ -343,23 +378,64 @@ export default function About() {
             ref={containerRef}
             className="relative min-h-screen flex flex-col items-center justify-center bg-morandi-bg dark:bg-morandi-dark overflow-hidden px-4 py-10 md:py-20"
         >
-            {/* Background effects */}
+            {/* 增强的背景效果 */}
             <div className="absolute inset-0 -z-20">
-                <div className="absolute inset-0 bg-gradient-to-br from-morandi-accent/3 via-transparent to-morandi-hover/3" />
-                {[...Array(5)].map((_, i) => (
+                {/* 主背景渐变 */}
+                <motion.div
+                    className="absolute inset-0"
+                    animate={{
+                        background: activeSkill
+                            ? `radial-gradient(circle at 50% 50%, ${activeSkill.color}08 0%, transparent 70%)`
+                            : 'radial-gradient(circle at 50% 50%, rgba(166, 139, 111, 0.03) 0%, transparent 70%)'
+                    }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
+                />
+
+                {/* 动态光环 */}
+                {[...Array(3)].map((_, i) => (
                     <motion.div
                         key={i}
                         className="absolute rounded-full"
                         style={{
-                            width: 300 + i * 150,
-                            height: 300 + i * 150,
+                            width: 400 + i * 200,
+                            height: 400 + i * 200,
                             left: '50%', top: '50%', x: '-50%', y: '-50%',
                             border: '1px solid',
-                            borderColor: theme === 'dark' ? 'rgba(166, 139, 111, 0.02)' : 'rgba(139, 115, 85, 0.02)',
-                            opacity: 0.5,
+                            borderColor: activeSkill
+                                ? `${activeSkill.color}15`
+                                : theme === 'dark' ? 'rgba(166, 139, 111, 0.05)' : 'rgba(139, 115, 85, 0.03)',
                         }}
-                        animate={{ rotate: i % 2 === 0 ? 360 : -360 }}
-                        transition={{ duration: 120 + i * 30, repeat: Infinity, ease: "linear" }}
+                        animate={{
+                            rotate: i % 2 === 0 ? 360 : -360,
+                            scale: activeSkill ? [1, 1.05, 1] : 1
+                        }}
+                        transition={{
+                            rotate: { duration: 60 + i * 20, repeat: Infinity, ease: "linear" },
+                            scale: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+                        }}
+                    />
+                ))}
+
+                {/* 星尘效果 */}
+                {[...Array(8)].map((_, i) => (
+                    <motion.div
+                        key={`star-${i}`}
+                        className="absolute w-1 h-1 rounded-full"
+                        style={{
+                            background: activeSkill ? activeSkill.color : '#A68B6F',
+                            left: `${20 + Math.random() * 60}%`,
+                            top: `${20 + Math.random() * 60}%`,
+                        }}
+                        animate={{
+                            opacity: [0, 1, 0],
+                            scale: [0, 1, 0],
+                        }}
+                        transition={{
+                            duration: 2 + Math.random() * 3,
+                            repeat: Infinity,
+                            delay: i * 0.5,
+                            ease: "easeInOut"
+                        }}
                     />
                 ))}
             </div>
@@ -370,12 +446,50 @@ export default function About() {
                 transition={{ duration: 0.6 }}
                 className="text-center mb-12 md:mb-20"
             >
-                <h2 className="text-4xl md:text-5xl font-bold mb-4 text-morandi-dark dark:text-morandi-light">
-                    About Me
-                </h2>
-                <p className="text-lg text-morandi-text dark:text-morandi-light/80">
-                    Hover over the skills to explore my expertise
-                </p>
+                <motion.h2
+                    className="text-4xl md:text-5xl font-bold mb-4 text-morandi-dark dark:text-morandi-light relative"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.8, delay: 0.2 }}
+                >
+                    <span className="relative">
+                        About Me
+                        {/* 动态下划线 */}
+                        <motion.div
+                            className="absolute -bottom-2 left-1/2 h-0.5 rounded-full"
+                            style={{
+                                background: activeSkill
+                                    ? `linear-gradient(90deg, transparent, ${activeSkill.color}, transparent)`
+                                    : 'linear-gradient(90deg, transparent, #A68B6F, transparent)',
+                            }}
+                            initial={{ width: 0, x: '-50%' }}
+                            animate={{
+                                width: activeSkill ? '120%' : '80%',
+                                opacity: [0.5, 1, 0.5]
+                            }}
+                            transition={{
+                                width: { duration: 0.6, ease: "easeOut" },
+                                opacity: { duration: 2, repeat: Infinity, ease: "easeInOut" }
+                            }}
+                        />
+                    </span>
+                </motion.h2>
+                <motion.p
+                    className="text-lg text-morandi-text dark:text-morandi-light/80"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.4 }}
+                >
+                    <motion.span
+                        animate={{
+                            color: activeSkill ? activeSkill.color : undefined
+                        }}
+                        transition={{ duration: 0.4 }}
+                    >
+                        Hover over the skills
+                    </motion.span>
+                    {" to explore my expertise"}
+                </motion.p>
             </motion.div>
 
             {/* Main Interaction Area */}
@@ -438,41 +552,61 @@ export default function About() {
                     whileTap={{ scale: activeSkill ? 1.02 : 0.98 }}
                 >
                     <Card
-                        className="relative w-[350px] md:w-[360px] rounded-3xl overflow-hidden border transition-all duration-300 ease-out"
+                        className="relative w-[380px] md:w-[400px] rounded-3xl overflow-hidden border transition-all duration-500 ease-out"
                         style={{
                             background: cardBaseColor,
                             borderColor: cardHover ? activeCardBorderColor : cardBorderColor,
-                            backdropFilter: 'blur(24px) saturate(160%)',
-                            WebkitBackdropFilter: 'blur(24px) saturate(160%)',
+                            backdropFilter: 'blur(32px) saturate(180%)',
+                            WebkitBackdropFilter: 'blur(32px) saturate(180%)',
                             transform: 'translateZ(80px)',
                             boxShadow: cardHover
-                                ? `0 ${15}px 40px -10px rgba(0,0,0,0.3), 
-                                   0 0 30px -5px ${activeSkill?.color || '#A68B6F'}44,
-                                   inset 0 0 70px ${theme === 'dark' ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.3)'}`
-                                : `0 6px 20px -8px rgba(0,0,0,0.2),
-                                   inset 0 0 60px ${theme === 'dark' ? 'rgba(0,0,0,0.15)' : 'rgba(255,255,255,0.2)'}`,
+                                ? `0 20px 60px -12px rgba(0,0,0,0.25), 
+                                   0 0 40px -8px ${activeSkill?.color || '#A68B6F'}60,
+                                   0 0 80px -20px ${activeSkill?.color || '#A68B6F'}30,
+                                   inset 0 1px 0 rgba(255,255,255,${theme === 'dark' ? 0.1 : 0.2}),
+                                   inset 0 0 80px ${theme === 'dark' ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.4)'}`
+                                : `0 8px 32px -12px rgba(0,0,0,0.15),
+                                   0 0 20px -8px ${activeSkill?.color || '#A68B6F'}20,
+                                   inset 0 1px 0 rgba(255,255,255,${theme === 'dark' ? 0.05 : 0.15}),
+                                   inset 0 0 60px ${theme === 'dark' ? 'rgba(0,0,0,0.05)' : 'rgba(255,255,255,0.3)'}`,
                         }}
                     >
+                        {/* 动态边框光效 */}
                         <motion.div
-                            className="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl"
+                            className="absolute inset-0 rounded-3xl pointer-events-none"
                             style={{
-                                background: `radial-gradient(circle at ${50 + glareX.get() / 2.5}% ${50 + glareY.get() / 2.5}%, ${activeSkill?.color || (theme === 'dark' ? '#FFFFFF' : '#000000')}1A, transparent 55%)`,
-                                opacity: cardHover ? 0.9 : 0,
-                                transition: 'opacity 0.3s',
-                                mixBlendMode: theme === 'dark' ? 'overlay' : 'hard-light',
+                                background: `conic-gradient(from 0deg, ${activeSkill?.color || '#A68B6F'}60, transparent, ${activeSkill?.color || '#A68B6F'}60)`,
+                                padding: '2px',
+                                mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                                maskComposite: 'xor',
+                                WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                                WebkitMaskComposite: 'xor',
+                                opacity: activeSkill && cardHover ? 0.8 : 0,
+                            }}
+                            animate={{
+                                rotate: 360,
+                            }}
+                            transition={{
+                                duration: 8,
+                                repeat: Infinity,
+                                ease: "linear"
                             }}
                         />
+
+                        {/* 增强的背景光效 */}
                         <motion.div
-                            className="absolute inset-0 z-0 opacity-25"
+                            className="absolute inset-0 z-0 rounded-3xl"
                             style={{
-                                backgroundImage: `radial-gradient(circle at center, ${activeSkill?.color || '#A68B6F'}22 0%, transparent 65%)`,
-                                scale: cardHover ? 1.6 : 1.3,
-                                x: useTransform(mouseX, [-1, 1], [-15, 15]),
-                                y: useTransform(mouseY, [-1, 1], [-15, 15]),
-                                transition: 'scale 0.5s ease-out',
-                                filter: 'blur(35px)',
+                                background: `radial-gradient(circle at ${50 + glareX.get() * 30}% ${50 + glareY.get() * 30}%, ${activeSkill?.color || '#A68B6F'}15 0%, transparent 70%)`,
+                                opacity: cardHover ? 1 : 0.3,
+                                filter: 'blur(40px)',
                             }}
+                            animate={{
+                                scale: cardHover ? 1.5 : 1.2,
+                            }}
+                            transition={{ duration: 0.6, ease: "easeOut" }}
                         />
+
                         <motion.div
                             className="relative z-10"
                             style={{

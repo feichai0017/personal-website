@@ -51,24 +51,32 @@ const experiencesData: Experience[] = [
         skills: ["React", "Node.js", "TypeScript", "AWS"]
     },
     {
-        title: "Data Analyst",
+        title: "AI Developer Engineer",
         organization: "Seetrum",
-        location: "Sydney, Australia",
-        period: "Oct 2023",
-        description: "Analyzed market trends and product data. Prepared data-driven reports for marketing strategies.",
-        achievements: ["Increased conversion rate by 25%", "Automated reporting process", "Built predictive models"],
+        location: "Shanghai, China",
+        period: "Mar 2023 - Nov 2023",
+        description: "Built full-stack web portal for spectroscopy-chip products with React front-end and TypeScript backend exposing RESTful APIs.",
+        achievements: [
+            "Trained deep-learning models (CNN & Transformer) for spectral fingerprint recognition and chemical composition prediction, boosting accuracy by 20%",
+            "Automated data pipeline and CI/CD (Python, SQL, GitHub Actions) for continual model retraining and deployment to ARM edge devices",
+            "Integrated on-chip inference API with hardware team, achieving real-time classification under 150 ms latency"
+        ],
         type: "work",
-        skills: ["Python", "SQL", "Data Analysis", "Machine Learning"]
+        skills: ["React", "TypeScript", "Python", "CNN", "Transformer", "GitHub Actions", "Edge Computing"]
     },
     {
-        title: "Laboratory Assistant",
+        title: "Laboratory Assistant (Intern)",
         organization: "WuXi AppTec",
         location: "Shanghai, China",
-        period: "Jul 2023",
-        description: "Conducted organic chemistry experiments and data analysis for research projects.",
-        achievements: ["Managed 20+ research projects", "Improved lab efficiency by 30%", "Published research paper"],
+        period: "Jun 2022 - Jan 2023",
+        description: "Supported AI-driven drug discovery programmes, merging deep-learning QSAR models with high-throughput reaction data to accelerate candidate screening.",
+        achievements: [
+            "Built predictive computational chemistry pipelines for reaction yield and property forecasting, utilising PyTorch Geometric on 100k+ curated reactions",
+            "Synthesised and purified novel organic intermediates, validating in-silico predictions through bench-scale experiments",
+            "Automated data capture and lab reporting, boosting experimental turnaround by 30%"
+        ],
         type: "work",
-        skills: ["Data Analysis", "Research", "Lab Management", "Documentation"]
+        skills: ["PyTorch Geometric", "QSAR Models", "Computational Chemistry", "Deep Learning", "Data Analysis", "Lab Automation"]
     },
     {
         title: "Bachelor's in Chemistry",

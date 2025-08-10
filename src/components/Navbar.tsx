@@ -56,7 +56,7 @@ export default function Navbar() {
         tap: { scale: 0.95 }
     }
 
-    const renderNavItem = (item, isMobile = false) => (
+    const renderNavItem = (item: { title: string, href: string }, isMobile = false) => (
         <motion.li
             key={item.title}
             variants={linkVariants}
