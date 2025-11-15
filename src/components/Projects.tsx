@@ -75,10 +75,10 @@ const categoryIcons = {
 const projects: Project[] = [
     {
         title: "QuillSQL",
-        description: "A Lightweight Relational SQL Database in Rust, implementing Bitcask storage model with MVCC concurrency control.",
+        description: "A Lightweight Relational SQL Database in Rust, implementing heap and B+Tree storage model with MVCC concurrency control.",
         status: "In Production",
         date: "Feb 2025 - Apr 2025",
-        techStack: ["Rust", "SQL", "Database", "Bitcask", "MVCC"],
+        techStack: ["Rust", "SQL", "Database", "B+Tree Index", "MVCC"],
         githubLink: "https://github.com/feichai0017/QuillSQL",
         backgroundImage: "/projects/quillsql-logo.png",
         category: "database",
