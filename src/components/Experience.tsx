@@ -1,12 +1,13 @@
 "use client"
 
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence, useInView, useScroll, useSpring } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { School, Briefcase, Building2, ArrowUpRight, MapPin, Clock } from 'lucide-react'
 import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simple-maps"
+import { geoMercator } from "d3-geo"
 
 // Interface and Data (experiencesData) remain the same as you provided
 interface Experience {
@@ -124,7 +125,39 @@ const experienceHighlights: Record<string, { label: string; value: string }[]> =
     ],
 }
 
+type RegionId = "anz" | "china" | "europe"
+
+const regionMeta: Record<RegionId, { label: string; summary: string; accent: string; gradient: string }> = {
+    anz: {
+        label: "Australia & Oceania",
+        summary: "Cloud & research roles shaping data systems across Sydney.",
+        accent: "#7CC2FF",
+        gradient: "from-sky-200/60 via-slate-100/40 to-transparent",
+    },
+    china: {
+        label: "China & APAC Labs",
+        summary: "AI + spectroscopy engineering rooted in Shanghai innovation hubs.",
+        accent: "#F4B183",
+        gradient: "from-amber-200/60 via-rose-100/30 to-transparent",
+    },
+    europe: {
+        label: "United Kingdom",
+        summary: "Foundational chemistry studies and academic accolades in London.",
+        accent: "#C3B5FF",
+        gradient: "from-indigo-200/50 via-purple-100/30 to-transparent",
+    },
+}
+
+const regionOrder: RegionId[] = ["anz", "china", "europe"]
+
 const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
+const noiseTexture = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E"
+const mapConfig = {
+    width: 980,
+    height: 520,
+    scale: 180,
+    center: [0, 20] as [number, number],
+}
 // Helper function to parse dates
 function getStartDate(periodString: string): Date {
     let dateStrToParse: string;
@@ -149,6 +182,68 @@ function getStartDate(periodString: string): Date {
 }
 
 // Adapted ExperienceItem for Timeline (reuses much of your original Item's style)
+const ExperienceMiniMap: React.FC<{
+    city: string;
+    lat: number;
+    lng: number;
+    accent: string;
+    variant?: "card" | "modal" | "overlay";
+}> = ({ city, lat, lng, accent, variant = "card" }) => {
+    const width = 220
+    const height = variant === "modal" ? 170 : 140
+    const isOverlay = variant === "overlay"
+    const mapScale = isOverlay ? 120 : variant === "modal" ? 95 : 85
+
+    return (
+        <div
+            className={`${isOverlay ? "absolute inset-0 pointer-events-none rounded-[inherit]" : "relative rounded-3xl border border-white/20 dark:border-white/10 shadow-inner"} overflow-hidden ${!isOverlay ? (variant === "modal" ? "h-40" : "h-32") : ""}`}
+        >
+            <div className="absolute inset-0 bg-gradient-to-br from-white/50 via-transparent to-transparent dark:from-white/10 dark:via-transparent dark:to-transparent" />
+            <div className="absolute inset-0 opacity-25 mix-blend-screen" style={{ backgroundImage: `url(${noiseTexture})` }} />
+            <ComposableMap
+                projection="geoMercator"
+                projectionConfig={{ scale: mapScale, center: [lng, lat] }}
+                width={width}
+                height={height}
+                style={{ width: "100%", height: "100%" }}
+            >
+                <Geographies geography={geoUrl}>
+                    {({ geographies }) =>
+                        geographies.map(geo => (
+                            <Geography
+                                key={geo.rsmKey}
+                                geography={geo}
+                                fill="rgba(70, 65, 60, 0.3)"
+                                stroke="rgba(15, 15, 15, 0.3)"
+                                strokeWidth={0.2}
+                            />
+                        ))
+                    }
+                </Geographies>
+                <Marker coordinates={[lng, lat]}>
+                    <g>
+                        <circle r={4.5} fill={accent} stroke="#fff" strokeWidth={1} />
+                        <motion.circle
+                            r={8}
+                            stroke={`${accent}60`}
+                            strokeWidth={1.2}
+                            fill="transparent"
+                            animate={{ opacity: [0.7, 0], r: [8, 16] }}
+                            transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                        />
+                    </g>
+                </Marker>
+            </ComposableMap>
+            {variant !== "overlay" && (
+                <div className="absolute bottom-2 left-4 text-[11px] uppercase tracking-[0.3em] text-morandi-text/80 dark:text-morandi-light/70 flex items-center gap-2">
+                    <span className="h-[1px] w-6 bg-morandi-text/40 dark:bg-morandi-light/40" />
+                    <span>{city}</span>
+                </div>
+            )}
+        </div>
+    )
+}
+
 interface TimelineExperienceCardProps {
     experience: Experience;
     onSelect: (exp: Experience) => void;
@@ -176,6 +271,10 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
     };
 
     const highlights = experienceHighlights[experience.title] || []
+    const locationInfo = experienceLocations[experience.title]
+    const regionAccent = locationInfo ? regionMeta[locationInfo.region].accent : '#A68B6F'
+    const tiltX = (0.5 - mousePosition.y) * 8
+    const tiltY = (mousePosition.x - 0.5) * 8
 
     return (
         <motion.div
@@ -199,6 +298,11 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
                     : 'bg-white/90'
                 }
                 border ${isHovered ? 'border-morandi-accent/60' : 'border-morandi-accent/25'}`}
+                style={{
+                    transform: isHovered ? `rotateX(${tiltX}deg) rotateY(${tiltY}deg)` : "rotateX(0deg) rotateY(0deg)",
+                    transformStyle: "preserve-3d",
+                    transition: "transform 0.25s ease",
+                }}
             >
                 {/* Glossy Hover Effect */}
                 <motion.div
@@ -238,15 +342,31 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
                             </div>
                         </div>
 
-                        <div className="text-xs md:text-sm text-morandi-text/70 dark:text-morandi-dark/70 space-y-1 mb-3">
-                            <div className="flex items-center">
-                                <MapPin className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" /> {experience.location}
-                            </div>
-                            <div className="flex items-center">
-                                <Clock className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" /> {experience.period}
+                    </div>
+
+                    {locationInfo && (
+                        <div className="relative mb-5 mt-2 rounded-3xl border border-morandi-accent/20 dark:border-white/10 overflow-hidden">
+                            <div className="relative h-32">
+                                <ExperienceMiniMap
+                                    city={locationInfo.city}
+                                    lat={locationInfo.lat}
+                                    lng={locationInfo.lng}
+                                    accent={regionAccent}
+                                    variant="overlay"
+                                />
+                                <div className="relative z-10 flex flex-col gap-2 md:flex-row md:items-center md:justify-between p-4 text-xs md:text-sm text-morandi-light/90 dark:text-white/90 uppercase tracking-[0.3em]">
+                                    <div className="flex items-center gap-2">
+                                        <MapPin className="w-4 h-4" />
+                                        <span className="tracking-[0.2em]">{experience.location}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <Clock className="w-4 h-4" />
+                                        <span className="tracking-[0.2em]">{experience.period}</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    )}
 
                     {highlights.length > 0 && (
                         <motion.div
@@ -314,13 +434,13 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
     );
 };
 
-const experienceLocations: Record<string, { city: string; lat: number; lng: number }> = {
-    "Research Assistant": { city: "Sydney", lat: -33.8688, lng: 151.2093 },
-    "Master of Computer Science": { city: "Sydney", lat: -33.8688, lng: 151.2093 },
-    "Full Stack Developer": { city: "Sydney", lat: -33.8688, lng: 151.2093 },
-    "AI Developer Engineer": { city: "Shanghai", lat: 31.2304, lng: 121.4737 },
-    "Laboratory Assistant (Intern)": { city: "Shanghai", lat: 31.2304, lng: 121.4737 },
-    "Bachelor's in Chemistry": { city: "London", lat: 51.5072, lng: -0.1276 },
+const experienceLocations: Record<string, { city: string; lat: number; lng: number; region: RegionId }> = {
+    "Research Assistant": { city: "Sydney", lat: -33.8688, lng: 151.2093, region: "anz" },
+    "Master of Computer Science": { city: "Sydney", lat: -33.8688, lng: 151.2093, region: "anz" },
+    "Full Stack Developer": { city: "Sydney", lat: -33.8688, lng: 151.2093, region: "anz" },
+    "AI Developer Engineer": { city: "Shanghai", lat: 31.2304, lng: 121.4737, region: "china" },
+    "Laboratory Assistant (Intern)": { city: "Shanghai", lat: 31.2304, lng: 121.4737, region: "china" },
+    "Bachelor's in Chemistry": { city: "London", lat: 51.5072, lng: -0.1276, region: "europe" },
 }
 
 // Timeline Item Component
@@ -329,13 +449,24 @@ interface TimelineNodeProps {
     index: number;
     onSelect: (exp: Experience) => void;
     onHoverFocus: (title: string) => void;
+    accent: string;
+    onVisible: () => void;
 }
 
-const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect, onHoverFocus }) => {
+const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect, onHoverFocus, accent, onVisible }) => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, amount: 0.25 });
     const isLeft = index % 2 === 0;
     const { theme } = useTheme();
+    const accentColor = accent || (experience.type === 'education' ? '#3B82F6' : '#A68B6F')
+    const hasTriggered = useRef(false)
+
+    useEffect(() => {
+        if (isInView && !hasTriggered.current) {
+            hasTriggered.current = true
+            onVisible()
+        }
+    }, [isInView, onVisible])
 
     // 连接线动画
     const connectorVariants = {
@@ -405,18 +536,16 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
             <div className="md:hidden w-full flex flex-col items-center">
                 <motion.div variants={dotVariants} className="mb-4">
                     <motion.div
-                        className={`w-6 h-6 rounded-full ${experience.type === 'education'
-                            ? 'bg-blue-500/20 dark:bg-blue-400/20'
-                            : 'bg-morandi-accent/20'
-                            }`}
+                        className="w-6 h-6 rounded-full"
+                        style={{ backgroundColor: `${accentColor}20` }}
                         variants={dotVariants}
                         initial="hidden"
                         animate="visible"
                     />
-                    <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full ${experience.type === 'education'
-                        ? 'bg-blue-500 dark:bg-blue-400'
-                        : 'bg-morandi-accent'
-                        }`} />
+                    <div
+                        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full"
+                        style={{ backgroundColor: accentColor }}
+                    />
                 </motion.div>
                 <motion.div variants={itemVariants} className="w-full max-w-md">
                     <TimelineExperienceCard experience={experience} onSelect={onSelect} onHoverFocus={onHoverFocus} />
@@ -442,10 +571,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                             variants={connectorVariants}
                             className="absolute right-1/2 h-[2px] origin-left"
                             style={{
-                                background: `linear-gradient(to left, ${experience.type === 'education'
-                                    ? 'rgb(59, 130, 246, 0.5), rgba(59, 130, 246, 0.1)'
-                                    : 'rgba(166, 139, 111, 0.5), rgba(166, 139, 111, 0.1)'
-                                    })`
+                                background: `linear-gradient(to left, ${accentColor}60, ${accentColor}10)`
                             }}
                         />
                     )}
@@ -456,15 +582,13 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                         className="relative flex items-center justify-center z-10"
                     >
                         {/* 发光效果 */}
-                        <motion.div
-                            className={`absolute w-8 h-8 rounded-full ${experience.type === 'education'
-                                ? 'bg-blue-500/20 dark:bg-blue-400/20'
-                                : 'bg-morandi-accent/20'
-                                }`}
-                            animate={{
-                                scale: [1, 1.2, 1],
-                                opacity: [0.3, 0.6, 0.3],
-                            }}
+                    <motion.div
+                        className="absolute w-8 h-8 rounded-full"
+                        style={{ backgroundColor: `${accentColor}20` }}
+                        animate={{
+                            scale: [1, 1.2, 1],
+                            opacity: [0.3, 0.6, 0.3],
+                        }}
                             transition={{
                                 duration: 2,
                                 repeat: Infinity,
@@ -472,10 +596,10 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                             }}
                         />
                         {/* 中心点 */}
-                        <div className={`relative w-4 h-4 rounded-full ${experience.type === 'education'
-                            ? 'bg-blue-500 dark:bg-blue-400'
-                            : 'bg-morandi-accent'
-                            } shadow-lg`} />
+                        <div
+                            className="relative w-4 h-4 rounded-full shadow-lg"
+                            style={{ backgroundColor: accentColor }}
+                        />
                     </motion.div>
 
                     {/* 右侧连接线 */}
@@ -484,10 +608,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                             variants={connectorVariants}
                             className="absolute left-1/2 h-[2px] origin-right"
                             style={{
-                                background: `linear-gradient(to right, ${experience.type === 'education'
-                                    ? 'rgb(59, 130, 246, 0.5), rgba(59, 130, 246, 0.1)'
-                                    : 'rgba(166, 139, 111, 0.5), rgba(166, 139, 111, 0.1)'
-                                    })`
+                                background: `linear-gradient(to right, ${accentColor}60, ${accentColor}10)`
                             }}
                         />
                     )}
@@ -520,6 +641,8 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
     };
 
     if (!experience) return null;
+    const accent = experience.type === 'education' ? '#60A5FA' : '#A68B6F'
+    const locationInfo = experienceLocations[experience.title]
 
     return (
         <AnimatePresence>
@@ -545,7 +668,20 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                                 ? 'bg-white/10 backdrop-blur-2xl text-morandi-dark'
                                 : 'bg-white text-morandi-dark'
                             } border ${theme === 'dark' ? 'border-white/15' : 'border-morandi-accent/35'}`}
+                            style={{
+                                backgroundImage: `radial-gradient(circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, ${accent}15, transparent 55%)`,
+                            }}
                         >
+                            <motion.div
+                                className="absolute inset-x-0 top-0 h-[2px]"
+                                animate={{ opacity: [0.3, 0.8, 0.3] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                                style={{ background: `linear-gradient(90deg, transparent, ${accent}, transparent)` }}
+                            />
+                            <div
+                                className="absolute inset-0 pointer-events-none opacity-25 mix-blend-soft-light"
+                                style={{ backgroundImage: `url(${noiseTexture})` }}
+                            />
                             <div className="absolute inset-0 pointer-events-none">
                                 <motion.div
                                     className="absolute inset-0"
@@ -590,6 +726,16 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                                         >
                                             {experience.period}
                                         </motion.div>
+                                        {locationInfo && (
+                                            <div className="mt-4">
+                                                <ExperienceMiniMap
+                                                    city={locationInfo.city}
+                                                    lat={locationInfo.lat}
+                                                    lng={locationInfo.lng}
+                                                    accent={regionMeta[locationInfo.region].accent}
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -675,12 +821,23 @@ export default function ExperienceTreeSection() {
     const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
     const [sortedExperiences, setSortedExperiences] = useState<Experience[]>([]);
     const [activeJourney, setActiveJourney] = useState<string>(experiencesData[0].title);
+    const [lineSegments, setLineSegments] = useState(0);
     const { theme } = useTheme();
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
         offset: ["start end", "end start"] // Animate based on section visibility
     });
+    const timelineProgress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
+    const totalNodes = sortedExperiences.length || 1
+    const lineProgressSpring = useSpring(0, { stiffness: 500, damping: 40 })
+    const handleNodeVisible = useCallback(() => {
+        setLineSegments(prev => Math.min(prev + 1, totalNodes))
+    }, [totalNodes])
+    const projection = useMemo(() => geoMercator()
+        .scale(mapConfig.scale)
+        .center(mapConfig.center)
+        .translate([mapConfig.width / 2, mapConfig.height / 2]), []);
 
     useEffect(() => {
         const newSortedExperiences = [...experiencesData].sort((a, b) => {
@@ -694,6 +851,15 @@ export default function ExperienceTreeSection() {
         }
     }, []);
 
+    useEffect(() => {
+        lineProgressSpring.set(lineSegments / totalNodes)
+    }, [lineSegments, totalNodes, lineProgressSpring])
+
+    useEffect(() => {
+        setLineSegments(0)
+        lineProgressSpring.set(0)
+    }, [totalNodes, lineProgressSpring])
+
     // Prevent body scroll when modal is open
     useEffect(() => {
         if (selectedExperience) {
@@ -706,11 +872,25 @@ export default function ExperienceTreeSection() {
         };
     }, [selectedExperience]);
 
-    const latLngToPosition = (lat: number, lng: number) => {
-        const x = ((lng + 180) / 360) * 100;
-        const y = ((90 - lat) / 180) * 100;
-        return { x, y };
-    };
+    const regionTimeline = useMemo(() => {
+        const bucket: Record<RegionId, Experience[]> = {
+            anz: [],
+            china: [],
+            europe: [],
+        }
+        sortedExperiences.forEach(exp => {
+            const location = experienceLocations[exp.title]
+            const region = location?.region ?? "anz"
+            bucket[region].push(exp)
+        })
+        return regionOrder
+            .map(id => ({
+                id,
+                meta: regionMeta[id],
+                experiences: bucket[id].sort((a, b) => getStartDate(b.period).getTime() - getStartDate(a.period).getTime()),
+            }))
+            .filter(group => group.experiences.length > 0)
+    }, [sortedExperiences])
 
     const journeyMarkers = sortedExperiences
         .map((exp) => {
@@ -725,6 +905,30 @@ export default function ExperienceTreeSection() {
         .filter((point): point is { title: string; city: string; coordinates: [number, number] } => point !== null);
 
     const activeLocation = experienceLocations[activeJourney];
+    const projectedPoints = useMemo(() => {
+        return journeyMarkers
+            .map(marker => {
+                const projected = projection(marker.coordinates)
+                if (!projected) return null
+                return { ...marker, point: projected as [number, number] }
+            })
+            .filter((marker): marker is { title: string; city: string; coordinates: [number, number]; point: [number, number] } => marker !== null)
+    }, [journeyMarkers, projection])
+
+    const mapPathD = useMemo(() => {
+        if (projectedPoints.length < 2) return null
+        return projectedPoints.reduce((path, item, index) => {
+            const [x, y] = item.point
+            return index === 0 ? `M ${x} ${y}` : `${path} L ${x} ${y}`
+        }, "")
+    }, [projectedPoints])
+
+    const activeProjectedPoint = useMemo(() => {
+        const match = projectedPoints.find(point => point.title === activeJourney)
+        return match?.point ?? null
+    }, [projectedPoints, activeJourney])
+
+    let globalTimelineIndex = 0
 
     return (
         <section
@@ -769,65 +973,116 @@ export default function ExperienceTreeSection() {
                 transition={{ duration: 0.8 }}
             >
                 <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/80 via-transparent to-[#1f2937]/80 dark:from-[#05060a]/90 dark:via-transparent dark:to-[#111827]/90" />
-                <ComposableMap
-                    projection="geoMercator"
-                    projectionConfig={{ scale: 180, center: [0, 20] }}
-                    width={980}
-                    height={520}
-                    style={{ width: "100%", height: "100%" }}
-                >
-                    <Geographies geography={geoUrl}>
-                        {({ geographies }) =>
-                            geographies.map((geo) => (
-                                <Geography
-                                    key={geo.rsmKey}
-                                    geography={geo}
-                                    fill={theme === 'dark' ? "rgba(255,255,255,0.08)" : "rgba(30,30,30,0.08)"}
-                                    stroke={theme === 'dark' ? "rgba(255,255,255,0.18)" : "rgba(30,30,30,0.15)"}
-                                    strokeWidth={0.6}
-                                />
-                            ))
-                        }
-                    </Geographies>
-                    {journeyMarkers.map((marker, idx) => {
-                        const next = journeyMarkers[idx + 1]
-                        if (!next) return null
-                        return (
-                            <Line
-                                key={`map-line-${marker.title}`}
-                                from={marker.coordinates}
-                                to={next.coordinates}
-                                stroke="rgba(166,139,111,0.45)"
-                                strokeWidth={2}
-                                strokeLinecap="round"
-                                strokeDasharray="8 10"
-                            />
-                        )
-                    })}
-                    {journeyMarkers.map((marker) => {
-                        const isActive = marker.title === activeJourney
-                        return (
-                            <Marker key={`map-marker-${marker.title}`} coordinates={marker.coordinates}>
-                                <g>
-                                    <circle
-                                        r={isActive ? 6 : 4}
-                                        fill={isActive ? "#A68B6F" : "rgba(255,255,255,0.65)"}
-                                        stroke="#ffffff"
-                                        strokeWidth={1}
+                <div className="absolute inset-0">
+                    <ComposableMap
+                        projection="geoMercator"
+                        projectionConfig={{ scale: mapConfig.scale, center: mapConfig.center }}
+                        width={mapConfig.width}
+                        height={mapConfig.height}
+                        style={{ width: "100%", height: "100%" }}
+                    >
+                        <Geographies geography={geoUrl}>
+                            {({ geographies }) =>
+                                geographies.map((geo) => (
+                                    <Geography
+                                        key={geo.rsmKey}
+                                        geography={geo}
+                                        fill={theme === 'dark' ? "rgba(255,255,255,0.08)" : "rgba(30,30,30,0.08)"}
+                                        stroke={theme === 'dark' ? "rgba(255,255,255,0.18)" : "rgba(30,30,30,0.15)"}
+                                        strokeWidth={0.6}
                                     />
-                                    {isActive && (
-                                        <>
-                                            <rect x={-22} y={-30} width={44} height={16} rx={8} fill="rgba(255,255,255,0.9)" />
-                                            <text className="fill-gray-900 text-[10px]" textAnchor="middle" y={-18}>
-                                                {marker.city}
-                                            </text>
-                                        </>
-                                    )}
-                                </g>
-                            </Marker>
-                        )
-                    })}
-                </ComposableMap>
+                                ))
+                            }
+                        </Geographies>
+                        {journeyMarkers.map((marker, idx) => {
+                            const next = journeyMarkers[idx + 1]
+                            if (!next) return null
+                            return (
+                                <Line
+                                    key={`map-line-${marker.title}`}
+                                    from={marker.coordinates}
+                                    to={next.coordinates}
+                                    stroke="rgba(166,139,111,0.35)"
+                                    strokeWidth={1.2}
+                                    strokeLinecap="round"
+                                    strokeDasharray="6 8"
+                                />
+                            )
+                        })}
+                        {journeyMarkers.map((marker) => {
+                            const isActive = marker.title === activeJourney
+                            return (
+                                <Marker key={`map-marker-${marker.title}`} coordinates={marker.coordinates}>
+                                    <g>
+                                        <circle
+                                            r={isActive ? 6 : 4}
+                                            fill={isActive ? "#A68B6F" : "rgba(255,255,255,0.45)"}
+                                            stroke="#ffffff"
+                                            strokeWidth={1}
+                                        />
+                                        {isActive && (
+                                            <>
+                                                <rect x={-22} y={-30} width={44} height={16} rx={8} fill="rgba(255,255,255,0.9)" />
+                                                <text className="fill-gray-900 text-[10px]" textAnchor="middle" y={-18}>
+                                                    {marker.city}
+                                                </text>
+                                            </>
+                                        )}
+                                    </g>
+                                </Marker>
+                            )
+                        })}
+                    </ComposableMap>
+                </div>
+                <motion.svg
+                    viewBox={`0 0 ${mapConfig.width} ${mapConfig.height}`}
+                    className="absolute inset-0 w-full h-full"
+                    preserveAspectRatio="xMidYMid meet"
+                >
+                    <defs>
+                        <linearGradient id="journey-glow" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="rgba(96,165,250,0.4)" />
+                            <stop offset="50%" stopColor="rgba(166,139,111,0.7)" />
+                            <stop offset="100%" stopColor="rgba(243, 195, 160, 0.6)" />
+                        </linearGradient>
+                    </defs>
+                    {mapPathD && (
+                        <motion.path
+                            d={mapPathD}
+                            stroke="url(#journey-glow)"
+                            strokeWidth={2.5}
+                            strokeLinecap="round"
+                            fill="none"
+                            pathLength={1}
+                            initial={{ pathLength: 0 }}
+                            strokeDasharray="1"
+                            style={{ pathLength: timelineProgress }}
+                        />
+                    )}
+                    {activeProjectedPoint && (
+                        <>
+                            <motion.circle
+                                cx={activeProjectedPoint[0]}
+                                cy={activeProjectedPoint[1]}
+                                r={6}
+                                fill="#F8E7CF"
+                                stroke="#A68B6F"
+                                strokeWidth={1}
+                                animate={{ scale: [1, 1.2, 1] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                            />
+                            <motion.circle
+                                cx={activeProjectedPoint[0]}
+                                cy={activeProjectedPoint[1]}
+                                r={10}
+                                stroke="rgba(248, 231, 207, 0.8)"
+                                fill="transparent"
+                                animate={{ opacity: [0.7, 0], scale: [1, 1.6] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+                            />
+                        </>
+                    )}
+                </motion.svg>
             </motion.div>
 
             <div className="relative z-10 max-w-7xl mx-auto">
@@ -854,48 +1109,57 @@ export default function ExperienceTreeSection() {
                 {/* Timeline Container */}
                 <div className="relative">
                     {/* 中央时间线 */}
-                    <div className="hidden md:block absolute left-1/2 top-8 bottom-8 w-[2px] -translate-x-1/2">
-                        <motion.div
-                            className="relative h-full w-full overflow-hidden"
-                            initial={{ scaleY: 0 }}
-                            animate={{ scaleY: 1 }}
-                            transition={{
-                                duration: 0.8,
-                                ease: "easeOut"
-                            }}
-                        >
-                            {/* 发光效果 */}
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-morandi-accent/30 to-transparent" />
-
-                            {/* 动态光效 */}
+                    <div className="hidden md:block absolute left-1/2 top-8 bottom-8 w-[6px] -translate-x-1/2">
+                        <div className="absolute inset-0 bg-white/20 dark:bg-white/5 rounded-full blur-sm" />
+                        <motion.div className="absolute inset-0 rounded-full overflow-hidden">
                             <motion.div
-                                className="absolute inset-0"
-                                animate={{
-                                    backgroundPosition: ["0% -100%", "0% 200%"],
-                                }}
-                                transition={{
-                                    duration: 2,
-                                    repeat: Infinity,
-                                    ease: "linear"
-                                }}
+                                className="absolute inset-0 bg-gradient-to-b from-transparent via-morandi-accent/40 to-transparent"
+                                style={{ originY: 0, scaleY: lineProgressSpring }}
+                            />
+                            <motion.div
+                                className="absolute inset-0 opacity-70"
+                                animate={{ backgroundPosition: ["0% 0%", "0% 200%"] }}
+                                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
                                 style={{
-                                    background: 'linear-gradient(180deg, transparent 0%, rgba(166, 139, 111, 0.3) 50%, transparent 100%)',
-                                    backgroundSize: '100% 200%'
+                                    backgroundImage: 'linear-gradient(180deg, transparent 0%, rgba(166,139,111,0.4) 50%, transparent 100%)',
+                                    backgroundSize: '100% 200%',
+                                    originY: 0,
+                                    scaleY: lineProgressSpring,
                                 }}
                             />
                         </motion.div>
                     </div>
 
                     {/* 时间线内容 */}
-                    <div className="space-y-16 md:space-y-32">
-                        {sortedExperiences.map((exp, index) => (
-                            <TimelineNode
-                                key={`${exp.title}-${index}`}
-                                experience={exp}
-                                index={index}
-                                onSelect={setSelectedExperience}
-                                onHoverFocus={setActiveJourney}
-                            />
+                    <div className="space-y-24 md:space-y-32">
+                        {regionTimeline.map(region => (
+                            <div key={region.id} className="relative">
+                                <div className="flex flex-col items-center mb-10">
+                                    <div className={`inline-flex items-center gap-3 rounded-full border px-4 py-2 text-xs uppercase tracking-[0.4em] text-morandi-text/70 dark:text-morandi-light/70 bg-gradient-to-r ${region.meta.gradient}`}>
+                                        <span>{region.meta.label}</span>
+                                    </div>
+                                    <p className="mt-3 text-center text-sm md:text-base text-morandi-text/80 dark:text-morandi-light/70 max-w-2xl">
+                                        {region.meta.summary}
+                                    </p>
+                                </div>
+                                <div className="space-y-16 md:space-y-28">
+                                    {region.experiences.map(exp => {
+                                        const node = (
+                                            <TimelineNode
+                                                key={`${region.id}-${exp.title}-${globalTimelineIndex}`}
+                                                experience={exp}
+                                                index={globalTimelineIndex}
+                                                accent={region.meta.accent}
+                                                onSelect={setSelectedExperience}
+                                                onHoverFocus={setActiveJourney}
+                                                onVisible={handleNodeVisible}
+                                            />
+                                        )
+                                        globalTimelineIndex += 1
+                                        return node
+                                    })}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </div>

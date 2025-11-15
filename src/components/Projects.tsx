@@ -61,7 +61,7 @@ const techStackIcons: Record<string, TechStackIcon> = {
     'Raft': { icon: Terminal as React.ComponentType<any>, color: '#9B59B6', bgColor: '#FFFFFF' },
     'Rust': { icon: SiRust, color: '#B7410E', bgColor: '#FFFFFF' },
     'SQL': { icon: SiSqlite, color: '#003B57', bgColor: '#FFFFFF' },
-    'Bitcask': { icon: TbDatabase as React.ComponentType<any>, color: '#FF8C00', bgColor: '#FFFFFF' },
+    'B+Tree Index': { icon: TbDatabase as React.ComponentType<any>, color: '#FF8C00', bgColor: '#FFFFFF' },
     'Database': { icon: FaDatabase as React.ComponentType<any>, color: '#4A90E2', bgColor: '#FFFFFF' },
 };
 

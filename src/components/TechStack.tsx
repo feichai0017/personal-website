@@ -77,6 +77,14 @@ const orbitLayers = [
     { id: "devops", label: "DevOps Orbit", categories: ["tool"], radius: 280, duration: 90, glow: "rgba(179, 139, 190, 0.25)", xScale: 1.28, yScale: 1.08 },
 ]
 
+const categoryInsights: Record<Tech["category"], string[]> = {
+    language: ["Systems-first mindset", "Control over performance", "Safety without sacrificing speed"],
+    framework: ["Production-ready scaffolding", "Design systems & DX", "Progressive enhancement"],
+    frontend: ["Motion storytelling", "Pixel-perfect detail", "Accessibility aware"],
+    database: ["Query planner tuning", "Index/storage internals", "Consistency + throughput"],
+    tool: ["Cloud-native delivery", "Infra as code", "Observability pipelines"],
+}
+
 const TechStack = () => {
     const { theme, resolvedTheme } = useTheme()
     const sectionRef = useRef<HTMLDivElement>(null)
@@ -100,12 +108,14 @@ const TechStack = () => {
         })
     }, [])
 
-    const orbitData = orbitLayers
-        .map(layer => ({
-            ...layer,
-            items: layer.categories.flatMap(category => groupedTech[category as Tech["category"]] || []),
-        }))
-        .filter(layer => layer.items.length > 0)
+    const orbitData = useMemo(() => {
+        return orbitLayers
+            .map(layer => ({
+                ...layer,
+                items: layer.categories.flatMap(category => groupedTech[category as Tech["category"]] || []),
+            }))
+            .filter(layer => layer.items.length > 0)
+    }, [groupedTech])
 
     const orbitRenderOrder = useMemo(() => [...orbitData].sort((a, b) => b.radius - a.radius), [orbitData])
 
@@ -130,14 +140,6 @@ const TechStack = () => {
         })
         return config
     }, [])
-
-    const categoryInsights: Record<Tech["category"], string[]> = {
-        language: ["Systems-first mindset", "Control over performance", "Safety without sacrificing speed"],
-        framework: ["Production-ready scaffolding", "Design systems & DX", "Progressive enhancement"],
-        frontend: ["Motion storytelling", "Pixel-perfect detail", "Accessibility aware"],
-        database: ["Query planner tuning", "Index/storage internals", "Consistency + throughput"],
-        tool: ["Cloud-native delivery", "Infra as code", "Observability pipelines"],
-    }
 
     const handleActivateTech = (tech: Tech) => {
         setActiveTech(tech)
