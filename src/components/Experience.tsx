@@ -6,6 +6,7 @@ import { useTheme } from 'next-themes'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { School, Briefcase, Building2, ArrowUpRight, MapPin, Clock } from 'lucide-react'
+import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simple-maps"
 
 // Interface and Data (experiencesData) remain the same as you provided
 interface Experience {
@@ -90,6 +91,40 @@ const experiencesData: Experience[] = [
     }
 ];
 
+const experienceHighlights: Record<string, { label: string; value: string }[]> = {
+    "Research Assistant": [
+        { label: "Impact", value: "40% faster queries" },
+        { label: "Focus", value: "SQL Optimizer" },
+        { label: "Location", value: "Sydney" },
+    ],
+    "Master of Computer Science": [
+        { label: "GPA", value: "4.0 / 4.0" },
+        { label: "Tracks", value: "DB + Distributed" },
+        { label: "City", value: "Sydney" },
+    ],
+    "Full Stack Developer": [
+        { label: "Team", value: "Led 5 devs" },
+        { label: "Result", value: "-60% load time" },
+        { label: "Stack", value: "React + Node" },
+    ],
+    "AI Developer Engineer": [
+        { label: "AI", value: "CNN + Transformer" },
+        { label: "Latency", value: "<150 ms" },
+        { label: "Ops", value: "CI/CD" },
+    ],
+    "Laboratory Assistant (Intern)": [
+        { label: "Dataset", value: "100k+ reactions" },
+        { label: "Output", value: "+30% throughput" },
+        { label: "Domain", value: "Chemistry" },
+    ],
+    "Bachelor's in Chemistry": [
+        { label: "Honour", value: "First Class" },
+        { label: "Award", value: "Research Project" },
+        { label: "City", value: "London" },
+    ],
+}
+
+const geoUrl = "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
 // Helper function to parse dates
 function getStartDate(periodString: string): Date {
     let dateStrToParse: string;
@@ -117,9 +152,10 @@ function getStartDate(periodString: string): Date {
 interface TimelineExperienceCardProps {
     experience: Experience;
     onSelect: (exp: Experience) => void;
+    onHoverFocus: (title: string) => void;
 }
 
-const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experience, onSelect }) => {
+const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experience, onSelect, onHoverFocus }) => {
     const { theme } = useTheme();
     const [isHovered, setIsHovered] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
@@ -139,10 +175,15 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
         transition: { duration: isHovered ? 0.8 : 0, ease: "easeInOut", repeat: isHovered ? Infinity : 0 }
     };
 
+    const highlights = experienceHighlights[experience.title] || []
+
     return (
         <motion.div
             ref={cardRef}
-            onMouseEnter={() => setIsHovered(true)}
+            onMouseEnter={() => {
+                setIsHovered(true)
+                onHoverFocus(experience.title)
+            }}
             onMouseLeave={() => setIsHovered(false)}
             onClick={() => onSelect(experience)}
             onMouseMove={handleMouseMove}
@@ -154,10 +195,10 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
         >
             <Card className={`relative overflow-hidden h-full shadow-lg hover:shadow-xl transition-all duration-300
                 ${theme === 'dark'
-                    ? 'bg-gradient-to-br from-morandi-dark/80 via-morandi-muted/60 to-morandi-dark/90'
-                    : 'bg-gradient-to-br from-morandi-light/90 via-morandi-hover/50 to-morandi-light/90'
+                    ? 'bg-white/5 backdrop-blur-2xl'
+                    : 'bg-white/90'
                 }
-                border ${isHovered ? 'border-morandi-accent/60' : 'border-morandi-accent/30'}`}
+                border ${isHovered ? 'border-morandi-accent/60' : 'border-morandi-accent/25'}`}
             >
                 {/* Glossy Hover Effect */}
                 <motion.div
@@ -187,17 +228,17 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
                                 )}
                             </motion.div>
                             <div>
-                                <h3 className="text-lg md:text-xl font-semibold text-morandi-dark dark:text-morandi-light leading-tight">
+                                <h3 className="text-lg md:text-xl font-semibold text-morandi-dark dark:text-morandi-dark leading-tight">
                                     {experience.title}
                                 </h3>
-                                <div className="flex items-center text-morandi-text/80 dark:text-morandi-light/80 text-xs md:text-sm mt-0.5">
+                                <div className="flex items-center text-morandi-text/80 dark:text-morandi-dark/80 text-xs md:text-sm mt-0.5">
                                     <Building2 className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
                                     {experience.organization}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="text-xs md:text-sm text-morandi-text/70 dark:text-morandi-light/70 space-y-1 mb-3">
+                        <div className="text-xs md:text-sm text-morandi-text/70 dark:text-morandi-dark/70 space-y-1 mb-3">
                             <div className="flex items-center">
                                 <MapPin className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" /> {experience.location}
                             </div>
@@ -207,7 +248,30 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
                         </div>
                     </div>
 
-                    <p className="text-sm text-morandi-text dark:text-morandi-light/85 mb-4 leading-relaxed line-clamp-3">
+                    {highlights.length > 0 && (
+                        <motion.div
+                            className="mt-4 flex flex-wrap gap-2"
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: isHovered ? 1 : 0.7, y: 0 }}
+                        >
+                            {highlights.map((highlight) => (
+                                <motion.div
+                                    key={`${experience.title}-${highlight.label}`}
+                                    className="px-3 py-1 rounded-full text-xs font-medium flex items-center gap-2 border"
+                                    style={{
+                                        background: theme === 'dark' ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.03)',
+                                        borderColor: theme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                                    }}
+                                    whileHover={{ scale: 1.05 }}
+                                >
+                                    <span className="text-morandi-text/60 uppercase tracking-[0.2em]">{highlight.label}</span>
+                                    <span className="text-morandi-dark dark:text-morandi-dark">{highlight.value}</span>
+                                </motion.div>
+                            ))}
+                        </motion.div>
+                    )}
+
+                    <p className="text-sm text-morandi-text dark:text-morandi-dark mb-4 leading-relaxed line-clamp-3">
                         {experience.description}
                     </p>
 
@@ -250,14 +314,24 @@ const TimelineExperienceCard: React.FC<TimelineExperienceCardProps> = ({ experie
     );
 };
 
+const experienceLocations: Record<string, { city: string; lat: number; lng: number }> = {
+    "Research Assistant": { city: "Sydney", lat: -33.8688, lng: 151.2093 },
+    "Master of Computer Science": { city: "Sydney", lat: -33.8688, lng: 151.2093 },
+    "Full Stack Developer": { city: "Sydney", lat: -33.8688, lng: 151.2093 },
+    "AI Developer Engineer": { city: "Shanghai", lat: 31.2304, lng: 121.4737 },
+    "Laboratory Assistant (Intern)": { city: "Shanghai", lat: 31.2304, lng: 121.4737 },
+    "Bachelor's in Chemistry": { city: "London", lat: 51.5072, lng: -0.1276 },
+}
+
 // Timeline Item Component
 interface TimelineNodeProps {
     experience: Experience;
     index: number;
     onSelect: (exp: Experience) => void;
+    onHoverFocus: (title: string) => void;
 }
 
-const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect }) => {
+const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect, onHoverFocus }) => {
     const ref = useRef(null);
     const isInView = useInView(ref, { once: true, amount: 0.25 });
     const isLeft = index % 2 === 0;
@@ -345,7 +419,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                         }`} />
                 </motion.div>
                 <motion.div variants={itemVariants} className="w-full max-w-md">
-                    <TimelineExperienceCard experience={experience} onSelect={onSelect} />
+                    <TimelineExperienceCard experience={experience} onSelect={onSelect} onHoverFocus={onHoverFocus} />
                 </motion.div>
             </div>
 
@@ -355,7 +429,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                 <div className="w-[calc(50%-16px)] flex items-center justify-end">
                     {isLeft ? (
                         <motion.div variants={itemVariants} className="w-full max-w-md pr-8">
-                            <TimelineExperienceCard experience={experience} onSelect={onSelect} />
+                            <TimelineExperienceCard experience={experience} onSelect={onSelect} onHoverFocus={onHoverFocus} />
                         </motion.div>
                     ) : <div />}
                 </div>
@@ -423,7 +497,7 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
                 <div className="w-[calc(50%-16px)] flex items-center">
                     {!isLeft ? (
                         <motion.div variants={itemVariants} className="w-full max-w-md pl-8">
-                            <TimelineExperienceCard experience={experience} onSelect={onSelect} />
+                            <TimelineExperienceCard experience={experience} onSelect={onSelect} onHoverFocus={onHoverFocus} />
                         </motion.div>
                     ) : <div />}
                 </div>
@@ -468,9 +542,9 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                     >
                         <Card className={`relative overflow-hidden shadow-2xl
                             ${theme === 'dark'
-                                ? 'bg-gradient-to-br from-morandi-dark via-morandi-muted/80 to-morandi-dark'
-                                : 'bg-gradient-to-br from-morandi-light via-morandi-hover/50 to-morandi-light'
-                            } border-morandi-accent/40`}
+                                ? 'bg-white/10 backdrop-blur-2xl text-morandi-dark'
+                                : 'bg-white text-morandi-dark'
+                            } border ${theme === 'dark' ? 'border-white/15' : 'border-morandi-accent/35'}`}
                         >
                             <div className="absolute inset-0 pointer-events-none">
                                 <motion.div
@@ -482,7 +556,7 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                                 />
                             </div>
 
-                            <CardContent className="p-6 md:p-8 relative max-h-[85vh] overflow-y-auto">
+                            <CardContent className="p-6 md:p-8 relative max-h-[85vh] overflow-y-auto text-morandi-dark dark:text-morandi-dark">
                                 <div className="flex items-start gap-4 mb-4 md:mb-6">
                                     <motion.div
                                         className={`p-3 md:p-4 rounded-xl ${experience.type === 'education'
@@ -494,24 +568,24 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                                         transition={{ type: "spring", stiffness: 180, delay: 0.1 }}
                                     >
                                         {experience.type === 'education' ? (
-                                            <School className="w-7 h-7 md:w-8 md:h-8 text-blue-600 dark:text-blue-400" />
+                                            <School className="w-7 h-7 md:w-8 md:h-8 text-blue-600 dark:text-blue-500" />
                                         ) : (
                                             <Briefcase className="w-7 h-7 md:w-8 md:h-8 text-morandi-accent" />
                                         )}
                                     </motion.div>
                                     <div>
                                         <motion.h2
-                                            className="text-xl md:text-2xl font-bold text-morandi-dark dark:text-morandi-light"
+                                            className="text-xl md:text-2xl font-bold text-morandi-dark dark:text-morandi-dark"
                                             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
                                         >
                                             {experience.title}
                                         </motion.h2>
-                                        <motion.div className="text-sm md:text-base text-morandi-text/80 dark:text-morandi-light/80 mt-0.5"
+                                        <motion.div className="text-sm md:text-base text-morandi-text/80 dark:text-morandi-dark/80 mt-0.5"
                                             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 }}
                                         >
                                             <span className="font-medium">{experience.organization}</span> - {experience.location}
                                         </motion.div>
-                                        <motion.div className="text-xs md:text-sm text-morandi-text/70 dark:text-morandi-light/70"
+                                        <motion.div className="text-xs md:text-sm text-morandi-text/70 dark:text-morandi-dark/70"
                                             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
                                         >
                                             {experience.period}
@@ -519,19 +593,41 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                                     </div>
                                 </div>
 
-                                <motion.p className="text-sm md:text-base mb-4 md:mb-6 text-morandi-text dark:text-morandi-light/90 leading-relaxed"
+                                {experienceHighlights[experience.title] && (
+                                    <div className="flex flex-wrap gap-3 mb-6">
+                                        {experienceHighlights[experience.title].map((highlight) => (
+                                            <div
+                                                key={`detail-${experience.title}-${highlight.label}`}
+                                                className="px-4 py-2 rounded-2xl border text-sm font-medium"
+                                                style={{
+                                                    background: theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.03)',
+                                                    borderColor: theme === 'dark' ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)',
+                                                }}
+                                            >
+                                                <span className="text-morandi-text/60 dark:text-morandi-dark/60 uppercase tracking-[0.3em] text-[10px] block mb-1">
+                                                    {highlight.label}
+                                                </span>
+                                                <span className="text-morandi-dark dark:text-morandi-dark text-base">
+                                                    {highlight.value}
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <motion.p className="text-sm md:text-base mb-4 md:mb-6 text-morandi-text dark:text-morandi-dark leading-relaxed"
                                     initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}
                                 >
                                     {experience.description}
                                 </motion.p>
 
                                 <motion.div className="mb-4 md:mb-6" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-                                    <h3 className="text-md md:text-lg font-semibold mb-2 text-morandi-dark dark:text-morandi-light">
+                                    <h3 className="text-md md:text-lg font-semibold mb-2 text-morandi-dark dark:text-morandi-dark">
                                         Key Achievements:
                                     </h3>
                                     <ul className="space-y-1.5 list-disc list-inside pl-1 text-sm md:text-base">
                                         {experience.achievements.map((achievement, index) => (
-                                            <motion.li key={index} className="text-morandi-text dark:text-morandi-light/85"
+                                            <motion.li key={index} className="text-morandi-text dark:text-morandi-dark"
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: 0.45 + index * 0.05 }}
@@ -543,7 +639,7 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                                 </motion.div>
 
                                 <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
-                                    <h3 className="text-md md:text-lg font-semibold mb-2 text-morandi-dark dark:text-morandi-light">
+                                    <h3 className="text-md md:text-lg font-semibold mb-2 text-morandi-dark dark:text-morandi-dark">
                                         Skills & Technologies:
                                     </h3>
                                     <div className="flex flex-wrap gap-2">
@@ -558,7 +654,7 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                                 </motion.div>
                                 <button
                                     onClick={onClose}
-                                    className="absolute top-3 right-3 md:top-4 md:right-4 p-1.5 rounded-full text-morandi-text/60 dark:text-morandi-light/60 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                                    className="absolute top-3 right-3 md:top-4 md:right-4 p-1.5 rounded-full text-morandi-text/60 dark:text-morandi-dark/60 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
                                     aria-label="Close details"
                                 >
                                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -577,13 +673,14 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
 export default function ExperienceTreeSection() {
     const sectionRef = useRef<HTMLDivElement>(null);
     const [selectedExperience, setSelectedExperience] = useState<Experience | null>(null);
+    const [sortedExperiences, setSortedExperiences] = useState<Experience[]>([]);
+    const [activeJourney, setActiveJourney] = useState<string>(experiencesData[0].title);
+    const { theme } = useTheme();
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
         offset: ["start end", "end start"] // Animate based on section visibility
     });
-
-    const [sortedExperiences, setSortedExperiences] = useState<Experience[]>([]);
 
     useEffect(() => {
         const newSortedExperiences = [...experiencesData].sort((a, b) => {
@@ -592,6 +689,9 @@ export default function ExperienceTreeSection() {
             return dateB.getTime() - dateA.getTime(); // For descending order (most recent first)
         });
         setSortedExperiences(newSortedExperiences);
+        if (newSortedExperiences.length > 0) {
+            setActiveJourney(newSortedExperiences[0].title);
+        }
     }, []);
 
     // Prevent body scroll when modal is open
@@ -605,6 +705,26 @@ export default function ExperienceTreeSection() {
             document.body.style.overflow = 'unset';
         };
     }, [selectedExperience]);
+
+    const latLngToPosition = (lat: number, lng: number) => {
+        const x = ((lng + 180) / 360) * 100;
+        const y = ((90 - lat) / 180) * 100;
+        return { x, y };
+    };
+
+    const journeyMarkers = sortedExperiences
+        .map((exp) => {
+            const loc = experienceLocations[exp.title];
+            if (!loc) return null;
+            return {
+                title: exp.title,
+                city: loc.city,
+                coordinates: [loc.lng, loc.lat] as [number, number],
+            };
+        })
+        .filter((point): point is { title: string; city: string; coordinates: [number, number] } => point !== null);
+
+    const activeLocation = experienceLocations[activeJourney];
 
     return (
         <section
@@ -642,13 +762,81 @@ export default function ExperienceTreeSection() {
                 ))}
             </motion.div>
 
+            <motion.div
+                className="hidden md:block absolute inset-0 -z-10 pointer-events-none"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.85 }}
+                transition={{ duration: 0.8 }}
+            >
+                <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/80 via-transparent to-[#1f2937]/80 dark:from-[#05060a]/90 dark:via-transparent dark:to-[#111827]/90" />
+                <ComposableMap
+                    projection="geoMercator"
+                    projectionConfig={{ scale: 180, center: [0, 20] }}
+                    width={980}
+                    height={520}
+                    style={{ width: "100%", height: "100%" }}
+                >
+                    <Geographies geography={geoUrl}>
+                        {({ geographies }) =>
+                            geographies.map((geo) => (
+                                <Geography
+                                    key={geo.rsmKey}
+                                    geography={geo}
+                                    fill={theme === 'dark' ? "rgba(255,255,255,0.08)" : "rgba(30,30,30,0.08)"}
+                                    stroke={theme === 'dark' ? "rgba(255,255,255,0.18)" : "rgba(30,30,30,0.15)"}
+                                    strokeWidth={0.6}
+                                />
+                            ))
+                        }
+                    </Geographies>
+                    {journeyMarkers.map((marker, idx) => {
+                        const next = journeyMarkers[idx + 1]
+                        if (!next) return null
+                        return (
+                            <Line
+                                key={`map-line-${marker.title}`}
+                                from={marker.coordinates}
+                                to={next.coordinates}
+                                stroke="rgba(166,139,111,0.45)"
+                                strokeWidth={2}
+                                strokeLinecap="round"
+                                strokeDasharray="8 10"
+                            />
+                        )
+                    })}
+                    {journeyMarkers.map((marker) => {
+                        const isActive = marker.title === activeJourney
+                        return (
+                            <Marker key={`map-marker-${marker.title}`} coordinates={marker.coordinates}>
+                                <g>
+                                    <circle
+                                        r={isActive ? 6 : 4}
+                                        fill={isActive ? "#A68B6F" : "rgba(255,255,255,0.65)"}
+                                        stroke="#ffffff"
+                                        strokeWidth={1}
+                                    />
+                                    {isActive && (
+                                        <>
+                                            <rect x={-22} y={-30} width={44} height={16} rx={8} fill="rgba(255,255,255,0.9)" />
+                                            <text className="fill-gray-900 text-[10px]" textAnchor="middle" y={-18}>
+                                                {marker.city}
+                                            </text>
+                                        </>
+                                    )}
+                                </g>
+                            </Marker>
+                        )
+                    })}
+                </ComposableMap>
+            </motion.div>
+
             <div className="relative z-10 max-w-7xl mx-auto">
                 <motion.div
                     initial={{ opacity: 0, y: -20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true, amount: 0.3 }}
                     transition={{ duration: 0.6, ease: "circOut" }}
-                    className="text-center mb-20"
+                    className="text-center mb-12"
                 >
                     <h2 className="text-4xl md:text-5xl font-bold mb-4 text-morandi-dark dark:text-morandi-light">
                         My Journey
@@ -656,6 +844,11 @@ export default function ExperienceTreeSection() {
                     <p className="text-lg md:text-xl text-morandi-text dark:text-morandi-light/80">
                         Tracing the path of my professional and academic growth
                     </p>
+                    {activeLocation && (
+                        <div className="hidden md:block text-xs uppercase tracking-[0.4em] text-morandi-text/60 dark:text-morandi-dark/60 mt-6">
+                            Currently exploring · {activeLocation.city}
+                        </div>
+                    )}
                 </motion.div>
 
                 {/* Timeline Container */}
@@ -701,6 +894,7 @@ export default function ExperienceTreeSection() {
                                 experience={exp}
                                 index={index}
                                 onSelect={setSelectedExperience}
+                                onHoverFocus={setActiveJourney}
                             />
                         ))}
                     </div>

@@ -225,8 +225,8 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                 {/* 现代化卡片设计 */}
                 <Card className={`relative h-full overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500
                     ${theme === 'dark'
-                        ? 'bg-gradient-to-br from-morandi-dark/90 via-morandi-muted/70 to-morandi-dark/95'
-                        : 'bg-gradient-to-br from-morandi-light/95 via-morandi-hover/60 to-morandi-light/90'
+                        ? 'bg-white/5 backdrop-blur-2xl'
+                        : 'bg-white/90'
                     }
                     border ${isHovered ? 'border-morandi-accent/50' : 'border-morandi-accent/20'}`}
                     style={{
@@ -316,7 +316,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
 
                                 <div>
                                     <motion.h3
-                                        className="text-xl md:text-2xl font-bold text-morandi-dark dark:text-morandi-light leading-tight"
+                                        className="text-xl md:text-2xl font-bold text-morandi-dark dark:text-morandi-dark leading-tight"
                                         animate={{
                                             color: isHovered ? colors.primary : undefined
                                         }}
@@ -324,7 +324,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                                     >
                                         {project.title}
                                     </motion.h3>
-                                    <div className="flex items-center text-morandi-text/70 dark:text-morandi-light/70 text-sm mt-1">
+                                    <div className="flex items-center text-morandi-text/70 dark:text-morandi-dark/70 text-sm mt-1">
                                         <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
                                         {project.date}
                                     </div>
@@ -362,7 +362,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                         {/* 描述内容 */}
                         <motion.div className="flex-1 mb-6">
                             <motion.p
-                                className="text-sm text-morandi-text dark:text-morandi-light/85 leading-relaxed line-clamp-4"
+                                className="text-sm text-morandi-text dark:text-morandi-dark leading-relaxed line-clamp-4"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: 0.4 + index * 0.1 }}
@@ -526,9 +526,9 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                     >
                         <Card className={`relative overflow-hidden shadow-2xl
                             ${theme === 'dark'
-                                ? 'bg-gradient-to-br from-morandi-dark/95 via-morandi-muted/85 to-morandi-dark/95'
-                                : 'bg-gradient-to-br from-morandi-light/95 via-morandi-hover/60 to-morandi-light/95'
-                            } border border-morandi-accent/30`}
+                                ? 'bg-white/10 backdrop-blur-2xl text-morandi-dark'
+                                : 'bg-white/95 text-morandi-dark'
+                            } border ${theme === 'dark' ? 'border-white/15' : 'border-morandi-accent/30'}`}
                             style={{
                                 borderRadius: '28px',
                                 backdropFilter: 'blur(30px)'
@@ -546,7 +546,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                 />
                             </div>
 
-                            <div className="relative max-h-[85vh] overflow-y-auto">
+                            <div className="relative max-h-[85vh] overflow-y-auto text-morandi-dark dark:text-morandi-dark">
                                 {/* 头部区域 */}
                                 <div className="p-8 md:p-10">
                                     <div className="flex items-start gap-6 mb-8">
@@ -589,7 +589,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
 
                                         <div className="flex-1">
                                             <motion.h2
-                                                className="text-3xl md:text-4xl font-bold text-morandi-dark dark:text-morandi-light mb-2"
+                                                className="text-3xl md:text-4xl font-bold text-morandi-dark dark:text-morandi-dark mb-2"
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: 0.2 }}
@@ -597,7 +597,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                                 {project.title}
                                             </motion.h2>
                                             <motion.div
-                                                className="text-morandi-text/80 dark:text-morandi-light/80 text-lg mb-3"
+                                                className="text-morandi-text/80 dark:text-morandi-dark/80 text-lg mb-3"
                                                 initial={{ opacity: 0, x: -20 }}
                                                 animate={{ opacity: 1, x: 0 }}
                                                 transition={{ delay: 0.25 }}
@@ -615,8 +615,8 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                             >
                                                 <div
                                                     className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md ${project.status === "In Progress"
-                                                        ? "bg-amber-100/20 text-amber-600 dark:text-amber-400 border border-amber-200/30"
-                                                        : "bg-emerald-100/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200/30"
+                                                        ? "bg-amber-100/20 text-amber-700 dark:text-amber-700 border border-amber-200/30"
+                                                        : "bg-emerald-100/20 text-emerald-700 dark:text-emerald-700 border border-emerald-200/30"
                                                         }`}
                                                 >
                                                     {project.status === "In Progress" ? (
@@ -645,7 +645,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                                 border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
                                             }}
                                         >
-                                            <X size={20} className="text-morandi-text dark:text-morandi-light" />
+                                            <X size={20} className="text-morandi-text dark:text-morandi-dark" />
                                         </motion.button>
                                     </div>
 
@@ -662,7 +662,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                             border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`
                                         }}
                                     >
-                                        <p className="text-lg text-morandi-text dark:text-morandi-light/90 leading-relaxed">
+                                        <p className="text-lg text-morandi-text dark:text-morandi-dark leading-relaxed">
                                             {project.description}
                                         </p>
                                     </motion.div>
@@ -675,7 +675,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                             animate={{ opacity: 1 }}
                                             transition={{ delay: 0.5 }}
                                         >
-                                            <h3 className="text-xl font-semibold mb-4 text-morandi-dark dark:text-morandi-light">
+                                            <h3 className="text-xl font-semibold mb-4 text-morandi-dark dark:text-morandi-dark">
                                                 Key Features
                                             </h3>
                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -706,7 +706,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                                                 delay: index * 0.2
                                                             }}
                                                         />
-                                                        <span className="text-morandi-text dark:text-morandi-light/85">
+                                                        <span className="text-morandi-text dark:text-morandi-dark">
                                                             {feature}
                                                         </span>
                                                     </motion.div>
@@ -722,7 +722,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
                                         animate={{ opacity: 1 }}
                                         transition={{ delay: 0.7 }}
                                     >
-                                        <h3 className="text-xl font-semibold mb-4 text-morandi-dark dark:text-morandi-light">
+                                        <h3 className="text-xl font-semibold mb-4 text-morandi-dark dark:text-morandi-dark">
                                             Tech Stack
                                         </h3>
                                         <div className="flex flex-wrap gap-3">

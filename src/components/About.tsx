@@ -368,7 +368,7 @@ export default function About() {
         description: activeSkill.details
     } : defaultInfo;
 
-    const cardBaseColor = theme === 'dark' ? 'rgba(30, 30, 40, 0.85)' : 'rgba(245, 245, 240, 0.85)';
+    const cardBaseColor = theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(245, 245, 240, 0.85)';
     const cardBorderColor = theme === 'dark' ? 'rgba(166, 139, 111, 0.2)' : 'rgba(139, 115, 85, 0.3)';
     const activeCardBorderColor = activeSkill ? `${activeSkill.color}B3` : (theme === 'dark' ? 'rgba(199, 179, 151, 0.5)' : 'rgba(169, 135, 105, 0.6)');
 

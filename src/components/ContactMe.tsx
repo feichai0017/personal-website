@@ -48,22 +48,22 @@ export default function ContactMe() {
     }
 
     return (
-        <section id="contact" className="min-h-screen flex items-center justify-center py-24 px-4 bg-morandi-bg">
+        <section id="contact" className="min-h-screen flex items-center justify-center py-24 px-4 bg-morandi-bg dark:bg-morandi-dark transition-colors duration-500">
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
             >
-                <Card className={`w-full max-w-2xl shadow-xl ${
+                <Card className={`w-full max-w-2xl shadow-2xl border ${
                     theme === 'dark'
-                        ? 'bg-morandi-dark text-morandi-light'
-                        : 'bg-morandi-light text-morandi-dark'
+                        ? 'bg-white/5 backdrop-blur-2xl border-white/10 text-morandi-dark'
+                        : 'bg-white text-morandi-dark border-morandi-accent/15'
                 } transition-colors duration-300`}>
                     <CardHeader className="pb-8">
                         <CardTitle className="text-4xl font-bold text-center">Get in Touch</CardTitle>
                     </CardHeader>
                     <CardContent className="px-8 pb-8">
-                        <p className={`mb-8 text-center text-lg ${theme === 'dark' ? 'text-morandi-light-accent' : 'text-morandi-dark-accent'}`}>
+                        <p className={`mb-8 text-center text-lg ${theme === 'dark' ? 'text-morandi-dark/80' : 'text-morandi-text/80'}`}>
                             Feel free to reach out at{' '}
                             <a href="mailto:Ericsgc@outlook.com" className="text-morandi-accent hover:underline transition-colors duration-300">
                                 Ericsgc@outlook.com
@@ -80,8 +80,8 @@ export default function ContactMe() {
                                     required
                                     className={`w-full text-lg py-3 ${
                                         theme === 'dark'
-                                            ? 'bg-morandi-dark-accent text-morandi-light'
-                                            : 'bg-morandi-light-accent text-morandi-dark'
+                                            ? 'bg-white/10 border-white/10 text-morandi-dark placeholder:text-morandi-dark/60'
+                                            : 'bg-morandi-light-accent text-morandi-dark placeholder:text-morandi-text/60'
                                     } transition-colors duration-300 focus:ring-2 focus:ring-morandi-accent`}
                                 />
                             </motion.div>
@@ -93,8 +93,8 @@ export default function ContactMe() {
                                     required
                                     className={`w-full h-48 text-lg py-3 ${
                                         theme === 'dark'
-                                            ? 'bg-morandi-dark-accent text-morandi-light'
-                                            : 'bg-morandi-light-accent text-morandi-dark'
+                                            ? 'bg-white/10 border-white/10 text-morandi-dark placeholder:text-morandi-dark/60'
+                                            : 'bg-morandi-light-accent text-morandi-dark placeholder:text-morandi-text/60'
                                     } transition-colors duration-300 focus:ring-2 focus:ring-morandi-accent`}
                                 />
                             </motion.div>
