@@ -47,7 +47,7 @@ This is a sleek, responsive personal website template built with modern web tech
 1. Clone the repository:
 ```
 
-git clone [https://github.com/yourusername/personal-website.git](https://github.com/yourusername/personal-website.git)
+git clone github.com/feichai0017/personal-website.git
 
 ```
 
@@ -80,7 +80,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 🤝 Contributing
 
-Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/yourusername/personal-website/issues).
+Contributions, issues, and feature requests are welcome! Feel free to check [issues page](https://github.com/feichai0017/personal-website/issues).
 
 ## 👨‍💻 Author
 
