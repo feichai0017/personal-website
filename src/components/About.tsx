@@ -376,7 +376,7 @@ export default function About() {
         <section
             id="about"
             ref={containerRef}
-            className="relative min-h-screen flex flex-col items-center justify-center bg-morandi-bg dark:bg-morandi-dark overflow-hidden px-4 py-10 md:py-20"
+            className="relative min-h-screen flex flex-col items-center justify-center bg-morandi-bg dark:bg-[#03040a] overflow-hidden px-4 py-10 md:py-20 transition-colors duration-500"
         >
             {/* 增强的背景效果 */}
             <div className="absolute inset-0 -z-20">

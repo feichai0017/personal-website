@@ -7,7 +7,7 @@ import ContactMe from "@/components/ContactMe";
 
 export default function Page() {
     return (
-        <main className="min-h-screen bg-morandi-bg text-morandi-text">
+        <main className="min-h-screen bg-morandi-bg dark:bg-[#03040a] text-morandi-text dark:text-morandi-light transition-colors duration-500">
             <Home />
             <About />
             <Projects />

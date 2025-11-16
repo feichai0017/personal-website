@@ -934,7 +934,7 @@ export default function ExperienceTreeSection() {
         <section
             id="experience"
             ref={sectionRef}
-            className="relative min-h-screen py-20 md:py-32 px-4 overflow-hidden bg-morandi-bg dark:bg-morandi-dark transition-colors duration-500"
+            className="relative min-h-screen py-20 md:py-32 px-4 overflow-hidden bg-morandi-bg dark:bg-[#03040a] transition-colors duration-500"
         >
             {/* 背景装饰 */}
             <motion.div className="absolute inset-0 -z-10 opacity-30">

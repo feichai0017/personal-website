@@ -5,7 +5,6 @@ import { motion, AnimatePresence, useAnimation } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { FaLinkedin, FaGithub, FaDownload } from 'react-icons/fa'
 import { Button } from "@/components/ui/button"
-import ParticlesBackground from './ParticlesBackground'
 
 const titles = ["Full Stack Developer", "Software Engineer", "DevOps Engineer"]
 
@@ -44,8 +43,10 @@ const Home = () => {
     }
 
     return (
-        <section id="home" className="min-h-screen flex flex-col justify-center items-center relative overflow-hidden px-4">
-            <ParticlesBackground />
+        <section
+            id="home"
+            className="min-h-screen flex flex-col justify-center items-center relative overflow-hidden px-4 bg-morandi-bg dark:bg-[#03040a] transition-colors duration-500"
+        >
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

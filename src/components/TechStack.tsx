@@ -153,7 +153,7 @@ const TechStack = () => {
         <section
             id="techstack"
             ref={sectionRef}
-            className="relative overflow-hidden py-20 px-4 bg-morandi-bg dark:bg-morandi-dark"
+            className="relative overflow-hidden py-20 px-4 bg-morandi-bg dark:bg-[#03040a] transition-colors duration-500"
         >
             <motion.div
                 className="absolute inset-0 -z-10"

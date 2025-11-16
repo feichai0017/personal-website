@@ -824,7 +824,7 @@ const Projects: React.FC = () => {
         <section
             id="projects"
             ref={ref}
-            className="relative min-h-screen py-20 px-4 overflow-hidden bg-morandi-bg dark:bg-morandi-dark transition-colors duration-500"
+            className="relative min-h-screen py-20 px-4 overflow-hidden bg-morandi-bg dark:bg-[#03040a] transition-colors duration-500"
         >
             {/* CSS动画定义 */}
             <style jsx>{`
