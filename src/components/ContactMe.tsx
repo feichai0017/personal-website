@@ -24,30 +24,20 @@ interface StatusEntry {
 }
 
 type TerminalEntry = CommandEntry | StatusEntry
+type TerminalEntryInput = Omit<CommandEntry, 'id'> | Omit<StatusEntry, 'id'>
 
 const commandDictionary: Record<string, string> = {
     help: 'list all available commands',
-    components: 'display active sections of this site',
-    compose: 'open secure message composer',
+    compose: 'toggle message buffer',
     exit: 'close composer mode',
     status: 'print live diagnostics',
     links: 'show external handles',
     coffee: 'launch support console',
     clear: 'reset terminal history',
-    history: 'show recent commands',
     theme: 'switch theme (light/dark/system)'
 }
 
-const componentsList = [
-    'Home > Hero Systems',
-    'About > Orbit Matrix',
-    'Projects > Case Grid',
-    'Tech Stack > Arsenal',
-    'Experience > Timeline',
-    'Contact > Terminal'
-]
-
-const baseTemplate: Omit<TerminalEntry, 'id'>[] = [
+const baseTemplate: TerminalEntryInput[] = [
     { variant: 'response', content: 'Booting Morandi Console v2.3...' },
     { variant: 'response', content: 'Establishing encrypted link with Eric...' },
     { variant: 'status', label: 'Channel', value: 'Encrypted ✅' },
@@ -58,7 +48,7 @@ const createBaseLogs = (): TerminalEntry[] =>
     baseTemplate.map((entry, index) => ({
         ...entry,
         id: `boot-${index}-${Date.now()}`
-    })) as TerminalEntry[]
+    }))
 
 type NetworkDiagnostics = {
     latency: number | null
@@ -96,11 +86,11 @@ export default function ContactMe() {
         }
     }, [logs, isComposeMode])
 
-    const appendLog = useCallback((entry: Omit<TerminalEntry, 'id'>) => {
+    const appendLog = useCallback((entry: TerminalEntryInput) => {
         const enriched: TerminalEntry = {
             ...entry,
             id: `log-${Date.now()}-${Math.random().toString(36).slice(2)}`
-        } as TerminalEntry
+        }
         setLogs((prev) => [...prev, enriched])
     }, [])
 
@@ -135,13 +125,6 @@ export default function ContactMe() {
                 addResponse(lines)
                 break
             }
-            case 'components': {
-                addResponse([
-                    'Active modules routed:',
-                    ...componentsList.map((item, index) => `  [${index + 1}] ${item}`)
-                ])
-                break
-            }
             case 'links': {
                 addResponse([
                     'External channels:',
@@ -153,10 +136,10 @@ export default function ContactMe() {
             }
             case 'compose': {
                 if (isComposeMode) {
-                    addResponse('Compose buffer already active. Use "exit" to close it.')
+                    addResponse('Compose buffer active. Use "exit" to close it.')
                 } else {
                     setIsComposeMode(true)
-                    addResponse('Secure compose buffer unlocked. Fill the form below to transmit.')
+                    addResponse('Compose buffer unlocked. Fill the form to send.')
                 }
                 break
             }
@@ -183,19 +166,6 @@ export default function ContactMe() {
             case 'clear': {
                 setLogs(createBaseLogs())
                 setIsComposeMode(false)
-                break
-            }
-            case 'history': {
-                if (commandHistory.length === 0) {
-                    addResponse('No prior commands stored.')
-                } else {
-                    const recent = commandHistory.slice(-10)
-                    const startIndex = commandHistory.length - recent.length
-                    addResponse([
-                        'Recent commands:',
-                        ...recent.map((cmd, idx) => `  ${startIndex + idx + 1}. ${cmd}`)
-                    ])
-                }
                 break
             }
             case 'theme': {
@@ -362,7 +332,7 @@ export default function ContactMe() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className={`rounded-3xl border ${accentBorder} ${terminalBg} backdrop-blur-3xl shadow-[0_25px_80px_rgba(0,0,0,0.45)] flex flex-col h-full lg:h-[70vh] lg:max-h-[780px] overflow-hidden`}
+                    className={`rounded-3xl border ${accentBorder} ${terminalBg} backdrop-blur-3xl shadow-[0_25px_80px_rgba(0,0,0,0.45)] flex flex-col h-full min-h-[640px] lg:min-h-[720px] lg:max-h-[780px] overflow-hidden`}
                 >
                     <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -485,9 +455,9 @@ export default function ContactMe() {
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}
-                    className="space-y-6 lg:h-[70vh] lg:max-h-[780px] lg:overflow-y-auto lg:pr-2 custom-scrollbar"
+                    className="space-y-6 flex flex-col h-full min-h-[640px] lg:min-h-[720px] lg:max-h-[780px] lg:pr-2"
                 >
-                    <div className={`rounded-3xl border ${accentBorder} ${terminalBg} p-6 backdrop-blur-3xl`}>
+                    <div className={`rounded-3xl border ${accentBorder} ${terminalBg} p-6 backdrop-blur-3xl flex-1 flex flex-col`}>
                         <div className="flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-morandi-light/70">
                             <Wifi className="h-4 w-4 text-emerald-400" />
                             Signal Monitor
@@ -562,20 +532,6 @@ export default function ContactMe() {
                         </div>
                     </div>
 
-                    <div className={`rounded-3xl border ${accentBorder} ${terminalBg} p-6 backdrop-blur-3xl`}>
-                        <div className="flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-morandi-light/70">
-                            <TerminalIcon className="h-4 w-4 text-emerald-400" />
-                            Active Modules
-                        </div>
-                        <ul className="mt-4 space-y-2 font-mono text-sm text-morandi-light/80">
-                            {componentsList.map((item) => (
-                                <li key={item} className="flex items-center gap-2">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-morandi-accent" />
-                                    {item}
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
                 </motion.div>
             </div>
         </section>

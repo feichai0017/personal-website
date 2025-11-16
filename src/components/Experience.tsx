@@ -207,12 +207,12 @@ const ExperienceMiniMap: React.FC<{
                 height={height}
                 style={{ width: "100%", height: "100%" }}
             >
-                <Geographies geography={geoUrl}>
-                    {({ geographies }) =>
-                        geographies.map(geo => (
-                            <Geography
-                                key={geo.rsmKey}
-                                geography={geo}
+                        <Geographies geography={geoUrl}>
+                            {({ geographies }: { geographies: Array<{ rsmKey: string }> }) =>
+                                geographies.map((geo: { rsmKey: string }) => (
+                                    <Geography
+                                        key={geo.rsmKey}
+                                        geography={geo}
                                 fill="rgba(70, 65, 60, 0.3)"
                                 stroke="rgba(15, 15, 15, 0.3)"
                                 strokeWidth={0.2}
@@ -982,8 +982,8 @@ export default function ExperienceTreeSection() {
                         style={{ width: "100%", height: "100%" }}
                     >
                         <Geographies geography={geoUrl}>
-                            {({ geographies }) =>
-                                geographies.map((geo) => (
+                            {({ geographies }: { geographies: Array<{ rsmKey: string }> }) =>
+                                geographies.map((geo: { rsmKey: string }) => (
                                     <Geography
                                         key={geo.rsmKey}
                                         geography={geo}
