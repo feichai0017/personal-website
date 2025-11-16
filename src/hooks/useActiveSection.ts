@@ -44,14 +44,37 @@ export function useActiveSection(sectionIds: string[]) {
             }
         )
 
-        normalizedSectionIds.forEach((id) => {
+        const pendingIds = new Set<string>()
+
+        const tryObserve = (id: string) => {
             const element = document.getElementById(id)
             if (element) {
                 observer.observe(element)
+                pendingIds.delete(id)
+            } else {
+                pendingIds.add(id)
             }
-        })
+        }
 
-        return () => observer.disconnect()
+        normalizedSectionIds.forEach(tryObserve)
+
+        let retryTimer: number | null = null
+        if (pendingIds.size > 0) {
+            retryTimer = window.setInterval(() => {
+                pendingIds.forEach(tryObserve)
+                if (pendingIds.size === 0 && retryTimer) {
+                    clearInterval(retryTimer)
+                    retryTimer = null
+                }
+            }, 500)
+        }
+
+        return () => {
+            observer.disconnect()
+            if (retryTimer) {
+                clearInterval(retryTimer)
+            }
+        }
     }, [normalizedSectionIds])
 
     return activeSection
