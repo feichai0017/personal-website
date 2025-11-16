@@ -34,7 +34,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-!/src/components/About.tsx
 
 # idea
 .idea

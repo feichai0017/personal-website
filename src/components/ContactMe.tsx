@@ -362,7 +362,7 @@ export default function ContactMe() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className={`rounded-3xl border ${accentBorder} ${terminalBg} backdrop-blur-3xl shadow-[0_25px_80px_rgba(0,0,0,0.45)] flex flex-col h-full`}
+                    className={`rounded-3xl border ${accentBorder} ${terminalBg} backdrop-blur-3xl shadow-[0_25px_80px_rgba(0,0,0,0.45)] flex flex-col h-full lg:h-[70vh] lg:max-h-[780px] overflow-hidden`}
                 >
                     <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -376,8 +376,8 @@ export default function ContactMe() {
                         <p className="text-xs font-mono text-morandi-light/60">MORANDI OS TERMINAL</p>
                     </div>
 
-                    <div className="flex flex-1 flex-col px-6 pt-4 pb-4 min-h-[640px]">
-                        <div className="flex-1 min-h-0 flex flex-col">
+                    <div className="flex flex-1 flex-col px-6 pt-4 pb-4 min-h-[640px] lg:min-h-0 lg:h-full">
+                        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                             <div ref={terminalRef} className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
                                 {logs.map((entry) => (
                                     <motion.div
@@ -485,7 +485,7 @@ export default function ContactMe() {
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}
-                    className="space-y-6"
+                    className="space-y-6 lg:h-[70vh] lg:max-h-[780px] lg:overflow-y-auto lg:pr-2 custom-scrollbar"
                 >
                     <div className={`rounded-3xl border ${accentBorder} ${terminalBg} p-6 backdrop-blur-3xl`}>
                         <div className="flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-morandi-light/70">
