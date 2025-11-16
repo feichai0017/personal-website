@@ -18,43 +18,42 @@ const navItems = [
 ]
 
 const blogLink = "https://ericsgc-blog.netlify.app/"
+const menuVariants = {
+    open: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            type: "spring",
+            stiffness: 300,
+            damping: 30
+        }
+    },
+    closed: {
+        opacity: 0,
+        y: "-100%",
+        transition: {
+            type: "spring",
+            stiffness: 300,
+            damping: 30
+        }
+    }
+}
+
+const linkVariants = {
+    hover: {
+        scale: 1.05,
+        transition: { type: "spring", stiffness: 400, damping: 10 }
+    },
+    tap: { scale: 0.95 }
+}
 
 export default function Navbar() {
     const { theme } = useTheme()
-    const activeSection = useActiveSection(navItems.map(item => item.href))
+    const sectionIds = React.useMemo(() => navItems.map(item => item.href), [])
+    const activeSection = useActiveSection(sectionIds)
     const [isMenuOpen, setIsMenuOpen] = React.useState(false)
-    const [hoveredItem, setHoveredItem] = React.useState<string | null>(null)
 
     const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
-
-    const menuVariants = {
-        open: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 30
-            }
-        },
-        closed: {
-            opacity: 0,
-            y: "-100%",
-            transition: {
-                type: "spring",
-                stiffness: 300,
-                damping: 30
-            }
-        }
-    }
-
-    const linkVariants = {
-        hover: {
-            scale: 1.05,
-            transition: { type: "spring", stiffness: 400, damping: 10 }
-        },
-        tap: { scale: 0.95 }
-    }
 
     const renderNavItem = (item: { title: string, href: string }, isMobile = false) => (
         <motion.li
@@ -62,8 +61,6 @@ export default function Navbar() {
             variants={linkVariants}
             whileHover="hover"
             whileTap="tap"
-            onHoverStart={() => setHoveredItem(item.title)}
-            onHoverEnd={() => setHoveredItem(null)}
         >
             <a
                 href={`#${item.href}`}
@@ -83,8 +80,9 @@ export default function Navbar() {
                 {item.title}
                 <motion.div
                     className="absolute bottom-0 left-0 right-0 h-0.5 bg-morandi-accent"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: hoveredItem === item.title || activeSection === item.href ? 1 : 0 }}
+                    initial={false}
+                    animate={{ scaleX: activeSection === item.href ? 1 : 0 }}
+                    whileHover={{ scaleX: 1 }}
                     transition={{ duration: 0.2 }}
                 />
             </a>
@@ -204,7 +202,7 @@ export default function Navbar() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className={cn(
-                                        "px-6 py-3 block text-base font-medium transition-colors duration-200 flex items-center",
+                                        "px-6 py-3 text-base font-medium transition-colors duration-200 flex items-center",
                                         "text-morandi-text hover:bg-morandi-hover"
                                     )}
                                     onClick={() => setIsMenuOpen(false)}

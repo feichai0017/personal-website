@@ -1,9 +1,19 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 export function useActiveSection(sectionIds: string[]) {
     const [activeSection, setActiveSection] = useState('')
+    const idsKey = JSON.stringify(sectionIds)
+    const normalizedSectionIds = useMemo(() => {
+        try {
+            const parsed = JSON.parse(idsKey) as string[]
+            return Array.from(new Set(parsed)).filter(Boolean)
+        } catch {
+            return []
+        }
+    }, [idsKey])
 
     useEffect(() => {
+        if (normalizedSectionIds.length === 0) return
         const observer = new IntersectionObserver(
             (entries) => {
                 // 找到所有可见的sections
@@ -25,9 +35,7 @@ export function useActiveSection(sectionIds: string[]) {
 
                 if (visibleSections.length > 0) {
                     const newActiveSection = visibleSections[0].id
-                    if (newActiveSection !== activeSection) {
-                        setActiveSection(newActiveSection)
-                    }
+                    setActiveSection(prev => (prev === newActiveSection ? prev : newActiveSection))
                 }
             },
             {
@@ -36,7 +44,7 @@ export function useActiveSection(sectionIds: string[]) {
             }
         )
 
-        sectionIds.forEach((id) => {
+        normalizedSectionIds.forEach((id) => {
             const element = document.getElementById(id)
             if (element) {
                 observer.observe(element)
@@ -44,7 +52,7 @@ export function useActiveSection(sectionIds: string[]) {
         })
 
         return () => observer.disconnect()
-    }, [sectionIds, activeSection])
+    }, [normalizedSectionIds])
 
     return activeSection
 }
