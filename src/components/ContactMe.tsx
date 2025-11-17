@@ -50,6 +50,8 @@ const createBaseLogs = (): TerminalEntry[] =>
         id: `boot-${index}-${Date.now()}`
     }))
 
+const MAX_TERMINAL_LOGS = 120
+
 type NetworkDiagnostics = {
     latency: number | null
     downlink: number | null
@@ -91,7 +93,13 @@ export default function ContactMe() {
             ...entry,
             id: `log-${Date.now()}-${Math.random().toString(36).slice(2)}`
         }
-        setLogs((prev) => [...prev, enriched])
+        setLogs((prev) => {
+            const next = [...prev, enriched]
+            if (next.length > MAX_TERMINAL_LOGS) {
+                return next.slice(next.length - MAX_TERMINAL_LOGS)
+            }
+            return next
+        })
     }, [])
 
     const addResponse = useCallback(
@@ -332,7 +340,7 @@ export default function ContactMe() {
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
-                    className={`rounded-3xl border ${accentBorder} ${terminalBg} backdrop-blur-3xl shadow-[0_25px_80px_rgba(0,0,0,0.45)] flex flex-col h-full min-h-[640px] lg:min-h-[720px] lg:max-h-[780px] overflow-hidden`}
+                    className={`rounded-3xl border ${accentBorder} ${terminalBg} backdrop-blur-3xl shadow-[0_25px_80px_rgba(0,0,0,0.45)] flex flex-col h-[640px] lg:h-[720px] overflow-hidden`}
                 >
                     <div className="flex items-center justify-between border-b border-white/5 px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -346,7 +354,7 @@ export default function ContactMe() {
                         <p className="text-xs font-mono text-morandi-light/60">MORANDI OS TERMINAL</p>
                     </div>
 
-                    <div className="flex flex-1 flex-col px-6 pt-4 pb-4 min-h-[640px] lg:min-h-0 lg:h-full">
+                    <div className="flex flex-1 flex-col px-6 pt-4 pb-4 h-full min-h-0">
                         <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
                             <div ref={terminalRef} className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
                                 {logs.map((entry) => (
@@ -455,7 +463,7 @@ export default function ContactMe() {
                     initial={{ opacity: 0, y: 40 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.7, delay: 0.1 }}
-                    className="space-y-6 flex flex-col h-full min-h-[640px] lg:min-h-[720px] lg:max-h-[780px] lg:pr-2"
+                    className="space-y-6 flex flex-col h-[640px] lg:h-[720px] lg:pr-2"
                 >
                     <div className={`rounded-3xl border ${accentBorder} ${terminalBg} p-6 backdrop-blur-3xl flex-1 flex flex-col`}>
                         <div className="flex items-center gap-3 text-sm uppercase tracking-[0.3em] text-morandi-light/70">

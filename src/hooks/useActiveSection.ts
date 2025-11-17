@@ -14,65 +14,56 @@ export function useActiveSection(sectionIds: string[]) {
 
     useEffect(() => {
         if (normalizedSectionIds.length === 0) return
-        const observer = new IntersectionObserver(
-            (entries) => {
-                // 找到所有可见的sections
-                const visibleSections = entries
-                    .filter(entry => entry.isIntersecting)
-                    .map(entry => ({
-                        id: entry.target.id,
-                        ratio: entry.intersectionRatio,
-                        top: entry.boundingClientRect.top
-                    }))
-                    .sort((a, b) => {
-                        // 优先选择更靠近顶部的section
-                        if (Math.abs(a.top - b.top) < 100) {
-                            // 如果两个section都在相似位置，选择intersection ratio更大的
-                            return b.ratio - a.ratio
-                        }
-                        return a.top - b.top
-                    })
+        if (typeof window === 'undefined') return
 
-                if (visibleSections.length > 0) {
-                    const newActiveSection = visibleSections[0].id
-                    setActiveSection(prev => (prev === newActiveSection ? prev : newActiveSection))
+        let frameRequest: number | null = null
+
+        const resolveSection = () => {
+            frameRequest = null
+            const viewportHeight = window.innerHeight || 0
+            const focusLine = viewportHeight * 0.35 // bias towards top third
+            let winner = ''
+            let bestDistance = Number.POSITIVE_INFINITY
+
+            normalizedSectionIds.forEach((id) => {
+                const element = document.getElementById(id)
+                if (!element) return
+                const rect = element.getBoundingClientRect()
+                const fullyBelow = rect.top - viewportHeight > 0
+                const fullyAbove = rect.bottom < 0
+                const distance = Math.abs(rect.top - focusLine)
+
+                if (!fullyAbove && !fullyBelow) {
+                    if (distance < bestDistance) {
+                        bestDistance = distance
+                        winner = id
+                    }
+                } else if (!winner && distance < bestDistance) {
+                    // fallback when nothing is in view yet
+                    bestDistance = distance
+                    winner = id
                 }
-            },
-            {
-                threshold: [0, 0.1, 0.25, 0.5, 0.75, 1],
-                rootMargin: '-80px 0px -50% 0px' // 考虑navbar高度
-            }
-        )
+            })
 
-        const pendingIds = new Set<string>()
-
-        const tryObserve = (id: string) => {
-            const element = document.getElementById(id)
-            if (element) {
-                observer.observe(element)
-                pendingIds.delete(id)
-            } else {
-                pendingIds.add(id)
+            if (winner) {
+                setActiveSection(prev => (prev === winner ? prev : winner))
             }
         }
 
-        normalizedSectionIds.forEach(tryObserve)
-
-        let retryTimer: number | null = null
-        if (pendingIds.size > 0) {
-            retryTimer = window.setInterval(() => {
-                pendingIds.forEach(tryObserve)
-                if (pendingIds.size === 0 && retryTimer) {
-                    clearInterval(retryTimer)
-                    retryTimer = null
-                }
-            }, 500)
+        const requestUpdate = () => {
+            if (frameRequest !== null) return
+            frameRequest = window.requestAnimationFrame(resolveSection)
         }
+
+        window.addEventListener('scroll', requestUpdate, { passive: true })
+        window.addEventListener('resize', requestUpdate)
+        requestUpdate()
 
         return () => {
-            observer.disconnect()
-            if (retryTimer) {
-                clearInterval(retryTimer)
+            window.removeEventListener('scroll', requestUpdate)
+            window.removeEventListener('resize', requestUpdate)
+            if (frameRequest !== null) {
+                window.cancelAnimationFrame(frameRequest)
             }
         }
     }, [normalizedSectionIds])

@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useRef, useCallback, useEffect } from "react"
+import React, { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { motion, useTransform, AnimatePresence, useSpring } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
@@ -129,10 +129,32 @@ const SkillOrbit: React.FC<{
     isActive: boolean;
     onHover: () => void;
     onHoverEnd: () => void;
-    currentAngle: number;
+    isPaused: boolean;
     containerSize: { width: number; height: number };
-}> = ({ skill, isActive, onHover, onHoverEnd, currentAngle, containerSize }) => {
+}> = ({ skill, isActive, onHover, onHoverEnd, isPaused, containerSize }) => {
     const { theme } = useTheme();
+    const [currentAngle, setCurrentAngle] = useState(skill.angle);
+
+    useEffect(() => {
+        if (isPaused) return;
+        let frameId: number;
+        let lastTime = performance.now();
+        const targetInterval = 1000 / 30; // ~30fps to reduce re-render pressure
+
+        const animate = (time: number) => {
+            if (time - lastTime >= targetInterval) {
+                setCurrentAngle(prev => {
+                    const nextValue = (prev + skill.speed) % 360;
+                    return nextValue < 0 ? nextValue + 360 : nextValue;
+                });
+                lastTime = time;
+            }
+            frameId = requestAnimationFrame(animate);
+        };
+        frameId = requestAnimationFrame(animate);
+        return () => cancelAnimationFrame(frameId);
+    }, [isPaused, skill.speed]);
+
     const angle = (currentAngle * Math.PI) / 180;
     const x = Math.cos(angle) * skill.radius;
     const y = Math.sin(angle) * skill.radius * 0.4;
@@ -257,11 +279,8 @@ const SkillOrbit: React.FC<{
 
 export default function About() {
     const [activeSkill, setActiveSkill] = useState<Skill | null>(null);
-    const [angles, setAngles] = useState<Record<string, number>>({});
-    const [hoveredSkills, setHoveredSkills] = useState<Set<string>>(new Set());
     const [containerSize, setContainerSize] = useState({ width: 800, height: 600 });
     const containerRef = useRef<HTMLDivElement>(null);
-    const requestRef = useRef<number>();
     const { theme } = useTheme();
     const cardRef = useRef<HTMLDivElement>(null);
     const [cardHover, setCardHover] = useState(false);
@@ -290,48 +309,12 @@ export default function About() {
         return () => window.removeEventListener('resize', updateSize);
     }, []);
 
-    useEffect(() => {
-        const initialAngles: Record<string, number> = {};
-        skills.forEach(skill => {
-            initialAngles[skill.name] = skill.angle;
-        });
-        setAngles(initialAngles);
-    }, []);
-
-    const animateOrbit = useCallback(() => {
-        setAngles(prevAngles => {
-            const newAngles = { ...prevAngles };
-            skills.forEach(skill => {
-                if (!hoveredSkills.has(skill.name)) {
-                    newAngles[skill.name] = (newAngles[skill.name] + skill.speed) % 360;
-                }
-            });
-            return newAngles;
-        });
-        requestRef.current = requestAnimationFrame(animateOrbit);
-    }, [hoveredSkills]);
-
-    useEffect(() => {
-        requestRef.current = requestAnimationFrame(animateOrbit);
-        return () => {
-            if (requestRef.current) {
-                cancelAnimationFrame(requestRef.current);
-            }
-        };
-    }, [animateOrbit]);
-
     const handleSkillHover = (skillName: string) => {
         setActiveSkill(skills.find(s => s.name === skillName) || null);
-        setHoveredSkills(prev => new Set(prev).add(skillName));
     };
 
     const handleSkillHoverEnd = (skillName: string) => {
-        setActiveSkill(null);
-        setHoveredSkills(prev => {
-            const newSet = new Set(prev);
-            newSet.delete(skillName);
-            return newSet;
-        });
+        setActiveSkill(current => (current?.name === skillName ? null : current));
     };
 
     const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -524,7 +507,7 @@ export default function About() {
                                 isActive={activeSkill?.name === skill.name}
                                 onHover={() => handleSkillHover(skill.name)}
                                 onHoverEnd={() => handleSkillHoverEnd(skill.name)}
-                                currentAngle={angles[skill.name] || skill.angle}
+                                isPaused={activeSkill?.name === skill.name}
                                 containerSize={containerSize}
                             />
                         ))}
