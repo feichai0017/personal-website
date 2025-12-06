@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { motion, AnimatePresence, useInView, useScroll, useSpring, useReducedMotion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { Card, CardContent } from "@/components/ui/card"
@@ -633,6 +634,9 @@ const TimelineNode: React.FC<TimelineNodeProps> = ({ experience, index, onSelect
 const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () => void }> = ({ experience, onClose }) => {
     const { theme } = useTheme();
     const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => setMounted(true), []);
 
     const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         const rect = e.currentTarget.getBoundingClientRect();
@@ -641,11 +645,11 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
         setMousePosition({ x, y });
     };
 
-    if (!experience) return null;
+    if (!experience || !mounted) return null;
     const accent = experience.type === 'education' ? '#60A5FA' : '#A68B6F'
     const locationInfo = experienceLocations[experience.title]
 
-    return (
+    const modal = (
         <AnimatePresence>
             {experience && (
                 <motion.div
@@ -812,7 +816,9 @@ const ExperienceDetail: React.FC<{ experience: Experience | null; onClose: () =>
                 </motion.div>
             )}
         </AnimatePresence>
-    );
+    )
+
+    return createPortal(modal, document.body)
 };
 
 
