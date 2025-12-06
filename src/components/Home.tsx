@@ -140,6 +140,30 @@ const Home = () => {
             id="home"
             className="min-h-screen flex flex-col justify-center items-center relative overflow-hidden px-4 bg-morandi-bg dark:bg-[#03040a] transition-colors duration-500"
         >
+            {/* 背景光晕与噪声层 */}
+            <div
+                className="pointer-events-none absolute inset-0 z-0"
+                style={{
+                    backgroundImage: `
+                        radial-gradient(80% 60% at 20% 30%, rgba(111, 146, 173, 0.25), transparent 60%),
+                        radial-gradient(70% 50% at 80% 20%, rgba(164, 114, 132, 0.22), transparent 55%),
+                        radial-gradient(65% 55% at 50% 80%, rgba(122, 155, 126, 0.18), transparent 60%)
+                    `,
+                    mixBlendMode: 'screen',
+                    opacity: 0.65,
+                }}
+            />
+            <div
+                className="pointer-events-none absolute inset-0 z-0"
+                style={{
+                    backgroundImage: `
+                        linear-gradient(120deg, rgba(255,255,255,0.04), rgba(255,255,255,0)),
+                        linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0))
+                    `,
+                    mixBlendMode: 'soft-light',
+                }}
+            />
+
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -154,6 +178,18 @@ const Home = () => {
                 >
                     Guocheng Song
                 </motion.h1>
+                <motion.div
+                    className="inline-flex items-center gap-2 px-4 py-2 mb-4 rounded-full border border-morandi-accent/30 bg-white/70 dark:bg-white/10 shadow-sm"
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35, duration: 0.45, ease: 'easeOut' }}
+                    whileHover={{ y: -2, scale: 1.02 }}
+                >
+                    <span className="w-2 h-2 rounded-full bg-morandi-accent animate-pulse" />
+                    <span className="text-xs uppercase tracking-[0.35em] text-morandi-text/70 dark:text-morandi-light/70">
+                        Crafting reliable systems
+                    </span>
+                </motion.div>
                 <div className="h-12 mb-6">
                     <AnimatePresence mode="wait">
                         <motion.h2
