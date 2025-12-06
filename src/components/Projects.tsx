@@ -226,23 +226,24 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                 onMouseLeave={() => setIsHovered(false)}
             >
                 {/* 现代化卡片设计 */}
-                <Card className={`relative h-full overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500
-                    ${theme === 'dark'
-                        ? 'bg-white/5 backdrop-blur-2xl'
-                        : 'bg-white/90'
-                    }
-                    border ${isHovered ? 'border-morandi-accent/50' : 'border-morandi-accent/20'}`}
+                <Card
+                    className={`relative h-full overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500
+                        ${theme === 'dark'
+                            ? 'bg-white/5 backdrop-blur-2xl'
+                            : 'bg-white/85 backdrop-blur-2xl'
+                        }
+                        border ${isHovered ? 'border-white/25' : 'border-white/15'}`}
                     style={{
                         borderRadius: '24px',
-                        backdropFilter: 'blur(20px)'
+                        backdropFilter: 'blur(22px)'
                     }}
                 >
                     {/* 动态光晕效果 - 参考Experience */}
                     <motion.div
                         className="absolute inset-0 pointer-events-none z-10"
                         style={{
-                            background: `radial-gradient(500px circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, ${colors.glow}, transparent 60%)`,
-                            opacity: isHovered ? 1 : 0,
+                            background: `radial-gradient(520px circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, ${colors.glow}, transparent 60%)`,
+                            opacity: isHovered ? 1 : 0.6,
                             transition: 'opacity 0.3s ease-out'
                         }}
                     />
@@ -282,6 +283,14 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                                 opacity: isHovered ? 0.8 : 0.6
                             }}
                             transition={{ duration: 0.3 }}
+                        />
+                        <motion.div
+                            className="absolute inset-0"
+                            animate={{ opacity: [0.18, 0.32, 0.18] }}
+                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                            style={{
+                                background: `radial-gradient(circle at 20% 30%, ${colors.primary}12, transparent 35%), radial-gradient(circle at 80% 70%, ${colors.secondary}12, transparent 35%)`,
+                            }}
                         />
                     </div>
 
@@ -327,9 +336,21 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                                     >
                                         {project.title}
                                     </motion.h3>
-                                    <div className="flex items-center text-morandi-text/70 dark:text-morandi-dark/70 text-sm mt-1">
-                                        <Clock className="w-4 h-4 mr-2 flex-shrink-0" />
-                                        {project.date}
+                                    <div className="flex items-center text-morandi-text/70 dark:text-morandi-dark/70 text-sm mt-1 gap-2 flex-wrap">
+                                        <span
+                                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] uppercase tracking-[0.2em] border"
+                                            style={{
+                                                borderColor: `${colors.primary}30`,
+                                                background: `${colors.bg}`,
+                                                color: colors.primary,
+                                            }}
+                                        >
+                                            {project.category}
+                                        </span>
+                                        <div className="flex items-center gap-1">
+                                            <Clock className="w-4 h-4 flex-shrink-0" />
+                                            {project.date}
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
@@ -396,12 +417,11 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                                         }}
                                     >
                                         <motion.div
-                                            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 border
-                                                ${theme === 'dark'
-                                                    ? 'bg-morandi-muted/30 border-morandi-accent/30 hover:bg-morandi-muted/50'
-                                                    : 'bg-morandi-hover/40 border-morandi-accent/20 hover:bg-morandi-hover/60'
-                                                }
-                                            `}
+                                            className="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 border"
+                                            style={{
+                                                borderColor: `${colors.primary}30`,
+                                                background: theme === 'dark' ? `${colors.bg}` : 'rgba(255,255,255,0.8)',
+                                            }}
                                             whileHover={{ scale: 1.05, y: -2 }}
                                             transition={{ type: "spring", stiffness: 400 }}
                                         >
@@ -413,12 +433,11 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                             })}
                             {!isHovered && project.techStack.length > 4 && (
                                 <motion.div
-                                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border
-                                        ${theme === 'dark'
-                                            ? 'bg-morandi-muted/30 border-morandi-accent/30'
-                                            : 'bg-morandi-hover/40 border-morandi-accent/20'
-                                        }
-                                    `}
+                                    className="px-3 py-1.5 rounded-lg text-xs font-medium border"
+                                    style={{
+                                        borderColor: `${colors.primary}30`,
+                                        background: theme === 'dark' ? `${colors.bg}` : 'rgba(255,255,255,0.8)',
+                                    }}
                                     whileHover={{ scale: 1.05 }}
                                 >
                                     +{project.techStack.length - 4}
