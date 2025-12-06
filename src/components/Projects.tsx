@@ -238,6 +238,13 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                         backdropFilter: 'blur(22px)'
                     }}
                 >
+                    <div
+                        className="pointer-events-none absolute -inset-[1px] rounded-[24px]"
+                        style={{
+                            background: `linear-gradient(120deg, ${colors.primary}35, transparent 40%, ${colors.secondary}35)`,
+                            opacity: isHovered ? 0.35 : 0.15,
+                        }}
+                    />
                     {/* 动态光晕效果 - 参考Experience */}
                     <motion.div
                         className="absolute inset-0 pointer-events-none z-10"
