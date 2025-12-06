@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, useScroll, useTransform, AnimatePresence, useInView, useReducedMotion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Card } from "@/components/ui/card";
@@ -465,8 +466,11 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
 const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> = ({ project, onClose }) => {
     const { theme } = useTheme();
     const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+    const [mounted, setMounted] = useState(false);
 
-    if (!project) return null;
+    useEffect(() => setMounted(true), []);
+
+    if (!project || !mounted) return null;
 
     const CategoryIcon = categoryIcons[project.category];
 
@@ -507,7 +511,7 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
         setMousePosition({ x, y });
     };
 
-    return (
+    const modal = (
         <AnimatePresence>
             {project && (
                 <motion.div
@@ -796,6 +800,8 @@ const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> 
             )}
         </AnimatePresence>
     );
+
+    return createPortal(modal, document.body);
 };
 
 const Projects: React.FC = () => {
