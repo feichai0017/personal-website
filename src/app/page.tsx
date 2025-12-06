@@ -52,6 +52,36 @@ export default function Page() {
   const [contactVisible, setContactVisible] = useState(false)
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
+    const hash = window.location.hash.replace('#', '')
+    switch (hash) {
+      case 'projects':
+        setProjectsVisible(true)
+        break
+      case 'techstack':
+        setTechStackVisible(true)
+        break
+      case 'experience':
+        setExperienceVisible(true)
+        break
+      case 'contact':
+        setContactVisible(true)
+        break
+      default:
+        break
+    }
+    const handleHashChange = () => {
+      const nextHash = window.location.hash.replace('#', '')
+      if (nextHash === 'projects') setProjectsVisible(true)
+      if (nextHash === 'techstack') setTechStackVisible(true)
+      if (nextHash === 'experience') setExperienceVisible(true)
+      if (nextHash === 'contact') setContactVisible(true)
+    }
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
+
+  useEffect(() => {
     if (projectsInView) setProjectsVisible(true)
   }, [projectsInView])
 
@@ -72,6 +102,7 @@ export default function Page() {
       <Home />
       <About />
       <motion.div
+        id="projects"
         ref={projectsRef}
         initial={{ opacity: 0, y: 24 }}
         animate={projectsVisible ? { opacity: 1, y: 0 } : { opacity: 0.8 }}
@@ -80,6 +111,7 @@ export default function Page() {
         {projectsVisible ? <Projects /> : <SectionSkeleton title="Projects" />}
       </motion.div>
       <motion.div
+        id="techstack"
         ref={techStackRef}
         initial={{ opacity: 0, y: 24 }}
         animate={techStackVisible ? { opacity: 1, y: 0 } : { opacity: 0.8 }}
@@ -88,6 +120,7 @@ export default function Page() {
         {techStackVisible ? <TechStack /> : <SectionSkeleton title="Tech Stack" />}
       </motion.div>
       <motion.div
+        id="experience"
         ref={experienceRef}
         initial={{ opacity: 0, y: 24 }}
         animate={experienceVisible ? { opacity: 1, y: 0 } : { opacity: 0.8 }}
@@ -96,6 +129,7 @@ export default function Page() {
         {experienceVisible ? <Experience /> : <SectionSkeleton title="Experience" />}
       </motion.div>
       <motion.div
+        id="contact"
         ref={contactRef}
         initial={{ opacity: 0, y: 24 }}
         animate={contactVisible ? { opacity: 1, y: 0 } : { opacity: 0.8 }}
