@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useInView } from 'framer-motion'
+import { useInView, motion } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import Home from '@/components/Home'
 import About from '@/components/About'
@@ -41,10 +41,10 @@ export default function Page() {
   const experienceRef = useRef<HTMLDivElement | null>(null)
   const contactRef = useRef<HTMLDivElement | null>(null)
 
-  const projectsInView = useInView(projectsRef, { amount: 0.15, margin: '0px 0px -5% 0px' })
-  const techStackInView = useInView(techStackRef, { amount: 0.15, margin: '0px 0px -5% 0px' })
-  const experienceInView = useInView(experienceRef, { amount: 0.15, margin: '0px 0px -5% 0px' })
-  const contactInView = useInView(contactRef, { amount: 0.2, margin: '0px 0px -10% 0px' })
+  const projectsInView = useInView(projectsRef, { amount: 0.1, margin: '35% 0px 15% 0px', once: true })
+  const techStackInView = useInView(techStackRef, { amount: 0.1, margin: '35% 0px 15% 0px', once: true })
+  const experienceInView = useInView(experienceRef, { amount: 0.1, margin: '35% 0px 15% 0px', once: true })
+  const contactInView = useInView(contactRef, { amount: 0.15, margin: '45% 0px 20% 0px', once: true })
 
   const [projectsVisible, setProjectsVisible] = useState(false)
   const [techStackVisible, setTechStackVisible] = useState(false)
@@ -71,10 +71,38 @@ export default function Page() {
     <main className="min-h-screen bg-morandi-bg dark:bg-[#03040a] text-morandi-text dark:text-morandi-light transition-colors duration-500">
       <Home />
       <About />
-      <div ref={projectsRef}>{projectsVisible ? <Projects /> : <SectionSkeleton title="Projects" />}</div>
-      <div ref={techStackRef}>{techStackVisible ? <TechStack /> : <SectionSkeleton title="Tech Stack" />}</div>
-      <div ref={experienceRef}>{experienceVisible ? <Experience /> : <SectionSkeleton title="Experience" />}</div>
-      <div ref={contactRef}>{contactVisible ? <ContactMe /> : <SectionSkeleton title="Contact" />}</div>
+      <motion.div
+        ref={projectsRef}
+        initial={{ opacity: 0, y: 24 }}
+        animate={projectsVisible ? { opacity: 1, y: 0 } : { opacity: 0.8 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
+        {projectsVisible ? <Projects /> : <SectionSkeleton title="Projects" />}
+      </motion.div>
+      <motion.div
+        ref={techStackRef}
+        initial={{ opacity: 0, y: 24 }}
+        animate={techStackVisible ? { opacity: 1, y: 0 } : { opacity: 0.8 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
+        {techStackVisible ? <TechStack /> : <SectionSkeleton title="Tech Stack" />}
+      </motion.div>
+      <motion.div
+        ref={experienceRef}
+        initial={{ opacity: 0, y: 24 }}
+        animate={experienceVisible ? { opacity: 1, y: 0 } : { opacity: 0.8 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
+        {experienceVisible ? <Experience /> : <SectionSkeleton title="Experience" />}
+      </motion.div>
+      <motion.div
+        ref={contactRef}
+        initial={{ opacity: 0, y: 24 }}
+        animate={contactVisible ? { opacity: 1, y: 0 } : { opacity: 0.8 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      >
+        {contactVisible ? <ContactMe /> : <SectionSkeleton title="Contact" />}
+      </motion.div>
     </main>
   )
 }
