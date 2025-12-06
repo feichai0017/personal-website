@@ -80,12 +80,13 @@ export default function ContactMe() {
     const terminalRef = useRef<HTMLDivElement>(null)
 
     useEffect(() => {
-        if (terminalRef.current) {
-            terminalRef.current.scrollTo({
-                top: terminalRef.current.scrollHeight,
-                behavior: 'smooth'
-            })
-        }
+        if (!terminalRef.current) return
+        const node = terminalRef.current
+        const raf = requestAnimationFrame(() => {
+            // Keep terminal pinned to bottom without smooth scrolling to avoid jank.
+            node.scrollTop = node.scrollHeight
+        })
+        return () => cancelAnimationFrame(raf)
     }, [logs, isComposeMode])
 
     const appendLog = useCallback((entry: TerminalEntryInput) => {
