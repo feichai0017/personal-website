@@ -202,7 +202,6 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
     };
 
     const colors = categoryColors[project.category] || categoryColors.web;
-    const featureCount = project.features?.length ?? 0;
 
     return (
         <motion.div
@@ -220,11 +219,11 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
         >
             <motion.div
                 ref={cardRef}
-                        className="relative h-[420px]"
-                        animate={floatingAnimation}
-                        onMouseMove={handleMouseMove}
-                        onMouseEnter={() => setIsHovered(true)}
-                        onMouseLeave={() => setIsHovered(false)}
+                className="relative h-[420px]"
+                animate={floatingAnimation}
+                onMouseMove={handleMouseMove}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
             >
                 {/* 现代化卡片设计 */}
                 <Card
@@ -303,34 +302,6 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
                     </div>
 
                     <div className="relative z-20 p-8 h-full flex flex-col">
-                        {/* 顶部指标徽章 */}
-                        <motion.div
-                            className="absolute top-4 right-4 z-30 flex gap-2"
-                            initial={{ opacity: 0, y: -10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                        >
-                            <div
-                                className="px-3 py-1.5 rounded-xl text-xs font-semibold text-morandi-dark dark:text-morandi-dark shadow-sm backdrop-blur-md"
-                                style={{
-                                    background: theme === 'dark' ? `${colors.bg}` : 'rgba(255,255,255,0.8)',
-                                    border: `1px solid ${colors.primary}30`,
-                                }}
-                            >
-                                {project.techStack.length} tech
-                            </div>
-                            {featureCount > 0 && (
-                                <div
-                                    className="px-3 py-1.5 rounded-xl text-xs font-semibold text-morandi-dark dark:text-morandi-dark shadow-sm backdrop-blur-md"
-                                    style={{
-                                        background: theme === 'dark' ? `${colors.bg}` : 'rgba(255,255,255,0.8)',
-                                        border: `1px solid ${colors.secondary}30`,
-                                    }}
-                                >
-                                    {featureCount} features
-                                </div>
-                            )}
-                        </motion.div>
-
                         {/* 头部区域 */}
                         <div className="flex justify-between items-start mb-6">
                             <motion.div
