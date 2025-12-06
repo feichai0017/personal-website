@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -19,10 +19,11 @@
     "@vercel/speed-insights": "^1.0.12",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
+    "express": "^5.2.1",
     "framer-motion": "^11.11.1",
     "googleapis": "^144.0.0",
     "lucide-react": "^0.447.0",
-    "next": "14.2.14",
+    "next": "16.0.7",
     "next-themes": "^0.3.0",
     "nodemailer": "^6.9.16",
     "react": "^18",
@@ -45,8 +46,8 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "@types/react-scroll": "^1.8.10",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.14",
+    "eslint": "^9.39.1",
+    "eslint-config-next": "16.0.7",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"

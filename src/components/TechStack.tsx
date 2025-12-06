@@ -13,6 +13,7 @@ import {
 import { FaAws } from "react-icons/fa"
 import { TbServer } from "react-icons/tb"
 import { Code2, Layers, Database, Globe, Terminal, Sparkles } from "lucide-react"
+import { createSeededRandom, seedFromString } from "@/lib/seeded-random"
 
 interface Tech {
     name: string
@@ -119,10 +120,19 @@ const TechStack = () => {
 
     const orbitRenderOrder = useMemo(() => [...orbitData].sort((a, b) => b.radius - a.radius), [orbitData])
 
+    const categoryDelays = useMemo(() => {
+        const rand = createSeededRandom(5000)
+        return Object.keys(categoryNames).reduce<Record<string, number>>((acc, key) => {
+            acc[key] = rand() * 2
+            return acc
+        }, {})
+    }, [])
+
     const planetPaths = useMemo(() => {
-        const randomBetween = (min: number, max: number) => Math.random() * (max - min) + min
         const config: Record<string, { x: number[]; y: number[]; duration: number }> = {}
         techStack.forEach(tech => {
+            const rand = createSeededRandom(seedFromString(tech.name))
+            const randomBetween = (min: number, max: number) => min + rand() * (max - min)
             const steps = 4
             const xs: number[] = []
             const ys: number[] = []
@@ -294,7 +304,7 @@ const TechStack = () => {
                                         className="absolute inset-0 rounded-2xl"
                                         style={{ background: `${meta.accent}15` }}
                                         animate={{ opacity: [0.15, 0.35, 0.15], scale: [1, 1.03, 1] }}
-                                        transition={{ duration: 5, repeat: Infinity, delay: Math.random() * 2 }}
+                                        transition={{ duration: 5, repeat: Infinity, delay: categoryDelays[key] ?? 0 }}
                                     />
                                     <div className="relative flex items-center gap-3">
                                         <motion.div

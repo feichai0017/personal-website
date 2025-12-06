@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { School, Briefcase, Building2, ArrowUpRight, MapPin, Clock } from 'lucide-react'
 import { ComposableMap, Geographies, Geography, Marker, Line } from "react-simple-maps"
 import { geoMercator } from "d3-geo"
+import { createSeededRandom } from "@/lib/seeded-random"
 
 // Interface and Data (experiencesData) remain the same as you provided
 interface Experience {
@@ -928,7 +929,31 @@ export default function ExperienceTreeSection() {
         return match?.point ?? null
     }, [projectedPoints, activeJourney])
 
-    let globalTimelineIndex = 0
+    const backgroundBlobs = useMemo(() => {
+        const rand = createSeededRandom(1000)
+        return Array.from({ length: 5 }, (_, i) => ({
+            key: i,
+            width: 100 + rand() * 300,
+            height: 100 + rand() * 300,
+            left: rand() * 100,
+            top: rand() * 100,
+            xDelta: rand() * 50 - 25,
+            yDelta: rand() * 50 - 25,
+            scaleMid: 1.1 + rand() * 0.2,
+            duration: 10 + rand() * 10,
+        }))
+    }, [])
+
+    const regionOffsets = useMemo(() => {
+        const { offsets } = regionTimeline.reduce(
+            (acc, region) => ({
+                offsets: { ...acc.offsets, [region.id]: acc.offset },
+                offset: acc.offset + region.experiences.length,
+            }),
+            { offsets: {} as Record<string, number>, offset: 0 }
+        )
+        return offsets
+    }, [regionTimeline])
 
     return (
         <section
@@ -938,27 +963,27 @@ export default function ExperienceTreeSection() {
         >
             {/* 背景装饰 */}
             <motion.div className="absolute inset-0 -z-10 opacity-30">
-                {[...Array(5)].map((_, i) => (
+                {backgroundBlobs.map((blob) => (
                     <motion.div
-                        key={i}
-                        className={`absolute rounded-full ${i % 2 === 0
+                        key={blob.key}
+                        className={`absolute rounded-full ${blob.key % 2 === 0
                             ? 'bg-morandi-accent/5 dark:bg-morandi-accent/10'
                             : 'bg-blue-500/5 dark:bg-blue-400/10'
                             }`}
                         style={{
-                            width: Math.random() * 300 + 100,
-                            height: Math.random() * 300 + 100,
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
+                            width: blob.width,
+                            height: blob.height,
+                            left: `${blob.left}%`,
+                            top: `${blob.top}%`,
                             filter: 'blur(50px)'
                         }}
                         animate={{
-                            x: [0, Math.random() * 50 - 25, 0],
-                            y: [0, Math.random() * 50 - 25, 0],
-                            scale: [1, 1.1 + Math.random() * 0.2, 1]
+                            x: [0, blob.xDelta, 0],
+                            y: [0, blob.yDelta, 0],
+                            scale: [1, blob.scaleMid, 1]
                         }}
                         transition={{
-                            duration: 10 + Math.random() * 10,
+                            duration: blob.duration,
                             repeat: Infinity,
                             ease: "easeInOut"
                         }}
@@ -1143,19 +1168,19 @@ export default function ExperienceTreeSection() {
                                     </p>
                                 </div>
                                 <div className="space-y-16 md:space-y-28">
-                                    {region.experiences.map(exp => {
+                                    {region.experiences.map((exp, expIndex) => {
+                                        const timelineIndex = (regionOffsets[region.id] ?? 0) + expIndex
                                         const node = (
                                             <TimelineNode
-                                                key={`${region.id}-${exp.title}-${globalTimelineIndex}`}
+                                                key={`${region.id}-${exp.title}-${timelineIndex}`}
                                                 experience={exp}
-                                                index={globalTimelineIndex}
+                                                index={timelineIndex}
                                                 accent={region.meta.accent}
                                                 onSelect={setSelectedExperience}
                                                 onHoverFocus={setActiveJourney}
                                                 onVisible={handleNodeVisible}
                                             />
                                         )
-                                        globalTimelineIndex += 1
                                         return node
                                     })}
                                 </div>

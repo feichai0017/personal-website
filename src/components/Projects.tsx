@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { motion, useScroll, useTransform, AnimatePresence, useInView } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Card } from "@/components/ui/card";
@@ -15,6 +15,7 @@ import { FaJava, FaAws, FaDatabase } from 'react-icons/fa';
 import { TbBrandGolang, TbDatabase } from 'react-icons/tb';
 import { ConvexIcon, EdgeStoreIcon } from "@/components/Icons";
 import Image from 'next/image';
+import { createSeededRandom } from "@/lib/seeded-random";
 
 interface Project {
     title: string;
@@ -820,6 +821,34 @@ const Projects: React.FC = () => {
         };
     }, [selectedProject]);
 
+    const floatingShapes = useMemo(() => {
+        const rand = createSeededRandom(2000)
+        return Array.from({ length: 6 }, (_, i) => ({
+            key: i,
+            width: rand() * 200 + 100,
+            height: rand() * 200 + 100,
+            left: rand() * 100,
+            top: rand() * 100,
+            xDelta: rand() * 100 - 50,
+            yDelta: rand() * 100 - 50,
+            duration: 15 + rand() * 10,
+            delay: i * 2,
+        }))
+    }, [])
+
+    const glowParticles = useMemo(() => {
+        const rand = createSeededRandom(3000)
+        return Array.from({ length: 12 }, (_, i) => ({
+            key: i,
+            left: rand() * 100,
+            top: rand() * 100,
+            xDelta: rand() * 200 - 100,
+            yDelta: rand() * 200 - 100,
+            duration: 8 + rand() * 4,
+            delay: i * 0.8,
+        }))
+    }, [])
+
     return (
         <section
             id="projects"
@@ -856,58 +885,58 @@ const Projects: React.FC = () => {
                 />
 
                 {/* 浮动装饰元素 */}
-                {[...Array(6)].map((_, i) => (
+                {floatingShapes.map((shape) => (
                     <motion.div
-                        key={i}
+                        key={shape.key}
                         className="absolute rounded-full opacity-20"
                         style={{
-                            width: Math.random() * 200 + 100,
-                            height: Math.random() * 200 + 100,
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            background: i % 3 === 0
+                            width: shape.width,
+                            height: shape.height,
+                            left: `${shape.left}%`,
+                            top: `${shape.top}%`,
+                            background: shape.key % 3 === 0
                                 ? 'linear-gradient(135deg, rgba(79, 138, 157, 0.1), rgba(79, 138, 157, 0.05))'
-                                : i % 3 === 1
+                                : shape.key % 3 === 1
                                     ? 'linear-gradient(135deg, rgba(164, 114, 132, 0.08), rgba(164, 114, 132, 0.04))'
                                     : 'linear-gradient(135deg, rgba(122, 155, 126, 0.06), rgba(122, 155, 126, 0.03))',
                             filter: 'blur(40px)'
                         }}
                         animate={{
-                            x: [0, Math.random() * 100 - 50, 0],
-                            y: [0, Math.random() * 100 - 50, 0],
+                            x: [0, shape.xDelta, 0],
+                            y: [0, shape.yDelta, 0],
                             scale: [1, 1.2, 1]
                         }}
                         transition={{
-                            duration: 15 + Math.random() * 10,
+                            duration: shape.duration,
                             repeat: Infinity,
                             ease: "easeInOut",
-                            delay: i * 2
+                            delay: shape.delay
                         }}
                     />
                 ))}
 
                 {/* 发光粒子效果 */}
-                {[...Array(12)].map((_, i) => (
+                {glowParticles.map((particle) => (
                     <motion.div
-                        key={`particle-${i}`}
+                        key={`particle-${particle.key}`}
                         className="absolute w-1 h-1 rounded-full"
                         style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                            background: ['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][i % 4],
-                            boxShadow: `0 0 10px ${['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][i % 4]}40`
+                            left: `${particle.left}%`,
+                            top: `${particle.top}%`,
+                            background: ['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][particle.key % 4],
+                            boxShadow: `0 0 10px ${['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][particle.key % 4]}40`
                         }}
                         animate={{
                             scale: [0, 1, 0],
                             opacity: [0, 1, 0],
-                            x: [0, Math.random() * 200 - 100],
-                            y: [0, Math.random() * 200 - 100]
+                            x: [0, particle.xDelta],
+                            y: [0, particle.yDelta]
                         }}
                         transition={{
-                            duration: 8 + Math.random() * 4,
+                            duration: particle.duration,
                             repeat: Infinity,
                             ease: "easeOut",
-                            delay: i * 0.8
+                            delay: particle.delay
                         }}
                     />
                 ))}

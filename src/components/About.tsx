@@ -1,11 +1,12 @@
 "use client"
 
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, useMemo } from "react"
 import Image from "next/image"
 import { motion, useTransform, AnimatePresence, useSpring } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Code, Terminal, Database, Cpu, Layout, Layers } from 'lucide-react'
 import { useTheme } from 'next-themes'
+import { createSeededRandom } from "@/lib/seeded-random"
 
 interface Skill {
     name: string;
@@ -134,6 +135,7 @@ const SkillOrbit: React.FC<{
 }> = ({ skill, isActive, onHover, onHoverEnd, isPaused, containerSize }) => {
     const { theme } = useTheme();
     const [currentAngle, setCurrentAngle] = useState(skill.angle);
+    const round3 = (value: number) => Math.round(value * 1000) / 1000;
 
     useEffect(() => {
         if (isPaused) return;
@@ -156,9 +158,9 @@ const SkillOrbit: React.FC<{
     }, [isPaused, skill.speed]);
 
     const angle = (currentAngle * Math.PI) / 180;
-    const x = Math.cos(angle) * skill.radius;
-    const y = Math.sin(angle) * skill.radius * 0.4;
-    const scale = (y + skill.radius * 0.4) / (skill.radius * 0.8);
+    const x = round3(Math.cos(angle) * skill.radius);
+    const y = round3(Math.sin(angle) * skill.radius * 0.4);
+    const scale = round3((y + skill.radius * 0.4) / (skill.radius * 0.8));
     const zIndex = Math.round(scale * 50) + 5;
 
     const tagWidth = 120;
@@ -400,23 +402,32 @@ export default function About() {
                 ))}
 
                 {/* 星尘效果 */}
-                {[...Array(8)].map((_, i) => (
+                {useMemo(() => {
+                    const rand = createSeededRandom(42);
+                    return Array.from({ length: 8 }, (_, i) => ({
+                        key: `star-${i}`,
+                        left: 20 + rand() * 60,
+                        top: 20 + rand() * 60,
+                        duration: 2 + rand() * 3,
+                        delay: i * 0.5,
+                    }));
+                }, []).map(({ key, left, top, duration, delay }) => (
                     <motion.div
-                        key={`star-${i}`}
+                        key={key}
                         className="absolute w-1 h-1 rounded-full"
                         style={{
                             background: activeSkill ? activeSkill.color : '#A68B6F',
-                            left: `${20 + Math.random() * 60}%`,
-                            top: `${20 + Math.random() * 60}%`,
+                            left: `${left}%`,
+                            top: `${top}%`,
                         }}
                         animate={{
                             opacity: [0, 1, 0],
                             scale: [0, 1, 0],
                         }}
                         transition={{
-                            duration: 2 + Math.random() * 3,
+                            duration,
                             repeat: Infinity,
-                            delay: i * 0.5,
+                            delay,
                             ease: "easeInOut"
                         }}
                     />
