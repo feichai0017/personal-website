@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { motion, useScroll, useTransform, AnimatePresence, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, AnimatePresence, useInView, useReducedMotion } from 'framer-motion';
 import { useTheme } from 'next-themes';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -147,6 +147,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
     const ref = useRef(null);
     const cardRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(ref, { once: false, amount: 0.3 });
+    const prefersReducedMotion = useReducedMotion();
     const [isHovered, setIsHovered] = useState(false);
     const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
 
@@ -163,7 +164,7 @@ const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (projec
     // 参考Experience的浮动动画
     const floatingAnimation = {
         translateY: isHovered ? [0, -6, 0, -3, 0] : [0, -2, 0],
-        transition: {
+        transition: prefersReducedMotion ? undefined : {
             duration: isHovered ? 1.2 : 4 + index * 0.5,
             ease: "easeInOut",
             repeat: Infinity,
@@ -805,6 +806,10 @@ const Projects: React.FC = () => {
         offset: ["start start", "end start"]
     });
     const { theme } = useTheme();
+    const prefersReducedMotion = useReducedMotion();
+    const sectionInView = useInView(ref, { once: false, amount: 0.3 });
+    const enableMotion = sectionInView && !prefersReducedMotion;
+    const [decorVisible, setDecorVisible] = useState(false);
 
     const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -200]);
 
@@ -820,6 +825,12 @@ const Projects: React.FC = () => {
             document.body.style.overflow = 'unset';
         };
     }, [selectedProject]);
+
+    useEffect(() => {
+        if (sectionInView && !decorVisible) {
+            setDecorVisible(true);
+        }
+    }, [sectionInView, decorVisible]);
 
     const floatingShapes = useMemo(() => {
         const rand = createSeededRandom(2000)
@@ -871,76 +882,78 @@ const Projects: React.FC = () => {
             `}</style>
 
             {/* 现代化动态背景 */}
-            <motion.div
-                className="absolute inset-0 -z-10 opacity-40"
-                style={{ y: backgroundY }}
-            >
-                {/* 主背景渐变 */}
-                <div className="absolute inset-0"
-                    style={{
-                        background: theme === 'dark'
-                            ? 'radial-gradient(circle at 30% 20%, rgba(79, 138, 157, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(164, 114, 132, 0.06) 0%, transparent 50%), radial-gradient(circle at 40% 70%, rgba(122, 155, 126, 0.05) 0%, transparent 50%)'
-                            : 'radial-gradient(circle at 30% 20%, rgba(79, 138, 157, 0.04) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(164, 114, 132, 0.03) 0%, transparent 50%), radial-gradient(circle at 40% 70%, rgba(122, 155, 126, 0.025) 0%, transparent 50%)'
-                    }}
-                />
-
-                {/* 浮动装饰元素 */}
-                {floatingShapes.map((shape) => (
-                    <motion.div
-                        key={shape.key}
-                        className="absolute rounded-full opacity-20"
+            {decorVisible && (
+                <motion.div
+                    className="absolute inset-0 -z-10 opacity-40"
+                    style={{ y: backgroundY }}
+                >
+                    {/* 主背景渐变 */}
+                    <div className="absolute inset-0"
                         style={{
-                            width: shape.width,
-                            height: shape.height,
-                            left: `${shape.left}%`,
-                            top: `${shape.top}%`,
-                            background: shape.key % 3 === 0
-                                ? 'linear-gradient(135deg, rgba(79, 138, 157, 0.1), rgba(79, 138, 157, 0.05))'
-                                : shape.key % 3 === 1
-                                    ? 'linear-gradient(135deg, rgba(164, 114, 132, 0.08), rgba(164, 114, 132, 0.04))'
-                                    : 'linear-gradient(135deg, rgba(122, 155, 126, 0.06), rgba(122, 155, 126, 0.03))',
-                            filter: 'blur(40px)'
-                        }}
-                        animate={{
-                            x: [0, shape.xDelta, 0],
-                            y: [0, shape.yDelta, 0],
-                            scale: [1, 1.2, 1]
-                        }}
-                        transition={{
-                            duration: shape.duration,
-                            repeat: Infinity,
-                            ease: "easeInOut",
-                            delay: shape.delay
+                            background: theme === 'dark'
+                                ? 'radial-gradient(circle at 30% 20%, rgba(79, 138, 157, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(164, 114, 132, 0.06) 0%, transparent 50%), radial-gradient(circle at 40% 70%, rgba(122, 155, 126, 0.05) 0%, transparent 50%)'
+                                : 'radial-gradient(circle at 30% 20%, rgba(79, 138, 157, 0.04) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(164, 114, 132, 0.03) 0%, transparent 50%), radial-gradient(circle at 40% 70%, rgba(122, 155, 126, 0.025) 0%, transparent 50%)'
                         }}
                     />
-                ))}
 
-                {/* 发光粒子效果 */}
-                {glowParticles.map((particle) => (
-                    <motion.div
-                        key={`particle-${particle.key}`}
-                        className="absolute w-1 h-1 rounded-full"
-                        style={{
-                            left: `${particle.left}%`,
-                            top: `${particle.top}%`,
-                            background: ['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][particle.key % 4],
-                            boxShadow: `0 0 10px ${['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][particle.key % 4]}40`
-                        }}
-                        animate={{
-                            scale: [0, 1, 0],
-                            opacity: [0, 1, 0],
-                            x: [0, particle.xDelta],
-                            y: [0, particle.yDelta]
-                        }}
-                        transition={{
-                            duration: particle.duration,
-                            repeat: Infinity,
-                            ease: "easeOut",
-                            delay: particle.delay
-                        }}
-                    />
-                ))}
-            </motion.div>
+                    {/* 浮动装饰元素 */}
+                    {floatingShapes.map((shape) => (
+                        <motion.div
+                            key={shape.key}
+                            className="absolute rounded-full opacity-20"
+                            style={{
+                                width: shape.width,
+                                height: shape.height,
+                                left: `${shape.left}%`,
+                                top: `${shape.top}%`,
+                                background: shape.key % 3 === 0
+                                    ? 'linear-gradient(135deg, rgba(79, 138, 157, 0.1), rgba(79, 138, 157, 0.05))'
+                                    : shape.key % 3 === 1
+                                        ? 'linear-gradient(135deg, rgba(164, 114, 132, 0.08), rgba(164, 114, 132, 0.04))'
+                                        : 'linear-gradient(135deg, rgba(122, 155, 126, 0.06), rgba(122, 155, 126, 0.03))',
+                                filter: 'blur(40px)'
+                            }}
+                            animate={{
+                                x: [0, shape.xDelta, 0],
+                                y: [0, shape.yDelta, 0],
+                                scale: [1, 1.2, 1]
+                            }}
+                            transition={{
+                                duration: shape.duration,
+                                repeat: enableMotion ? Infinity : 0,
+                                ease: "easeInOut",
+                                delay: shape.delay
+                            }}
+                        />
+                    ))}
+
+                    {/* 发光粒子效果 */}
+                    {glowParticles.map((particle) => (
+                        <motion.div
+                            key={`particle-${particle.key}`}
+                            className="absolute w-1 h-1 rounded-full"
+                            style={{
+                                left: `${particle.left}%`,
+                                top: `${particle.top}%`,
+                                background: ['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][particle.key % 4],
+                                boxShadow: `0 0 10px ${['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][particle.key % 4]}40`
+                            }}
+                            animate={{
+                                scale: [0, 1, 0],
+                                opacity: [0, 1, 0],
+                                x: [0, particle.xDelta],
+                                y: [0, particle.yDelta]
+                            }}
+                            transition={{
+                                duration: particle.duration,
+                                repeat: enableMotion ? Infinity : 0,
+                                ease: "easeOut",
+                                delay: particle.delay
+                            }}
+                        />
+                    ))}
+                </motion.div>
+            )}
 
             <div className="relative z-10 max-w-7xl mx-auto">
                 <motion.div

@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useRef, useState, useEffect, useMemo, useCallback } from 'react'
-import { motion, AnimatePresence, useInView, useScroll, useSpring } from 'framer-motion'
+import { motion, AnimatePresence, useInView, useScroll, useSpring, useReducedMotion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -824,6 +824,10 @@ export default function ExperienceTreeSection() {
     const [activeJourney, setActiveJourney] = useState<string>(experiencesData[0].title);
     const [lineSegments, setLineSegments] = useState(0);
     const { theme } = useTheme();
+    const prefersReducedMotion = useReducedMotion();
+    const sectionInView = useInView(sectionRef, { amount: 0.3 });
+    const enableMotion = sectionInView && !prefersReducedMotion;
+    const [decorVisible, setDecorVisible] = useState(false);
 
     const { scrollYProgress } = useScroll({
         target: sectionRef,
@@ -839,6 +843,12 @@ export default function ExperienceTreeSection() {
         .scale(mapConfig.scale)
         .center(mapConfig.center)
         .translate([mapConfig.width / 2, mapConfig.height / 2]), []);
+
+    useEffect(() => {
+        if (sectionInView && !decorVisible) {
+            setDecorVisible(true);
+        }
+    }, [sectionInView, decorVisible]);
 
     useEffect(() => {
         const newSortedExperiences = [...experiencesData].sort((a, b) => {
@@ -962,41 +972,44 @@ export default function ExperienceTreeSection() {
             className="relative min-h-screen py-20 md:py-32 px-4 overflow-hidden bg-morandi-bg dark:bg-[#03040a] transition-colors duration-500"
         >
             {/* 背景装饰 */}
-            <motion.div className="absolute inset-0 -z-10 opacity-30">
-                {backgroundBlobs.map((blob) => (
-                    <motion.div
-                        key={blob.key}
-                        className={`absolute rounded-full ${blob.key % 2 === 0
-                            ? 'bg-morandi-accent/5 dark:bg-morandi-accent/10'
-                            : 'bg-blue-500/5 dark:bg-blue-400/10'
-                            }`}
-                        style={{
-                            width: blob.width,
-                            height: blob.height,
-                            left: `${blob.left}%`,
-                            top: `${blob.top}%`,
-                            filter: 'blur(50px)'
-                        }}
-                        animate={{
-                            x: [0, blob.xDelta, 0],
-                            y: [0, blob.yDelta, 0],
-                            scale: [1, blob.scaleMid, 1]
-                        }}
-                        transition={{
-                            duration: blob.duration,
-                            repeat: Infinity,
-                            ease: "easeInOut"
-                        }}
-                    />
-                ))}
-            </motion.div>
+            {decorVisible && (
+                <motion.div className="absolute inset-0 -z-10 opacity-30">
+                    {backgroundBlobs.map((blob) => (
+                        <motion.div
+                            key={blob.key}
+                            className={`absolute rounded-full ${blob.key % 2 === 0
+                                ? 'bg-morandi-accent/5 dark:bg-morandi-accent/10'
+                                : 'bg-blue-500/5 dark:bg-blue-400/10'
+                                }`}
+                            style={{
+                                width: blob.width,
+                                height: blob.height,
+                                left: `${blob.left}%`,
+                                top: `${blob.top}%`,
+                                filter: 'blur(50px)'
+                            }}
+                            animate={{
+                                x: [0, blob.xDelta, 0],
+                                y: [0, blob.yDelta, 0],
+                                scale: [1, blob.scaleMid, 1]
+                            }}
+                            transition={{
+                                duration: blob.duration,
+                                repeat: enableMotion ? Infinity : 0,
+                                ease: "easeInOut"
+                            }}
+                        />
+                    ))}
+                </motion.div>
+            )}
 
-            <motion.div
-                className="hidden md:block absolute inset-0 -z-10 pointer-events-none"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.85 }}
-                transition={{ duration: 0.8 }}
-            >
+            {decorVisible && (
+                <motion.div
+                    className="hidden md:block absolute inset-0 -z-10 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.85 }}
+                    transition={{ duration: 0.8 }}
+                >
                 <div className="absolute inset-0 bg-gradient-to-br from-[#0f172a]/80 via-transparent to-[#1f2937]/80 dark:from-[#05060a]/90 dark:via-transparent dark:to-[#111827]/90" />
                 <div className="absolute inset-0">
                     <ComposableMap
@@ -1108,7 +1121,8 @@ export default function ExperienceTreeSection() {
                         </>
                     )}
                 </motion.svg>
-            </motion.div>
+                </motion.div>
+            )}
 
             <div className="relative z-10 max-w-7xl mx-auto">
                 <motion.div

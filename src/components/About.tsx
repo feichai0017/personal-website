@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from "react"
 import Image from "next/image"
-import { motion, useTransform, AnimatePresence, useSpring } from "framer-motion"
+import { motion, useTransform, AnimatePresence, useSpring, useInView, useReducedMotion } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
 import { Code, Terminal, Database, Cpu, Layout, Layers } from 'lucide-react'
 import { useTheme } from 'next-themes'
@@ -286,6 +286,9 @@ export default function About() {
     const { theme } = useTheme();
     const cardRef = useRef<HTMLDivElement>(null);
     const [cardHover, setCardHover] = useState(false);
+    const prefersReducedMotion = useReducedMotion();
+    const isInView = useInView(containerRef, { amount: 0.25, margin: "-15% 0px" });
+    const motionEnabled = isInView && !prefersReducedMotion;
 
     const mouseX = useSpring(0, { stiffness: 120, damping: 20 });
     const mouseY = useSpring(0, { stiffness: 120, damping: 20 });
@@ -318,6 +321,17 @@ export default function About() {
     const handleSkillHoverEnd = (skillName: string) => {
         setActiveSkill(current => (current?.name === skillName ? null : current));
     };
+
+    const starConfigs = useMemo(() => {
+        const rand = createSeededRandom(42);
+        return Array.from({ length: 8 }, (_, i) => ({
+            key: `star-${i}`,
+            left: 20 + rand() * 60,
+            top: 20 + rand() * 60,
+            duration: 2 + rand() * 3,
+            delay: i * 0.5,
+        }));
+    }, []);
 
     const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
         if (!cardRef.current) return;
@@ -402,16 +416,7 @@ export default function About() {
                 ))}
 
                 {/* 星尘效果 */}
-                {useMemo(() => {
-                    const rand = createSeededRandom(42);
-                    return Array.from({ length: 8 }, (_, i) => ({
-                        key: `star-${i}`,
-                        left: 20 + rand() * 60,
-                        top: 20 + rand() * 60,
-                        duration: 2 + rand() * 3,
-                        delay: i * 0.5,
-                    }));
-                }, []).map(({ key, left, top, duration, delay }) => (
+                {starConfigs.map(({ key, left, top, duration, delay }) => (
                     <motion.div
                         key={key}
                         className="absolute w-1 h-1 rounded-full"
@@ -426,7 +431,7 @@ export default function About() {
                         }}
                         transition={{
                             duration,
-                            repeat: Infinity,
+                            repeat: motionEnabled ? Infinity : 0,
                             delay,
                             ease: "easeInOut"
                         }}
@@ -518,7 +523,7 @@ export default function About() {
                                 isActive={activeSkill?.name === skill.name}
                                 onHover={() => handleSkillHover(skill.name)}
                                 onHoverEnd={() => handleSkillHoverEnd(skill.name)}
-                                isPaused={activeSkill?.name === skill.name}
+                                isPaused={!motionEnabled || activeSkill?.name === skill.name}
                                 containerSize={containerSize}
                             />
                         ))}
