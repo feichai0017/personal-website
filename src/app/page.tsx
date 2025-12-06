@@ -1,9 +1,10 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
+import { useInView } from 'framer-motion'
 import dynamic from 'next/dynamic'
 import Home from '@/components/Home'
 import About from '@/components/About'
-import ContactMe from "@/components/ContactMe";
 
 const SectionSkeleton = ({ title }: { title: string }) => (
     <section className="py-24 flex items-center justify-center">
@@ -29,7 +30,20 @@ const Experience = dynamic(() => import('@/components/Experience'), {
     ssr: false,
 })
 
+const ContactMe = dynamic(() => import('@/components/ContactMe'), {
+    loading: () => <SectionSkeleton title="Contact" />,
+    ssr: false,
+})
+
 export default function Page() {
+    const contactRef = useRef<HTMLDivElement | null>(null)
+    const isContactInView = useInView(contactRef, { amount: 0.2, margin: '0px 0px -10% 0px' })
+    const [contactVisible, setContactVisible] = useState(false)
+
+    useEffect(() => {
+        if (isContactInView) setContactVisible(true)
+    }, [isContactInView])
+
     return (
         <main className="min-h-screen bg-morandi-bg dark:bg-[#03040a] text-morandi-text dark:text-morandi-light transition-colors duration-500">
             <Home />
@@ -37,7 +51,9 @@ export default function Page() {
             <Projects />
             <TechStack />
             <Experience />
-            <ContactMe />
+            <div ref={contactRef}>
+                {contactVisible ? <ContactMe /> : <SectionSkeleton title="Contact" />}
+            </div>
         </main>
     )
 }
