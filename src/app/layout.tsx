@@ -3,6 +3,10 @@ import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from '@/components/Navbar'
+import SmoothScroll from '@/components/SmoothScroll'
+import CursorBlob from '@/components/CursorBlob'
+import ScrollBackdrop from '@/components/ScrollBackdrop'
+import IntroCurtain from '@/components/IntroCurtain'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
@@ -105,12 +109,17 @@ export default function RootLayout({
                     enableSystem={false}
                     disableTransitionOnChange
                 >
-                    <div className="flex flex-col min-h-screen">
-                        <Navbar />
-                        <main className="flex-grow">
-                            {children}
-                        </main>
-                    </div>
+                    <ScrollBackdrop />
+                    <CursorBlob />
+                    <IntroCurtain />
+                    <SmoothScroll>
+                        <div className="flex min-h-screen flex-col">
+                            <Navbar />
+                            <div className="flex-grow">
+                                {children}
+                            </div>
+                        </div>
+                    </SmoothScroll>
                     <Analytics />
                     <SpeedInsights />
                 </ThemeProvider>

@@ -1,12 +1,33 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
-import { motion } from "framer-motion"
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 
 export default function ShaderPortrait() {
     const [hovered, setHovered] = useState(false)
     const [fps, setFps] = useState(60)
+    const tiltRef = useRef<HTMLDivElement | null>(null)
+    const mx = useMotionValue(0)
+    const my = useMotionValue(0)
+    const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [8, -8]), { stiffness: 160, damping: 18 })
+    const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-10, 10]), { stiffness: 160, damping: 18 })
+    const glareBg = useTransform([mx, my] as never, (values: number[]) => {
+        const [x = 0, y = 0] = values
+        return `radial-gradient(circle at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(255,255,255,0.55), rgba(255,255,255,0) 55%)`
+    })
+
+    const handleMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = tiltRef.current?.getBoundingClientRect()
+        if (!rect) return
+        mx.set((e.clientX - rect.left) / rect.width - 0.5)
+        my.set((e.clientY - rect.top) / rect.height - 0.5)
+    }
+    const resetTilt = () => {
+        mx.set(0)
+        my.set(0)
+        setHovered(false)
+    }
 
     useEffect(() => {
         let frameId = 0
@@ -36,10 +57,13 @@ export default function ShaderPortrait() {
     }, [])
 
     return (
-        <div
-            className="group relative aspect-[0.92] w-full overflow-hidden rounded-[36px] border border-black/10 bg-[#ece8df]"
+        <motion.div
+            ref={tiltRef}
             onMouseEnter={() => setHovered(true)}
-            onMouseLeave={() => setHovered(false)}
+            onMouseMove={handleMove}
+            onMouseLeave={resetTilt}
+            style={{ rotateX, rotateY, transformPerspective: 1200, transformStyle: "preserve-3d" }}
+            className="group relative aspect-[0.92] w-full overflow-hidden rounded-[36px] border border-black/10 bg-[#ece8df] will-change-transform"
         >
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.34),transparent_18%),radial-gradient(circle_at_50%_40%,rgba(10,10,10,0.08),transparent_52%)]" />
 
@@ -117,10 +141,18 @@ export default function ShaderPortrait() {
                 />
             </div>
 
+            <motion.div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 rounded-[36px] mix-blend-overlay transition-opacity duration-300"
+                style={{
+                    background: glareBg,
+                    opacity: hovered ? 0.9 : 0,
+                }}
+            />
             <div className="pointer-events-none absolute inset-0 rounded-[36px] border border-black/8" />
             <div className="pointer-events-none absolute bottom-5 right-5 rounded-full border border-black/10 bg-[#f7f5f1]/92 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.24em] text-black/50">
                 Rendering at: {fps}fps
             </div>
-        </div>
+        </motion.div>
     )
 }

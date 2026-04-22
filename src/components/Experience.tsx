@@ -5,6 +5,7 @@ import { geoEqualEarth } from "d3-geo"
 import { motion } from "framer-motion"
 import { ComposableMap, Geographies, Geography, Marker, ZoomableGroup } from "react-simple-maps"
 import { Briefcase, GraduationCap, Minus, Plus, RotateCcw } from "lucide-react"
+import RevealHeadline from "@/components/RevealHeadline"
 
 type Experience = {
     id: string
@@ -260,17 +261,21 @@ export default function Experience() {
     }, [])
 
     return (
-        <section id="experience" className="showcase-section bg-[#f7f5f1] px-4 py-24 text-[#0a0a0a]">
+        <section id="experience" className="showcase-section px-4 py-24 text-[#0a0a0a]">
             <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
                 <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <div className="font-mono text-[11px] uppercase tracking-[0.34em] text-black/36">
                             /05 Experience
                         </div>
-                        <h2 className="mt-6 max-w-5xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl">
-                            Three cities.
-                            <span className="block text-black/48">One build pipeline.</span>
-                        </h2>
+                        <RevealHeadline
+                            as="h2"
+                            lines={[
+                                "Three cities.",
+                                { text: "One build pipeline.", className: "text-black/48" },
+                            ]}
+                            className="mt-6 max-w-5xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl"
+                        />
                     </div>
 
                     <p className="max-w-md text-sm leading-7 text-black/58">

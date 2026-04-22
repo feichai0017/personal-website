@@ -2,10 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { AnimatePresence, motion, useMotionValue } from "framer-motion"
+import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import Image from "next/image"
 import { ArrowUpRight, MoveHorizontal, X } from "lucide-react"
 import { FaGithub } from "react-icons/fa6"
+import RevealHeadline from "@/components/RevealHeadline"
+import MagneticButton from "@/components/MagneticButton"
 
 type Project = {
     id: string
@@ -243,24 +245,24 @@ function ProjectOverlay({
                             </div>
 
                             <div className="mt-10 flex flex-wrap gap-4">
-                                <a
+                                <MagneticButton
                                     href={project.githubLink}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    data-cursor="open"
-                                    className="inline-flex h-12 items-center gap-3 rounded-full bg-black px-6 font-mono text-[11px] uppercase tracking-[0.24em] text-[#f7f5f1] transition-transform hover:-translate-y-0.5"
+                                    strength={0.32}
+                                    className="inline-flex h-12 items-center gap-3 rounded-full bg-black px-6 font-mono text-[11px] uppercase tracking-[0.24em] text-[#f7f5f1] shadow-[0_14px_28px_rgba(10,10,10,0.14)]"
                                 >
                                     <FaGithub className="h-4 w-4" />
                                     open repo
-                                </a>
-                                <button
-                                    type="button"
+                                </MagneticButton>
+                                <MagneticButton
+                                    as="button"
                                     onClick={onClose}
-                                    data-cursor="jump"
-                                    className="inline-flex h-12 items-center gap-3 rounded-full border border-black/10 bg-white/82 px-6 font-mono text-[11px] uppercase tracking-[0.24em] text-black/68 transition-transform hover:-translate-y-0.5 hover:text-black"
+                                    strength={0.28}
+                                    className="inline-flex h-12 items-center gap-3 rounded-full border border-black/10 bg-white/85 px-6 font-mono text-[11px] uppercase tracking-[0.24em] text-black/68 hover:text-black"
                                 >
                                     close
-                                </button>
+                                </MagneticButton>
                             </div>
                         </div>
                     </div>
@@ -278,12 +280,33 @@ function ProjectCard({
     project: Project
     onOpen: () => void
 }) {
+    const cardRef = useRef<HTMLButtonElement | null>(null)
+    const mx = useMotionValue(0)
+    const my = useMotionValue(0)
+    const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 180, damping: 20 })
+    const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-8, 8]), { stiffness: 180, damping: 20 })
+    const handleMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+        const rect = cardRef.current?.getBoundingClientRect()
+        if (!rect) return
+        mx.set((e.clientX - rect.left) / rect.width - 0.5)
+        my.set((e.clientY - rect.top) / rect.height - 0.5)
+    }
+    const handleLeave = () => {
+        mx.set(0)
+        my.set(0)
+    }
     return (
-        <button
+        <motion.button
+            ref={cardRef}
             type="button"
             onClick={onOpen}
+            onMouseMove={handleMove}
+            onMouseLeave={handleLeave}
             data-cursor="open"
-            className="group relative h-[450px] w-[86vw] max-w-[520px] shrink-0 overflow-hidden rounded-[30px] border border-black/10 bg-[#f7f5f1] text-left transition-[transform,box-shadow,border-color] duration-500 hover:-translate-y-2 hover:border-black/16 hover:shadow-[0_20px_44px_rgba(10,10,10,0.06)]"
+            style={{ rotateX, rotateY, transformPerspective: 1200, transformStyle: "preserve-3d" }}
+            whileHover={{ y: -8 }}
+            transition={{ type: "spring", stiffness: 220, damping: 20 }}
+            className="group relative h-[450px] w-[86vw] max-w-[520px] shrink-0 overflow-hidden rounded-[30px] border border-black/10 bg-[#f7f5f1] text-left will-change-transform hover:border-black/16 hover:shadow-[0_20px_44px_rgba(10,10,10,0.06)]"
         >
             <div className="relative h-[58%] overflow-hidden border-b border-black/8 bg-[#f7f5f1]">
                 <Image
@@ -330,7 +353,7 @@ function ProjectCard({
                     ))}
                 </div>
             </div>
-        </button>
+        </motion.button>
     )
 }
 
@@ -471,7 +494,7 @@ export default function Projects() {
 
     return (
         <>
-            <section id="projects" className="showcase-section bg-[#f7f5f1] px-4 py-24 text-[#0a0a0a]">
+            <section id="projects" className="showcase-section px-4 py-24 text-[#0a0a0a]">
                 <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
@@ -484,11 +507,15 @@ export default function Projects() {
                             <div className="font-mono text-[11px] uppercase tracking-[0.34em] text-black/36">
                                 /03 Selected Work
                             </div>
-                            <h2 className="mt-6 max-w-5xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl">
-                                Six case studies,
-                                <span className="block text-black/48">stacked into two lanes,</span>
-                                <span className="block text-black/72">meant to be dragged through.</span>
-                            </h2>
+                            <RevealHeadline
+                                as="h2"
+                                lines={[
+                                    "Six case studies,",
+                                    { text: "stacked into two lanes,", className: "text-black/48" },
+                                    { text: "meant to be dragged through.", className: "text-black/72" },
+                                ]}
+                                className="mt-6 max-w-5xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl"
+                            />
                         </div>
 
                         <p className="max-w-md text-sm leading-7 text-black/58">

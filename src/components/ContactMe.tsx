@@ -3,6 +3,8 @@
 import { motion } from "framer-motion"
 import { ArrowUpRight, Calendar, Coffee, Mail } from "lucide-react"
 import { FaGithub, FaLinkedinIn } from "react-icons/fa6"
+import RevealHeadline from "@/components/RevealHeadline"
+import MagneticButton from "@/components/MagneticButton"
 
 const contactLinks = [
     {
@@ -40,7 +42,7 @@ const supportLink = {
 
 export default function ContactMe() {
     return (
-        <section id="contact" className="showcase-section bg-[#f7f5f1] px-4 py-24 text-[#0a0a0a]">
+        <section id="contact" className="showcase-section px-4 py-24 text-[#0a0a0a]">
             <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 24 }}
@@ -52,10 +54,14 @@ export default function ContactMe() {
                     <div className="font-mono text-[11px] uppercase tracking-[0.34em] text-black/36">/06 Contact</div>
                     <div className="mt-8 grid gap-10 xl:grid-cols-[1.06fr_0.94fr] xl:items-end">
                         <div>
-                            <h2 className="text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl">
-                                Let&apos;s chat.
-                                <span className="block text-black/48">Keep it direct.</span>
-                            </h2>
+                            <RevealHeadline
+                                as="h2"
+                                lines={[
+                                    "Let\u2019s chat.",
+                                    { text: "Keep it direct.", className: "text-black/48" },
+                                ]}
+                                className="text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl"
+                            />
                             <p className="mt-8 max-w-2xl text-lg leading-8 text-black/66">
                                 If you&apos;re building something around systems, backend infrastructure, databases, or a
                                 product that needs stronger technical taste, send me a note or book a short call.

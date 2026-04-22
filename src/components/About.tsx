@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import RevealHeadline from "@/components/RevealHeadline"
 
 const principles = [
     "The interesting part is usually not the patch, but the boundary that produced the bug.",
@@ -37,7 +38,7 @@ const blockVariants = {
 
 export default function About() {
     return (
-        <section id="about" className="showcase-section bg-[#f7f5f1] px-4 py-24 text-[#0a0a0a]">
+        <section id="about" className="showcase-section px-4 py-24 text-[#0a0a0a]">
             <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
                 <div className="grid gap-14 xl:grid-cols-[0.92fr_1.08fr]">
                     <motion.div
@@ -47,10 +48,14 @@ export default function About() {
                         variants={blockVariants}
                     >
                         <div className="font-mono text-[11px] uppercase tracking-[0.34em] text-black/36">/02 About</div>
-                        <h2 className="mt-6 max-w-3xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] md:text-7xl">
-                            Engineering systems
-                            <span className="block text-black/50">that still read clearly</span>
-                        </h2>
+                        <RevealHeadline
+                            as="h2"
+                            lines={[
+                                "Engineering systems",
+                                { text: "that still read clearly", className: "text-black/50" },
+                            ]}
+                            className="mt-6 max-w-3xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] md:text-7xl"
+                        />
                         <p className="mt-8 max-w-2xl text-lg leading-8 text-black/66">
                             I work best on products where the interface and the internals are both first-class:
                             storage engines, backend platforms, distributed workflows, and the surfaces that make them

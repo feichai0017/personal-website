@@ -33,7 +33,7 @@ function SectionReveal({
 
 export default function Page() {
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[#f7f5f1] text-[#0a0a0a]">
+    <div className="[overflow-x:clip] text-[#0a0a0a]">
       <Home />
       <SectionReveal>
         <About />
@@ -50,6 +50,6 @@ export default function Page() {
       <SectionReveal>
         <ContactMe />
       </SectionReveal>
-    </main>
+    </div>
   )
 }

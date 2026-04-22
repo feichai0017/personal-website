@@ -1,6 +1,7 @@
 "use client"
 
 import { motion } from "framer-motion"
+import RevealHeadline from "@/components/RevealHeadline"
 import {
     SiDocker,
     SiGo,
@@ -38,9 +39,26 @@ const sectionVariants = {
     }),
 }
 
+const gridVariants = {
+    hidden: {},
+    visible: {
+        transition: { staggerChildren: 0.08, delayChildren: 0.12 },
+    },
+}
+
+const cardVariants = {
+    hidden: { opacity: 0, y: 36, scale: 0.95 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { duration: 0.62, ease: [0.22, 1, 0.36, 1] },
+    },
+}
+
 export default function TechStack() {
     return (
-        <section id="techstack" className="showcase-section bg-[#f7f5f1] px-4 py-24 text-[#0a0a0a]">
+        <section id="techstack" className="showcase-section px-4 py-24 text-[#0a0a0a]">
             <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
                 <div className="grid gap-12 xl:grid-cols-[0.9fr_1.1fr] xl:items-start">
                     <motion.div
@@ -50,10 +68,14 @@ export default function TechStack() {
                         variants={sectionVariants}
                     >
                         <div className="font-mono text-[11px] uppercase tracking-[0.34em] text-black/36">/04 Stack</div>
-                        <h2 className="mt-6 max-w-3xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl">
-                            Tools I reach for,
-                            <span className="block text-black/48">kept close to the work.</span>
-                        </h2>
+                        <RevealHeadline
+                            as="h2"
+                            lines={[
+                                "Tools I reach for,",
+                                { text: "kept close to the work.", className: "text-black/48" },
+                            ]}
+                            className="mt-6 max-w-3xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl"
+                        />
                         <p className="mt-8 max-w-2xl text-lg leading-8 text-black/66">
                             Not an exhaustive inventory. Just the core set I keep coming back to when the job spans
                             systems, product surfaces, data paths, and deployment.
@@ -64,14 +86,14 @@ export default function TechStack() {
                         initial="hidden"
                         whileInView="visible"
                         viewport={{ once: true, amount: 0.2 }}
-                        custom={0.05}
-                        variants={sectionVariants}
+                        variants={gridVariants}
                         className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
                     >
                         {featuredStack.map(({ name, note, Icon }, index) => (
                             <motion.div
                                 key={name}
-                                whileHover={{ y: -8, scale: 1.012 }}
+                                variants={cardVariants}
+                                whileHover={{ y: -8, scale: 1.02 }}
                                 transition={{ type: "spring", stiffness: 280, damping: 22 }}
                                 className="rounded-[28px] border border-black/10 bg-white/76 p-5 shadow-[0_16px_36px_rgba(10,10,10,0.05)]"
                             >

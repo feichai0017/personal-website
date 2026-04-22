@@ -1,8 +1,9 @@
 "use client"
 
-import { motion } from "framer-motion"
+import { motion, useScroll, useSpring } from "framer-motion"
 import { Calendar } from "lucide-react"
 import { FaGithub, FaLinkedinIn } from "react-icons/fa6"
+import MagneticButton from "@/components/MagneticButton"
 
 const navLinks = [
     { label: "About", href: "#about" },
@@ -25,14 +26,21 @@ const socialLinks = [
 ]
 
 export default function Navbar() {
+    const { scrollYProgress } = useScroll()
+    const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 22, mass: 0.3 })
     return (
         <motion.header
             initial={{ y: -14, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.42 }}
+            transition={{ duration: 0.42, delay: 1.6 }}
             className="fixed inset-x-0 top-0 z-50 px-4 py-4 md:px-6"
         >
-            <div className="mx-auto grid w-full max-w-[1800px] grid-cols-[auto_1fr_auto] items-center gap-4 rounded-full border border-black/15 bg-white/88 px-4 py-3 shadow-[0_10px_30px_rgba(10,10,10,0.12)] backdrop-blur-xl md:px-5">
+            <div className="relative mx-auto grid w-full max-w-[1800px] grid-cols-[auto_1fr_auto] items-center gap-4 rounded-full border border-black/15 bg-white/88 px-4 py-3 shadow-[0_10px_30px_rgba(10,10,10,0.12)] backdrop-blur-xl md:px-5">
+                <motion.div
+                    aria-hidden
+                    style={{ scaleX: progress }}
+                    className="pointer-events-none absolute inset-x-5 bottom-1.5 h-px origin-left bg-gradient-to-r from-black/40 via-black/60 to-black/30"
+                />
                 <button
                     type="button"
                     onClick={() => document.querySelector("#home")?.scrollIntoView()}
@@ -60,15 +68,16 @@ export default function Navbar() {
                 </nav>
 
                 <div className="flex items-center justify-end gap-2 md:gap-3">
-                    <a
+                    <MagneticButton
                         href="https://calendly.com/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="hidden items-center gap-2 rounded-full border border-black/14 bg-[#f7f5f1] px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.24em] text-black transition-all hover:-translate-y-0.5 hover:border-black hover:bg-white md:inline-flex"
+                        strength={0.35}
+                        className="hidden items-center gap-2 rounded-full border border-black/14 bg-[#f7f5f1] px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.24em] text-black transition-colors hover:border-black hover:bg-white md:inline-flex"
                     >
                         <Calendar className="h-3.5 w-3.5 text-black" />
                         book 15 mins
-                    </a>
+                    </MagneticButton>
 
                     {socialLinks.map((item) => {
                         const Icon = item.icon
