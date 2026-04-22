@@ -1,225 +1,148 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence, useAnimation, type AnimationControls } from 'framer-motion'
-import { useTheme } from 'next-themes'
-import { FaLinkedin, FaGithub, FaDownload } from 'react-icons/fa'
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react"
+import { motion } from "framer-motion"
+import { ArrowUpRight } from "lucide-react"
+import { FaGithub, FaLinkedinIn } from "react-icons/fa6"
+import ShaderPortrait from "@/components/ShaderPortrait"
 
-const titles = ["Full Stack Developer", "Software Engineer", "DevOps Engineer"]
-const buttonVariants = {
-    hover: { scale: 1.05, transition: { duration: 0.2 } },
-    tap: { scale: 0.95, transition: { duration: 0.2 } },
-}
+const heroLines = ["Distributed", "Systems", "Builder"]
 
-const iconVariants = {
-    hover: { rotate: 360, transition: { duration: 0.5 } },
-}
-
-const shapeVariants = {
-    initial: { opacity: 0, scale: 0 },
-    animate: { opacity: 0.6, scale: 1 },
-    hover: { scale: 1.1, opacity: 0.8 },
-}
-
-const BackgroundOrnaments = React.memo(
-    ({ controls, theme }: { controls: AnimationControls, theme?: string }) => {
-        return (
-            <>
-                <motion.div
-                    className="absolute inset-0 z-0"
-                    animate={controls}
-                    style={{
-                        transformStyle: "preserve-3d",
-                        perspective: "1000px",
-                        transformOrigin: "center center"
-                    }}
-                >
-                    <motion.div
-                        variants={shapeVariants}
-                        initial="initial"
-                        animate="animate"
-                        whileHover="hover"
-                        transition={{ duration: 1, delay: 0.5 }}
-                        className={`absolute top-1/3 left-1/3 w-48 h-48 md:w-64 md:h-64 rounded-full ${
-                            theme === 'dark' ? 'bg-morandi-accent' : 'bg-morandi-secondary'
-                        }`}
-                        style={{
-                            filter: 'blur(40px)',
-                            boxShadow: '0 0 40px rgba(0,0,0,0.2)',
-                            transform: 'translateZ(50px) rotateX(45deg) rotateY(-45deg)'
-                        }}
-                    />
-                    <motion.div
-                        variants={shapeVariants}
-                        initial="initial"
-                        animate="animate"
-                        whileHover="hover"
-                        transition={{ duration: 1, delay: 0.7 }}
-                        className={`absolute bottom-1/3 right-1/3 w-56 h-56 md:w-80 md:h-80 rounded-full ${
-                            theme === 'dark' ? 'bg-morandi-secondary' : 'bg-morandi-accent'
-                        }`}
-                        style={{
-                            filter: 'blur(50px)',
-                            boxShadow: '0 0 60px rgba(0,0,0,0.2)',
-                            transform: 'translateZ(100px) rotateX(-30deg) rotateY(30deg)'
-                        }}
-                    />
-                    <motion.div
-                        variants={shapeVariants}
-                        initial="initial"
-                        animate="animate"
-                        whileHover="hover"
-                        transition={{ duration: 1, delay: 0.9 }}
-                        className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 md:w-96 md:h-96 rounded-full ${
-                            theme === 'dark' ? 'bg-morandi-primary' : 'bg-morandi-primary'
-                        }`}
-                        style={{
-                            filter: 'blur(60px)',
-                            boxShadow: '0 0 80px rgba(0,0,0,0.2)',
-                            transform: 'translateZ(75px) rotateX(15deg) rotateY(-15deg)'
-                        }}
-                    />
-                </motion.div>
-
-                <motion.div
-                    className="absolute top-1/3 left-1/3 w-3 h-3 rounded-full bg-morandi-accent"
-                    animate={{
-                        y: [0, -15, 0],
-                        x: [0, 15, 0],
-                        opacity: [0.3, 0.7, 0.3],
-                    }}
-                    transition={{
-                        duration: 6,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                    }}
-                />
-                <motion.div
-                    className="absolute bottom-1/3 right-1/3 w-4 h-4 rounded-full bg-morandi-secondary"
-                    animate={{
-                        y: [0, 10, 0],
-                        x: [0, -10, 0],
-                        opacity: [0.2, 0.6, 0.2],
-                    }}
-                    transition={{
-                        duration: 5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                        delay: 1
-                    }}
-                />
-            </>
-        )
+const heroCopyVariants = {
+    hidden: {},
+    visible: {
+        transition: {
+            staggerChildren: 0.08,
+            delayChildren: 0.06,
+        },
     },
-    (prev, next) => prev.theme === next.theme && prev.controls === next.controls
-)
-BackgroundOrnaments.displayName = "BackgroundOrnaments"
+}
 
-const Home = () => {
-    const { theme } = useTheme()
-    const [currentTitleIndex, setCurrentTitleIndex] = useState(0)
-    const controls = useAnimation()
+const heroItemVariants = {
+    hidden: { opacity: 0, y: 28 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: { duration: 0.72, ease: [0.22, 1, 0.36, 1] },
+    },
+}
+
+export default function Home() {
+    const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
-        const interval = setInterval(() => {
-            setCurrentTitleIndex((prevIndex) => (prevIndex + 1) % titles.length)
-        }, 3000)
-        return () => clearInterval(interval)
+        setMounted(true)
     }, [])
 
-    useEffect(() => {
-        controls.start({
-            rotate: [0, 360],
-            transition: { duration: 120, repeat: Infinity, ease: "linear" }
-        })
-    }, [controls])
-
     return (
-        <section
-            id="home"
-            className="min-h-screen flex flex-col justify-center items-center relative overflow-hidden px-4 bg-morandi-bg dark:bg-[#03040a] transition-colors duration-500"
-        >
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8 }}
-                className="text-center z-10"
-            >
-                <motion.h1
-                    className="text-4xl md:text-6xl font-bold mb-4 text-morandi-dark dark:text-morandi-light"
-                    initial={{ opacity: 0, y: -20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                    Guocheng Song
-                </motion.h1>
-                <div className="h-12 mb-6">
-                    <AnimatePresence mode="wait">
-                        <motion.h2
-                            key={currentTitleIndex}
-                            className="text-2xl md:text-3xl text-morandi-text dark:text-morandi-accent"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            transition={{ duration: 0.5 }}
+        <section id="home" className="showcase-section relative overflow-hidden bg-[#f7f5f1] px-4 pb-20 pt-32 text-[#0a0a0a]">
+            <div className="relative mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-[1800px] flex-col justify-between px-2 md:px-4 lg:px-6">
+                <div className="grid items-center gap-12 xl:grid-cols-[1.02fr_0.98fr]">
+                    <motion.div
+                        variants={heroCopyVariants}
+                        initial="hidden"
+                        animate="visible"
+                        className="order-2 xl:order-1"
+                    >
+                        <motion.div
+                            variants={heroItemVariants}
+                            className="font-mono text-[11px] uppercase tracking-[0.34em] text-black/36"
                         >
-                            {titles[currentTitleIndex]}
-                        </motion.h2>
-                    </AnimatePresence>
+                            01 / available for select work
+                        </motion.div>
+
+                        <div className="mt-8 text-[18vw] font-medium leading-[0.84] tracking-[-0.075em] text-[#0a0a0a] sm:text-[6.8rem] lg:text-[8.9rem] xl:text-[10.5rem]">
+                            {heroLines.map((line, index) => (
+                                <motion.span
+                                    key={line}
+                                    variants={heroItemVariants}
+                                    className={`block ${index === heroLines.length - 1 ? "text-black/78" : ""}`}
+                                >
+                                    {line}
+                                </motion.span>
+                            ))}
+                        </div>
+
+                        <motion.p
+                            variants={heroItemVariants}
+                            className="mt-8 max-w-2xl text-lg leading-8 text-black/66 md:text-xl"
+                        >
+                            Building storage engines, distributed backends, and product-facing systems with the same
+                            bias: understand the contract first, then make it fast.
+                        </motion.p>
+
+                        <motion.div variants={heroItemVariants} className="mt-10 flex flex-wrap gap-4">
+                            <motion.a
+                                href="https://calendly.com/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{ y: -5, scale: 1.015 }}
+                                whileTap={{ scale: 0.985 }}
+                                transition={{ type: "spring", stiffness: 320, damping: 24 }}
+                                className="inline-flex h-14 items-center gap-3 rounded-full bg-black px-7 font-mono text-[11px] uppercase tracking-[0.24em] text-[#f7f5f1] shadow-[0_16px_36px_rgba(10,10,10,0.12)]"
+                            >
+                                book 15 mins
+                            </motion.a>
+                            <motion.a
+                                href="/Resume.pdf"
+                                download
+                                whileHover={{ y: -5, scale: 1.015 }}
+                                whileTap={{ scale: 0.985 }}
+                                transition={{ type: "spring", stiffness: 320, damping: 24 }}
+                                className="inline-flex h-14 items-center gap-3 rounded-full border border-black/10 bg-white px-7 font-mono text-[11px] uppercase tracking-[0.24em] text-black/76 shadow-[0_14px_28px_rgba(10,10,10,0.05)]"
+                            >
+                                download resume
+                                <motion.span whileHover={{ x: 1.5, y: -1.5 }} transition={{ duration: 0.18 }}>
+                                    <ArrowUpRight className="h-4 w-4" />
+                                </motion.span>
+                            </motion.a>
+                        </motion.div>
+
+                        <motion.div variants={heroItemVariants} className="mt-10 flex items-center gap-3">
+                            <motion.a
+                                href="https://github.com/feichai0017"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{ y: -4, scale: 1.06 }}
+                                whileTap={{ scale: 0.96 }}
+                                transition={{ type: "spring", stiffness: 360, damping: 22 }}
+                                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/80 text-black/66 shadow-[0_12px_24px_rgba(10,10,10,0.05)] hover:text-black"
+                            >
+                                <FaGithub className="h-4 w-4" />
+                            </motion.a>
+                            <motion.a
+                                href="https://www.linkedin.com/in/guocheng-song-728580318/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                whileHover={{ y: -4, scale: 1.06 }}
+                                whileTap={{ scale: 0.96 }}
+                                transition={{ type: "spring", stiffness: 360, damping: 22 }}
+                                className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/80 text-black/66 shadow-[0_12px_24px_rgba(10,10,10,0.05)] hover:text-black"
+                            >
+                                <FaLinkedinIn className="h-4 w-4" />
+                            </motion.a>
+                        </motion.div>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, y: 28 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.72, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                        className="order-1 xl:order-2 xl:pl-10"
+                        whileHover={{ y: -4 }}
+                    >
+                        <div className="mb-5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-black/36">
+                            <span>composite render</span>
+                            <span>creative engineer profile</span>
+                        </div>
+                        {mounted ? (
+                            <ShaderPortrait />
+                        ) : (
+                            <div className="aspect-[0.92] w-full rounded-[36px] border border-black/10 bg-[#ece8df]" />
+                        )}
+                    </motion.div>
                 </div>
-                <motion.p
-                    className="text-lg md:text-xl mb-8 max-w-2xl text-morandi-text dark:text-morandi-light"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.6 }}
-                >
-                    Passionate about creating elegant solutions to complex problems.
-                    Experienced in building scalable web applications and microservices.
-                </motion.p>
-            </motion.div>
-
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                className="flex flex-wrap justify-center gap-4 mb-8 z-10"
-            >
-                <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button variant="outline" size="lg" className="flex items-center gap-2 bg-morandi-light dark:bg-morandi-dark">
-                        <a href="/Resume.pdf" download className="flex items-center gap-2">
-                            <motion.div variants={iconVariants} whileHover="hover">
-                                <FaDownload />
-                            </motion.div>
-                            Download Resume
-                        </a>
-                    </Button>
-                </motion.div>
-                <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button size="lg" className="flex items-center gap-2 bg-morandi-accent text-white">
-                        <a href="https://www.linkedin.com/in/guocheng-song-728580318/" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                            <motion.div variants={iconVariants} whileHover="hover">
-                                <FaLinkedin />
-                            </motion.div>
-                            LinkedIn
-                        </a>
-                    </Button>
-                </motion.div>
-                <motion.div variants={buttonVariants} whileHover="hover" whileTap="tap">
-                    <Button size="lg" className="flex items-center gap-2 bg-morandi-secondary text-white">
-                        <a href="https://github.com/feichai0017" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
-                            <motion.div variants={iconVariants} whileHover="hover">
-                                <FaGithub />
-                            </motion.div>
-                            GitHub
-                        </a>
-                    </Button>
-                </motion.div>
-            </motion.div>
-
-            <BackgroundOrnaments controls={controls} theme={theme} />
+            </div>
         </section>
     )
 }
-
-export default Home

@@ -1,226 +1,92 @@
 "use client"
 
-import * as React from "react"
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion"
-import { useTheme } from 'next-themes'
-import { cn } from "@/lib/utils"
-import { ModeToggle } from "@/components/mode-toggle"
-import { useActiveSection } from "@/hooks/useActiveSection"
-import { Menu, X, ExternalLink } from 'lucide-react'
+import { motion } from "framer-motion"
+import { Calendar } from "lucide-react"
+import { FaGithub, FaLinkedinIn } from "react-icons/fa6"
 
-const navItems = [
-    { title: "Home", href: "home" },
-    { title: "About", href: "about" },
-    { title: "Projects", href: "projects" },
-    { title: "Tech Stack", href: "techstack" },
-    { title: "Experience", href: "experience" },
-    { title: "Contact Me", href: "contact" },
+const navLinks = [
+    { label: "About", href: "#about" },
+    { label: "Work", href: "#projects" },
+    { label: "Stack", href: "#techstack" },
+    { label: "Contact", href: "#contact" },
 ]
 
-const blogLink = "https://ericsgc-blog.netlify.app/"
-const menuVariants = {
-    open: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            type: "spring",
-            stiffness: 300,
-            damping: 30
-        }
+const socialLinks = [
+    {
+        label: "GitHub",
+        href: "https://github.com/feichai0017",
+        icon: FaGithub,
     },
-    closed: {
-        opacity: 0,
-        y: "-100%",
-        transition: {
-            type: "spring",
-            stiffness: 300,
-            damping: 30
-        }
-    }
-}
-
-const linkVariants = {
-    hover: {
-        scale: 1.05,
-        transition: { type: "spring", stiffness: 400, damping: 10 }
+    {
+        label: "LinkedIn",
+        href: "https://www.linkedin.com/in/guocheng-song-728580318/",
+        icon: FaLinkedinIn,
     },
-    tap: { scale: 0.95 }
-}
+]
 
 export default function Navbar() {
-    const { theme } = useTheme()
-    const sectionIds = React.useMemo(() => navItems.map(item => item.href), [])
-    const activeSection = useActiveSection(sectionIds)
-    const [isMenuOpen, setIsMenuOpen] = React.useState(false)
-
-    const toggleMenu = () => setIsMenuOpen(!isMenuOpen)
-
-    const renderNavItem = (item: { title: string, href: string }, isMobile = false) => (
-        <motion.li
-            key={item.title}
-            variants={linkVariants}
-            whileHover="hover"
-            whileTap="tap"
-        >
-            <a
-                href={`#${item.href}`}
-                className={cn(
-                    "px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 block relative overflow-hidden",
-                    activeSection === item.href
-                        ? "bg-morandi-accent text-morandi-text"
-                        : "text-morandi-text hover:bg-morandi-hover",
-                    isMobile && "text-base py-3"
-                )}
-                onClick={(e) => {
-                    e.preventDefault()
-                    document.querySelector(`#${item.href}`)?.scrollIntoView({ behavior: 'smooth' })
-                    if (isMobile) setIsMenuOpen(false)
-                }}
-            >
-                {item.title}
-                <motion.div
-                    className="absolute bottom-0 left-0 right-0 h-0.5 bg-morandi-accent"
-                    initial={false}
-                    animate={{ scaleX: activeSection === item.href ? 1 : 0 }}
-                    whileHover={{ scaleX: 1 }}
-                    transition={{ duration: 0.2 }}
-                />
-            </a>
-        </motion.li>
-    )
-
-    const mouseX = useMotionValue(0)
-    const mouseY = useMotionValue(0)
-
-    const handleMouseMove = (e: React.MouseEvent) => {
-        const rect = e.currentTarget.getBoundingClientRect()
-        mouseX.set(e.clientX - rect.left)
-        mouseY.set(e.clientY - rect.top)
-    }
-
-    const gradientX = useTransform(mouseX, [0, 300], [0, 300])
-    const gradientY = useTransform(mouseY, [0, 80], [0, 80])
-
     return (
-        <motion.div
-            className="fixed top-0 left-0 right-0 z-50 px-4 py-4"
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
+        <motion.header
+            initial={{ y: -14, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 0.42 }}
+            className="fixed inset-x-0 top-0 z-50 px-4 py-4 md:px-6"
         >
-            <motion.div
-                className={cn(
-                    "relative flex justify-between items-center rounded-full shadow-lg px-6 py-3 max-w-4xl mx-auto overflow-hidden",
-                    theme === 'dark' ? 'bg-morandi-dark/80' : 'bg-morandi-light/80'
-                )}
-                style={{
-                    backdropFilter: "blur(10px)",
-                }}
-                onMouseMove={handleMouseMove}
-            >
-                <motion.div
-                    className="absolute inset-0 opacity-50"
-                    style={{
-                        background: useTransform(
-                            [gradientX, gradientY],
-                            ([x, y]) => `radial-gradient(circle at ${x}px ${y}px, ${theme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.07)'}, transparent 80%)`
-                        ),
-                    }}
-                />
-                <nav className="flex-grow flex items-center justify-between md:justify-center relative z-10">
-                    <ul className="hidden md:flex items-center justify-center space-x-2">
-                        {navItems.map(item => renderNavItem(item))}
-                        <motion.li variants={linkVariants} whileHover="hover" whileTap="tap">
+            <div className="mx-auto grid w-full max-w-[1800px] grid-cols-[auto_1fr_auto] items-center gap-4 rounded-full border border-black/15 bg-white/88 px-4 py-3 shadow-[0_10px_30px_rgba(10,10,10,0.12)] backdrop-blur-xl md:px-5">
+                <button
+                    type="button"
+                    onClick={() => document.querySelector("#home")?.scrollIntoView()}
+                    className="inline-flex items-center gap-3 text-left"
+                >
+                    <span className="font-mono text-[11px] uppercase tracking-[0.34em] text-black">GS</span>
+                    <div className="flex flex-col leading-none">
+                        <span className="text-sm font-medium tracking-[-0.02em] text-black">Guocheng Song</span>
+                        <span className="mt-1 hidden font-mono text-[10px] uppercase tracking-[0.24em] text-black md:block">
+                            systems builder
+                        </span>
+                    </div>
+                </button>
+
+                <nav className="hidden items-center justify-center gap-2 lg:flex">
+                    {navLinks.map((item) => (
+                        <a
+                            key={item.href}
+                            href={item.href}
+                            className="inline-flex h-10 items-center rounded-full border border-transparent px-4 font-mono text-[10px] uppercase tracking-[0.24em] text-black transition-all hover:-translate-y-0.5 hover:border-black/10 hover:bg-[#f7f5f1]"
+                        >
+                            {item.label}
+                        </a>
+                    ))}
+                </nav>
+
+                <div className="flex items-center justify-end gap-2 md:gap-3">
+                    <a
+                        href="https://calendly.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hidden items-center gap-2 rounded-full border border-black/14 bg-[#f7f5f1] px-4 py-2.5 font-mono text-[11px] uppercase tracking-[0.24em] text-black transition-all hover:-translate-y-0.5 hover:border-black hover:bg-white md:inline-flex"
+                    >
+                        <Calendar className="h-3.5 w-3.5 text-black" />
+                        book 15 mins
+                    </a>
+
+                    {socialLinks.map((item) => {
+                        const Icon = item.icon
+                        return (
                             <a
-                                href={blogLink}
+                                key={item.label}
+                                href={item.href}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className={cn(
-                                    "px-3 py-2 rounded-full text-sm font-medium transition-colors duration-200 inline-flex items-center",
-                                    "text-morandi-text hover:bg-morandi-hover"
-                                )}
+                                aria-label={item.label}
+                                className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-black/14 bg-white/85 text-black transition-all hover:-translate-y-0.5"
                             >
-                                Blog
-                                <motion.div
-                                    initial={{ x: 0 }}
-                                    animate={{ x: [0, 5, 0] }}
-                                    transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                                >
-                                    <ExternalLink size={14} className="ml-1" />
-                                </motion.div>
+                                <Icon className="h-4 w-4" />
                             </a>
-                        </motion.li>
-                    </ul>
-                    <div className="md:hidden flex items-center space-x-4">
-                        <ModeToggle />
-                        <motion.button
-                            onClick={toggleMenu}
-                            className="p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-morandi-accent"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            <AnimatePresence mode="wait" initial={false}>
-                                <motion.div
-                                    key={isMenuOpen ? "close" : "open"}
-                                    initial={{ opacity: 0, rotate: -90 }}
-                                    animate={{ opacity: 1, rotate: 0 }}
-                                    exit={{ opacity: 0, rotate: 90 }}
-                                    transition={{ duration: 0.2 }}
-                                >
-                                    {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-                                </motion.div>
-                            </AnimatePresence>
-                        </motion.button>
-                    </div>
-                </nav>
-                <div className="hidden md:block">
-                    <ModeToggle />
+                        )
+                    })}
                 </div>
-            </motion.div>
-            <AnimatePresence>
-                {isMenuOpen && (
-                    <motion.div
-                        className="absolute top-full left-4 right-4 mt-2 md:hidden"
-                        initial="closed"
-                        animate="open"
-                        exit="closed"
-                        variants={menuVariants}
-                    >
-                        <ul className={cn(
-                            "rounded-2xl shadow-lg py-2",
-                            theme === 'dark' ? 'bg-morandi-dark/95' : 'bg-morandi-muted/95',
-                            "backdrop-blur-md"
-                        )}>
-                            {navItems.map(item => renderNavItem(item, true))}
-                            <motion.li
-                                variants={linkVariants}
-                                whileHover="hover"
-                                whileTap="tap"
-                            >
-                                <a
-                                    href={blogLink}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className={cn(
-                                        "px-6 py-3 text-base font-medium transition-colors duration-200 flex items-center",
-                                        "text-morandi-text hover:bg-morandi-hover"
-                                    )}
-                                    onClick={() => setIsMenuOpen(false)}
-                                >
-                                    Blog
-                                    <motion.div
-                                        initial={{ x: 0 }}
-                                        animate={{ x: [0, 5, 0] }}
-                                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                                    >
-                                        <ExternalLink size={18} className="ml-2" />
-                                    </motion.div>
-                                </a>
-                            </motion.li>
-                        </ul>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </motion.div>
+            </div>
+        </motion.header>
     )
 }

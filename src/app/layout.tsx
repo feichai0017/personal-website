@@ -1,12 +1,22 @@
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import localFont from 'next/font/local'
 import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from '@/components/Navbar'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
-const inter = Inter({ subsets: ['latin'] })
+const geistSans = localFont({
+    src: './fonts/GeistVF.woff',
+    variable: '--font-geist-sans',
+    weight: '100 900',
+})
+
+const geistMono = localFont({
+    src: './fonts/GeistMonoVF.woff',
+    variable: '--font-geist-mono',
+    weight: '100 900',
+})
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://personal-website.example.com'
 const ogImage = new URL('/img/logo.png', siteUrl).toString()
 
@@ -88,11 +98,11 @@ export default function RootLayout({
                     }}
                 />
             </head>
-            <body className={`${inter.className} antialiased`}>
+            <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
                 <ThemeProvider
                     attribute="class"
-                    defaultTheme="system"
-                    enableSystem
+                    defaultTheme="light"
+                    enableSystem={false}
                     disableTransitionOnChange
                 >
                     <div className="flex flex-col min-h-screen">

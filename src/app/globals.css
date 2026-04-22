@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --background: 210 55% 97%;
+    --foreground: 220 46% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 46% 12%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover: 210 45% 99%;
+    --popover-foreground: 220 46% 12%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 196 100% 62%;
+    --primary-foreground: 222 47% 11%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 32 100% 69%;
+    --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 212 35% 90%;
+    --muted-foreground: 219 19% 35%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 162 79% 75%;
+    --accent-foreground: 222 47% 11%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 212 30% 84%;
+    --input: 212 30% 84%;
+    --ring: 196 100% 62%;
 
     --radius: 0.5rem;
     --chart-1: 12 76% 61%;
@@ -38,68 +38,103 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --morandi-bg: #f5f5f5;
-    --morandi-accent: #8B7355;
-    --morandi-text: #4A4A4A;
-    --morandi-muted: #E8E8E8;
-    --morandi-hover: #C8B8A1;
-    --morandi-light: #FAFAFA;
-    --morandi-dark: #2C2C2C;
-    --morandi-accent-rgb: 139, 115, 85;
-    --morandi-muted-rgb: 232, 232, 232;
+    --morandi-bg: #eef4fb;
+    --morandi-accent: #8f877d;
+    --morandi-text: #142033;
+    --morandi-muted: #d5dfec;
+    --morandi-hover: #132038;
+    --morandi-light: #f5fbff;
+    --morandi-dark: #07111f;
+    --morandi-primary: #8cf2d6;
+    --morandi-secondary: #ffb86b;
+    --morandi-accent-rgb: 143, 135, 125;
+    --morandi-muted-rgb: 213, 223, 236;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 221 53% 6%;
+    --foreground: 210 40% 96%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 47% 9%;
+    --card-foreground: 210 40% 96%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 47% 9%;
+    --popover-foreground: 210 40% 96%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 196 100% 66%;
+    --primary-foreground: 221 53% 6%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 32 100% 69%;
+    --secondary-foreground: 221 53% 6%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 220 30% 16%;
+    --muted-foreground: 214 16% 72%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 161 68% 61%;
+    --accent-foreground: 221 53% 6%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 220 31% 19%;
+    --input: 220 31% 19%;
+    --ring: 196 100% 66%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    --morandi-bg: #1a1a1a;
-    --morandi-accent: #A68B6F;
-    --morandi-text: #E0E0E0;
-    --morandi-muted: #3A3A3A;
-    --morandi-hover: #5C4E3A;
-    --morandi-light: #F0F0F0;
-    --morandi-dark: #0A0A0A;
-    --morandi-accent-rgb: 166, 139, 111;
-    --morandi-muted-rgb: 58, 58, 58;
+    --morandi-bg: #030712;
+    --morandi-accent: #b4aa9e;
+    --morandi-text: #dce9f7;
+    --morandi-muted: #132238;
+    --morandi-hover: #16253d;
+    --morandi-light: #f5fbff;
+    --morandi-dark: #02050b;
+    --morandi-primary: #7af2cd;
+    --morandi-secondary: #ffb868;
+    --morandi-accent-rgb: 180, 170, 158;
+    --morandi-muted-rgb: 19, 34, 56;
   }
 }
 
 @layer base {
+  html {
+    scroll-behavior: auto;
+    background: #f7f5f1;
+  }
+
   * {
     @apply border-border;
   }
   body {
     @apply bg-background text-foreground;
+    min-height: 100vh;
+    background-color: #f7f5f1;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: none;
+    opacity: 0;
+    z-index: -1;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: none;
+    z-index: -1;
+  }
+
+  ::selection {
+    background: rgba(10, 10, 10, 0.12);
+    color: #0a0a0a;
   }
 }
 
@@ -129,6 +164,24 @@
   }
   50% {
     transform: translateX(5px);
+  }
+}
+
+@keyframes marquee-left {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-right {
+  from {
+    transform: translateX(-50%);
+  }
+  to {
+    transform: translateX(0);
   }
 }
 
@@ -169,5 +222,109 @@
 
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: rgba(var(--morandi-accent-rgb), 0.7);
+  }
+
+  .bg-grid-pattern {
+    background-image:
+      linear-gradient(rgba(var(--morandi-accent-rgb), 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(var(--morandi-accent-rgb), 0.08) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  .panel-shell {
+    border: 1px solid rgba(var(--morandi-accent-rgb), 0.18);
+    background: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      0 18px 60px rgba(7, 17, 31, 0.12);
+    backdrop-filter: blur(18px);
+  }
+
+  .dark .panel-shell {
+    background: rgba(6, 12, 22, 0.82);
+    box-shadow:
+      0 24px 70px rgba(0, 0, 0, 0.42);
+  }
+
+  .terminal-line {
+    position: relative;
+    padding-left: 1.1rem;
+  }
+
+  .terminal-line::before {
+    content: ">";
+    position: absolute;
+    left: 0;
+    color: rgb(var(--morandi-accent-rgb));
+  }
+
+  .text-glow {
+    text-shadow: 0 0 18px rgba(var(--morandi-accent-rgb), 0.28);
+  }
+
+  .scanline-overlay {
+    background-image: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0.05),
+      rgba(255, 255, 255, 0.01) 45%,
+      rgba(255, 255, 255, 0.06) 50%,
+      rgba(255, 255, 255, 0.01) 55%,
+      rgba(255, 255, 255, 0.05)
+    );
+    background-size: 100% 6px;
+  }
+
+  .showcase-section {
+    position: relative;
+    scroll-margin-top: 6rem;
+    isolation: isolate;
+  }
+
+  .showcase-section::before {
+    content: "";
+    position: absolute;
+    inset-inline: 5%;
+    top: 0;
+    height: clamp(120px, 18vw, 220px);
+    pointer-events: none;
+    background: none;
+    opacity: 0;
+    z-index: 0;
+  }
+
+  .showcase-surface {
+    border: 1px solid rgba(10, 10, 10, 0.08);
+    background: rgba(255, 255, 255, 0.84);
+    box-shadow:
+      0 20px 50px rgba(10, 10, 10, 0.06);
+    backdrop-filter: blur(22px);
+  }
+
+  .showcase-title-kicker {
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: rgba(10, 10, 10, 0.38);
+  }
+
+  .marquee-track-left {
+    animation: marquee-left 32s linear infinite;
+  }
+
+  .marquee-track-right {
+    animation: marquee-right 32s linear infinite;
+  }
+
+  .marquee-track-soft {
+    animation: marquee-left 42s linear infinite;
+  }
+
+  .marquee-track-soft-reverse {
+    animation: marquee-right 42s linear infinite;
+  }
+
+  .section-stage {
+    position: relative;
+    isolation: isolate;
   }
 }

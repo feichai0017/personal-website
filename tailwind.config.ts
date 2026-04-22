@@ -16,12 +16,21 @@ module.exports = {
 			},
 		},
 		extend: {
+			fontFamily: {
+				sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+				mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
+			},
 			colors: {
 				morandi: {
-					bg: "#f0ece2",
-					text: "#596e79",
-					accent: "#c7b198",
-					muted: "#dfd3c3",
+					bg: "#eef4fb",
+					text: "#142033",
+					accent: "#69d5ff",
+					muted: "#d5dfec",
+					secondary: "#ffb86b",
+					primary: "#8cf2d6",
+					hover: "#132038",
+					light: "#f5fbff",
+					dark: "#07111f",
 				},
 				border: "hsl(var(--border))",
 				input: "hsl(var(--input))",

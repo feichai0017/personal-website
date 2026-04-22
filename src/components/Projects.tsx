@@ -1,1041 +1,522 @@
 "use client"
 
-import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { createPortal } from 'react-dom';
-import { motion, useScroll, useTransform, AnimatePresence, useInView, useReducedMotion } from 'framer-motion';
-import { useTheme } from 'next-themes';
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Github, Clock, CheckCircle, ExternalLink, Sparkles, Terminal, Layers, Zap, X, ArrowUpRight } from 'lucide-react';
-import {
-    SiReact, SiPython, SiDocker, SiKubernetes, SiMysql, SiRedis,
-    SiNextdotjs, SiTailwindcss, SiTypescript, SiPostgresql, SiSupabase,
-    SiApachekafka, SiPrometheus, SiGrafana, SiClerk, SiRust, SiSqlite
-} from 'react-icons/si';
-import { FaJava, FaAws, FaDatabase } from 'react-icons/fa';
-import { TbBrandGolang, TbDatabase } from 'react-icons/tb';
-import { ConvexIcon, EdgeStoreIcon } from "@/components/Icons";
-import Image from 'next/image';
-import { createSeededRandom } from "@/lib/seeded-random";
+import { useEffect, useMemo, useRef, useState } from "react"
+import { createPortal } from "react-dom"
+import { AnimatePresence, motion, useMotionValue } from "framer-motion"
+import Image from "next/image"
+import { ArrowUpRight, MoveHorizontal, X } from "lucide-react"
+import { FaGithub } from "react-icons/fa6"
 
-interface Project {
-    title: string;
-    description: string;
-    status: "In Progress" | "In Production";
-    date: string;
-    techStack: string[];
-    githubLink: string;
-    backgroundImage: string;
-    category: "database" | "web" | "system" | "ai";
-    features?: string[];
+type Project = {
+    id: string
+    title: string
+    category: string
+    year: string
+    status: string
+    description: string
+    summary: string
+    stack: string[]
+    features: string[]
+    image: string
+    githubLink: string
 }
-
-type TechStackIcon = {
-    icon: React.ComponentType<any>;
-    color: string;
-    bgColor: string;
-};
-
-const techStackIcons: Record<string, TechStackIcon> = {
-    'React': { icon: SiReact, color: '#61DAFB', bgColor: '#20232A' },
-    'Java': { icon: FaJava, color: '#007396', bgColor: '#F8981D' },
-    'Python': { icon: SiPython, color: '#3776AB', bgColor: '#FFD43B' },
-    'Go': { icon: TbBrandGolang, color: '#00ADD8', bgColor: '#FFFFFF' },
-    'MySQL': { icon: SiMysql, color: '#4479A1', bgColor: '#F7F7F7' },
-    'Redis': { icon: SiRedis, color: '#DC382D', bgColor: '#FFFFFF' },
-    'Docker': { icon: SiDocker, color: '#2496ED', bgColor: '#FFFFFF' },
-    'Kubernetes': { icon: SiKubernetes, color: '#326CE5', bgColor: '#FFFFFF' },
-    'AWS S3': { icon: FaAws, color: '#FF9900', bgColor: '#232F3E' },
-    'TypeScript': { icon: SiTypescript, color: '#3178C6', bgColor: '#FFFFFF' },
-    'Next.js': { icon: SiNextdotjs, color: '#000000', bgColor: '#FFFFFF' },
-    'Tailwind CSS': { icon: SiTailwindcss, color: '#06B6D4', bgColor: '#FFFFFF' },
-    'PostgreSQL': { icon: SiPostgresql, color: '#4169E1', bgColor: '#FFFFFF' },
-    'Kafka': { icon: SiApachekafka, color: '#231F20', bgColor: '#FFFFFF' },
-    'Prometheus': { icon: SiPrometheus, color: '#E6522C', bgColor: '#FFFFFF' },
-    'Grafana': { icon: SiGrafana, color: '#F46800', bgColor: '#FFFFFF' },
-    'Convex': { icon: ConvexIcon, color: '#FFA500', bgColor: '#FFFFFF' },
-    'Clerk': { icon: SiClerk, color: '#0000FF', bgColor: '#FFFFFF' },
-    'EdgeStore': { icon: EdgeStoreIcon, color: '#800080', bgColor: '#FFFFFF' },
-    'Supabase': { icon: SiSupabase, color: '#3ECF8E', bgColor: '#FFFFFF' },
-    'LSM Tree': { icon: FaDatabase as React.ComponentType<any>, color: '#4A90E2', bgColor: '#FFFFFF' },
-    'Lock-free': { icon: Zap as React.ComponentType<any>, color: '#FF6B6B', bgColor: '#FFFFFF' },
-    'MVCC': { icon: Layers as React.ComponentType<any>, color: '#50C878', bgColor: '#FFFFFF' },
-    'Raft': { icon: Terminal as React.ComponentType<any>, color: '#9B59B6', bgColor: '#FFFFFF' },
-    'Rust': { icon: SiRust, color: '#B7410E', bgColor: '#FFFFFF' },
-    'SQL': { icon: SiSqlite, color: '#003B57', bgColor: '#FFFFFF' },
-    'B+Tree Index': { icon: TbDatabase as React.ComponentType<any>, color: '#FF8C00', bgColor: '#FFFFFF' },
-    'Database': { icon: FaDatabase as React.ComponentType<any>, color: '#4A90E2', bgColor: '#FFFFFF' },
-};
-
-const categoryIcons = {
-    database: FaDatabase,
-    web: Layers,
-    system: Terminal,
-    ai: Sparkles
-};
 
 const projects: Project[] = [
     {
+        id: "01",
         title: "QuillSQL",
-        description: "A Lightweight Relational SQL Database in Rust, implementing heap and B+Tree storage model with MVCC concurrency control.",
-        status: "In Production",
-        date: "Feb 2025 - Apr 2025",
-        techStack: ["Rust", "SQL", "Database", "B+Tree Index", "MVCC"],
+        category: "Database Engine",
+        year: "2025",
+        status: "Shipped",
+        description: "A relational database in Rust focused on heap storage, B+Tree indexing, and MVCC concurrency control.",
+        summary: "Built to explore storage layout, indexing, concurrency semantics, and query execution as one coherent engine story.",
+        stack: ["Rust", "SQL", "MVCC", "B+Tree"],
+        features: [
+            "heap and index storage paths designed together",
+            "concurrency semantics treated as first-order design constraints",
+            "query execution shaped by engine invariants rather than toy assumptions",
+        ],
+        image: "/projects/quillsql-logo.png",
         githubLink: "https://github.com/feichai0017/QuillSQL",
-        backgroundImage: "/projects/quillsql-logo.png",
-        category: "database",
-        features: ["ACID compliance", "Query optimization", "Multi-version concurrency control", "Efficient storage engine"]
     },
     {
+        id: "02",
         title: "NoKV",
-        description: "High-performance key-value storage engine implementing LSM tree and lock-free skiplist with MVCC support.",
-        status: "In Production",
-        date: "2024.6 - 2024.9",
-        techStack: ["Go", "LSM Tree", "Lock-free", "MVCC", "Raft"],
+        category: "Distributed Storage",
+        year: "2024",
+        status: "Active",
+        description: "A high-performance key-value engine built around LSM trees, lock-free structures, and distributed control paths.",
+        summary: "This is the clearest expression of my interest in storage semantics, distributed behavior, and research-oriented systems engineering.",
+        stack: ["Go", "LSM", "MVCC", "Raft"],
+        features: [
+            "lock-free data structures in the hot path",
+            "consensus-aware distributed behavior instead of single-node benchmarking only",
+            "engine design shaped by maintainability and experimental iteration",
+        ],
+        image: "/projects/nokv-logo.svg",
         githubLink: "https://github.com/feichai0017/NoKV",
-        backgroundImage: "/projects/nokv-logo.svg",
-        category: "database",
-        features: ["Lock-free data structures", "Distributed consensus", "Crash recovery", "High throughput"]
     },
     {
-        title: "Financial AI",
-        description: "Multi-agent financial system with AI-powered transaction analysis and anti-fraud detection.",
-        status: "In Production",
-        date: "2024.7 - 2024.11",
-        techStack: ["React", "Java", "Python", "MySQL", "Redis", "Docker"],
-        githubLink: "https://github.com/CSUYSD/Anti-Scam-Financial-Management-Assistant",
-        backgroundImage: "/projects/fin-care.png",
-        category: "ai",
-        features: ["Real-time fraud detection", "Multi-agent system", "Transaction analysis", "User behavior profiling"]
-    },
-    {
-        title: "Personal Website",
-        description: "Modern portfolio website with smooth animations and responsive design.",
-        status: "In Production",
-        date: "2024.9 - 2024.9",
-        techStack: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
-        githubLink: "https://github.com/feichai0017/personal-website",
-        backgroundImage: "/projects/portfolio.png",
-        category: "web",
-        features: ["Responsive design", "Dark mode", "Smooth animations", "SEO optimized"]
-    },
-    {
-        title: "Notion-like Application",
-        description: "A powerful and flexible application for document management and collaborative work.",
-        status: "In Production",
-        date: "2024.10 - 2024.11",
-        techStack: ["Clerk", "Next.js", "TypeScript", "Tailwind CSS", "Convex", "EdgeStore"],
-        githubLink: "https://github.com/feichai0017/NoteLab",
-        backgroundImage: "/projects/notion-like.png",
-        category: "web",
-        features: ["Real-time collaboration", "Rich text editor", "File management", "User authentication"]
-    },
-    {
-        title: "Billion-scale Distributed IM System",
-        description: "High-performance instant messaging system designed for billions of concurrent users.",
+        id: "03",
+        title: "Plato IM",
+        category: "Realtime System",
+        year: "2024-now",
         status: "In Progress",
-        date: "2024 - present",
-        techStack: ["Go", "Kafka", "Redis", "Kubernetes", "Prometheus", "Grafana"],
+        description: "A distributed instant messaging system shaped around scale, reliability, and observability.",
+        summary: "Designed as a system exercise in fan-out, asynchronous delivery, state coordination, and production-style monitoring loops.",
+        stack: ["Go", "Kafka", "Redis", "Kubernetes"],
+        features: [
+            "message routing and queue-driven workflow design",
+            "operability treated as part of the product",
+            "large-scale concurrency constraints surfaced directly in the architecture",
+        ],
+        image: "/projects/IM-system.png",
         githubLink: "https://github.com/feichai0017/plato_distributed-IM-system",
-        backgroundImage: "/projects/IM-system.png",
-        category: "system",
-        features: ["Horizontal scaling", "Message queuing", "Load balancing", "Real-time monitoring"]
-    }
-];
+    },
+    {
+        id: "04",
+        title: "Financial AI",
+        category: "Applied AI System",
+        year: "2024",
+        status: "Shipped",
+        description: "A multi-agent financial system for transaction analysis, anti-fraud signals, and operational workflows.",
+        summary: "A product-facing system where application logic, AI components, and service reliability had to coexist cleanly.",
+        stack: ["React", "Java", "Python", "MySQL"],
+        features: [
+            "agent-style orchestration aligned with business workflows",
+            "fraud-analysis features tied to real interface and service paths",
+            "full-stack delivery across frontend, backend, and deployment concerns",
+        ],
+        image: "/projects/fin-care.png",
+        githubLink: "https://github.com/CSUYSD/Anti-Scam-Financial-Management-Assistant",
+    },
+    {
+        id: "05",
+        title: "NoteLab",
+        category: "Collaborative Product",
+        year: "2024",
+        status: "Shipped",
+        description: "A Notion-style collaborative application with document editing, auth, and storage workflows.",
+        summary: "Useful proof that I can still ship polished product surfaces without losing implementation discipline underneath.",
+        stack: ["Next.js", "TypeScript", "Convex", "Clerk"],
+        features: [
+            "realtime collaboration in a user-facing product",
+            "auth, storage, and editing flows designed as one system",
+            "frontend polish anchored to clear application behavior",
+        ],
+        image: "/projects/notion-like.png",
+        githubLink: "https://github.com/feichai0017/NoteLab",
+    },
+    {
+        id: "06",
+        title: "Personal Website",
+        category: "Interactive Portfolio",
+        year: "2026",
+        status: "Active",
+        description: "This site itself, treated as a designed artifact instead of a template with content dropped into it.",
+        summary: "A running experiment in turning a technical portfolio into a more authored, editorial, and interactive engineering surface.",
+        stack: ["Next.js", "TypeScript", "Tailwind", "Framer Motion"],
+        features: [
+            "editorial layout instead of generic portfolio sections",
+            "motion used to structure the reading flow, not distract from it",
+            "design language tuned around systems-builder positioning",
+        ],
+        image: "/projects/portfolio.png",
+        githubLink: "https://github.com/feichai0017/personal-website",
+    },
+]
 
-const ProjectCard: React.FC<{ project: Project; index: number; onSelect: (project: Project) => void }> = ({ project, index, onSelect }) => {
-    const { theme } = useTheme();
-    const ref = useRef(null);
-    const cardRef = useRef<HTMLDivElement>(null);
-    const isInView = useInView(ref, { once: false, amount: 0.3 });
-    const prefersReducedMotion = useReducedMotion();
-    const [isHovered, setIsHovered] = useState(false);
-    const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
+function ProjectOverlay({
+    project,
+    onClose,
+}: {
+    project: Project | null
+    onClose: () => void
+}) {
+    const [mounted, setMounted] = useState(false)
 
-    const CategoryIcon = categoryIcons[project.category];
+    useEffect(() => {
+        setMounted(true)
+    }, [])
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (!cardRef.current) return;
-        const rect = cardRef.current.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        setMousePosition({ x, y });
-    };
-
-    // 参考Experience的浮动动画
-    const floatingAnimation = {
-        translateY: isHovered ? [0, -6, 0, -3, 0] : [0, -2, 0],
-        transition: prefersReducedMotion ? undefined : {
-            duration: isHovered ? 1.2 : 4 + index * 0.5,
-            ease: "easeInOut",
-            repeat: Infinity,
-            repeatType: "reverse" as const
+    useEffect(() => {
+        if (!project) return
+        const previousOverflow = document.body.style.overflow
+        document.body.style.overflow = "hidden"
+        return () => {
+            document.body.style.overflow = previousOverflow
         }
-    };
+    }, [project])
 
-    // 现代化配色方案
-    const categoryColors = {
-        database: {
-            primary: '#4F8A9D',
-            secondary: '#7BA8B8',
-            bg: 'rgba(79, 138, 157, 0.08)',
-            glow: 'rgba(79, 138, 157, 0.2)'
-        },
-        web: {
-            primary: '#A47284',
-            secondary: '#C294A6',
-            bg: 'rgba(164, 114, 132, 0.08)',
-            glow: 'rgba(164, 114, 132, 0.2)'
-        },
-        system: {
-            primary: '#7A9B7E',
-            secondary: '#9BB89F',
-            bg: 'rgba(122, 155, 126, 0.08)',
-            glow: 'rgba(122, 155, 126, 0.2)'
-        },
-        ai: {
-            primary: '#B8956A',
-            secondary: '#D4B88A',
-            bg: 'rgba(184, 149, 106, 0.08)',
-            glow: 'rgba(184, 149, 106, 0.2)'
-        }
-    };
+    if (!mounted || !project) return null
 
-    const colors = categoryColors[project.category] || categoryColors.web;
-
-    return (
-        <motion.div
-            ref={ref}
-            className="relative group cursor-pointer"
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={isInView ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 50, scale: 0.9 }}
-            transition={{ duration: 0.8, delay: index * 0.15, ease: [0.4, 0, 0.2, 1] }}
-            onHoverStart={() => setIsHovered(true)}
-            onHoverEnd={() => setIsHovered(false)}
-            onClick={() => onSelect(project)}
-            whileHover={{ scale: 1.05, transition: { type: 'spring', stiffness: 300, damping: 15 } }}
-            whileTap={{ scale: 0.98 }}
-            style={{ perspective: '1000px' }}
-        >
+    return createPortal(
+        <AnimatePresence>
             <motion.div
-                ref={cardRef}
-                className="relative h-[420px]"
-                animate={floatingAnimation}
-                onMouseMove={handleMouseMove}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-[100] flex items-center justify-center bg-[rgba(10,10,10,0.22)] p-4 backdrop-blur-[10px]"
+                onClick={onClose}
             >
-                {/* 现代化卡片设计 */}
-                <Card
-                    className={`relative h-full overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-500
-                        ${theme === 'dark'
-                            ? 'bg-white/5 backdrop-blur-2xl'
-                            : 'bg-white/85 backdrop-blur-2xl'
-                        }
-                        border ${isHovered ? 'border-white/25' : 'border-white/15'}`}
-                    style={{
-                        borderRadius: '24px',
-                        backdropFilter: 'blur(22px)'
-                    }}
+                <motion.div
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 24 }}
+                    transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative w-full max-w-6xl overflow-hidden rounded-[34px] border border-black/10 bg-[#f7f5f1] text-[#0a0a0a] shadow-[0_30px_90px_rgba(10,10,10,0.12)]"
+                    onClick={(event) => event.stopPropagation()}
                 >
-                    {/* 动态光晕效果 - 参考Experience */}
-                    <motion.div
-                        className="absolute inset-0 pointer-events-none z-10"
-                        style={{
-                            background: `radial-gradient(520px circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, ${colors.glow}, transparent 60%)`,
-                            opacity: isHovered ? 1 : 0.6,
-                            transition: 'opacity 0.3s ease-out'
-                        }}
-                    />
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        data-cursor="jump"
+                        className="absolute right-5 top-5 z-20 inline-flex h-11 w-11 items-center justify-center rounded-full border border-black/10 bg-white/88 text-black/68 transition-colors hover:text-black"
+                        aria-label="Close project details"
+                    >
+                        <X className="h-5 w-5" />
+                    </button>
 
-                    {/* 背景装饰 */}
-                    <div className="absolute inset-0 overflow-hidden rounded-[24px]">
-                        {/* 背景图片 */}
-                        <motion.div
-                            className="absolute inset-0"
-                            animate={{
-                                scale: isHovered ? 1.1 : 1,
-                                rotate: isHovered ? 1 : 0
-                            }}
-                            transition={{ duration: 0.5, ease: "easeOut" }}
-                        >
+                    <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
+                        <div className="relative min-h-[320px] border-b border-black/8 bg-[#ece8df] lg:min-h-[640px] lg:border-b-0 lg:border-r">
                             <Image
-                                src={project.backgroundImage}
+                                src={project.image}
                                 alt={project.title}
                                 fill
                                 className="object-cover"
-                                style={{
-                                    opacity: isHovered ? 0.2 : 0.12,
-                                    filter: 'blur(0.5px) brightness(1.1)'
-                                }}
-                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                sizes="(max-width: 1024px) 100vw, 42vw"
                             />
-                        </motion.div>
-
-                        {/* 渐变叠加 */}
-                        <motion.div
-                            className="absolute inset-0"
-                            style={{
-                                background: `linear-gradient(135deg, ${colors.bg} 0%, transparent 50%, ${colors.bg} 100%)`,
-                                opacity: isHovered ? 0.8 : 0.6
-                            }}
-                            animate={{
-                                opacity: isHovered ? 0.8 : 0.6
-                            }}
-                            transition={{ duration: 0.3 }}
-                        />
-                        <motion.div
-                            className="absolute inset-0"
-                            animate={{ opacity: [0.18, 0.32, 0.18] }}
-                            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                            style={{
-                                background: `radial-gradient(circle at 20% 30%, ${colors.primary}12, transparent 35%), radial-gradient(circle at 80% 70%, ${colors.secondary}12, transparent 35%)`,
-                            }}
-                        />
-                    </div>
-
-                    <div className="relative z-20 p-8 h-full flex flex-col">
-                        {/* 头部区域 */}
-                        <div className="flex justify-between items-start mb-6">
-                            <motion.div
-                                className="flex items-center gap-4"
-                                initial={{ opacity: 0, x: -30 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: 0.2 + index * 0.1, type: 'spring', stiffness: 200 }}
-                            >
-                                {/* 动态图标容器 - 参考Experience */}
-                                <motion.div
-                                    className={`p-3 rounded-xl transition-all duration-300
-                                        ${isHovered ? 'bg-morandi-accent/20 shadow-lg' : 'bg-morandi-accent/10'}
-                                    `}
-                                    animate={{
-                                        rotate: isHovered ? [0, 12, -8, 0] : 0,
-                                        scale: isHovered ? 1.1 : 1
-                                    }}
-                                    transition={{ duration: 0.6, ease: "easeInOut" }}
-                                    style={{
-                                        border: `1px solid ${colors.primary}30`
-                                    }}
-                                >
-                                    <CategoryIcon
-                                        size={24}
-                                        style={{
-                                            color: isHovered ? colors.primary : colors.secondary,
-                                            transition: 'color 0.3s ease'
-                                        }}
-                                    />
-                                </motion.div>
-
-                                <div>
-                                    <motion.h3
-                                        className="text-xl md:text-2xl font-bold text-morandi-dark dark:text-morandi-dark leading-tight"
-                                        animate={{
-                                            color: isHovered ? colors.primary : undefined
-                                        }}
-                                        transition={{ duration: 0.3 }}
-                                    >
-                                        {project.title}
-                                    </motion.h3>
-                                    <div className="flex items-center text-morandi-text/70 dark:text-morandi-dark/70 text-sm mt-1 gap-2 flex-wrap">
-                                        <span
-                                            className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] uppercase tracking-[0.2em] border"
-                                            style={{
-                                                borderColor: `${colors.primary}30`,
-                                                background: `${colors.bg}`,
-                                                color: colors.primary,
-                                            }}
-                                        >
-                                            {project.category}
-                                        </span>
-                                        <div className="flex items-center gap-1">
-                                            <Clock className="w-4 h-4 flex-shrink-0" />
-                                            {project.date}
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-
-                            <motion.div
-                                initial={{ opacity: 0, scale: 0.5 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                transition={{ delay: 0.3 + index * 0.1, type: 'spring', stiffness: 300 }}
-                            >
-                                <motion.div
-                                    className={`px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 backdrop-blur-md ${project.status === "In Progress"
-                                        ? "bg-amber-100/20 text-amber-600 dark:text-amber-400 border border-amber-200/30"
-                                        : "bg-emerald-100/20 text-emerald-600 dark:text-emerald-400 border border-emerald-200/30"
-                                        }`}
-                                    whileHover={{ scale: 1.05 }}
-                                    transition={{ type: "spring", stiffness: 400 }}
-                                >
-                                    {project.status === "In Progress" ? (
-                                        <motion.div
-                                            animate={{ rotate: 360 }}
-                                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                        >
-                                            <Clock size={12} />
-                                        </motion.div>
-                                    ) : (
-                                        <CheckCircle size={12} />
-                                    )}
-                                    {project.status}
-                                </motion.div>
-                            </motion.div>
                         </div>
 
-                        {/* 描述内容 */}
-                        <motion.div className="flex-1 mb-6">
-                            <motion.p
-                                className="text-sm text-morandi-text dark:text-morandi-dark leading-relaxed line-clamp-4"
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.4 + index * 0.1 }}
-                            >
-                                {project.description}
-                            </motion.p>
-                        </motion.div>
-
-                        {/* 技术栈标签 */}
-                        <motion.div
-                            className="flex flex-wrap gap-2 mb-6"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.5 + index * 0.1 }}
-                        >
-                            {project.techStack.slice(0, isHovered ? project.techStack.length : 4).map((tech, i) => {
-                                const { icon: IconComponent } = techStackIcons[tech] || {};
-                                return (
-                                    <motion.div
-                                        key={tech}
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        transition={{
-                                            duration: 0.3,
-                                            delay: 0.6 + i * 0.05,
-                                            type: 'spring',
-                                            stiffness: 200
-                                        }}
-                                    >
-                                        <motion.div
-                                            className="px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 border"
-                                            style={{
-                                                borderColor: `${colors.primary}30`,
-                                                background: theme === 'dark' ? `${colors.bg}` : 'rgba(255,255,255,0.8)',
-                                            }}
-                                            whileHover={{ scale: 1.05, y: -2 }}
-                                            transition={{ type: "spring", stiffness: 400 }}
-                                        >
-                                            {IconComponent && <IconComponent size={12} />}
-                                            <span>{tech}</span>
-                                        </motion.div>
-                                    </motion.div>
-                                );
-                            })}
-                            {!isHovered && project.techStack.length > 4 && (
-                                <motion.div
-                                    className="px-3 py-1.5 rounded-lg text-xs font-medium border"
-                                    style={{
-                                        borderColor: `${colors.primary}30`,
-                                        background: theme === 'dark' ? `${colors.bg}` : 'rgba(255,255,255,0.8)',
-                                    }}
-                                    whileHover={{ scale: 1.05 }}
-                                >
-                                    +{project.techStack.length - 4}
-                                </motion.div>
-                            )}
-                        </motion.div>
-
-                        {/* 底部操作区 */}
-                        <motion.div
-                            className="flex items-center justify-between"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: isHovered ? 1 : 0.8 }}
-                            transition={{ duration: 0.3, delay: 0.1 }}
-                        >
-                            <motion.div
-                                className="flex items-center gap-2 text-sm font-medium text-morandi-accent"
-                                whileHover={{ x: 6 }}
-                                transition={{ type: "spring", stiffness: 400 }}
-                            >
-                                <span>Explore Project</span>
-                                <ArrowUpRight size={16} />
-                            </motion.div>
-
-                            <motion.div
-                                className="w-10 h-10 rounded-full flex items-center justify-center backdrop-blur-md"
-                                style={{
-                                    background: theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)',
-                                    border: `1px solid ${colors.primary}30`
-                                }}
-                                whileHover={{ scale: 1.15, rotate: 15 }}
-                                whileTap={{ scale: 0.95 }}
-                                transition={{ type: "spring", stiffness: 400 }}
-                            >
-                                <ExternalLink size={14} style={{ color: colors.primary }} />
-                            </motion.div>
-                        </motion.div>
-                    </div>
-                </Card>
-            </motion.div>
-        </motion.div>
-    );
-};
-
-// 详情弹窗组件 - 参考Experience设计
-const ProjectDetail: React.FC<{ project: Project | null; onClose: () => void }> = ({ project, onClose }) => {
-    const { theme } = useTheme();
-    const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => setMounted(true), []);
-
-    if (!project || !mounted) return null;
-
-    const CategoryIcon = categoryIcons[project.category];
-
-    // 现代化配色方案 - 与ProjectCard保持一致
-    const categoryColors = {
-        database: {
-            primary: '#4F8A9D',
-            secondary: '#7BA8B8',
-            bg: 'rgba(79, 138, 157, 0.08)',
-            glow: 'rgba(79, 138, 157, 0.2)'
-        },
-        web: {
-            primary: '#A47284',
-            secondary: '#C294A6',
-            bg: 'rgba(164, 114, 132, 0.08)',
-            glow: 'rgba(164, 114, 132, 0.2)'
-        },
-        system: {
-            primary: '#7A9B7E',
-            secondary: '#9BB89F',
-            bg: 'rgba(122, 155, 126, 0.08)',
-            glow: 'rgba(122, 155, 126, 0.2)'
-        },
-        ai: {
-            primary: '#B8956A',
-            secondary: '#D4B88A',
-            bg: 'rgba(184, 149, 106, 0.08)',
-            glow: 'rgba(184, 149, 106, 0.2)'
-        }
-    };
-
-    const colors = categoryColors[project.category] || categoryColors.web;
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width;
-        const y = (e.clientY - rect.top) / rect.height;
-        setMousePosition({ x, y });
-    };
-
-    const modal = (
-        <AnimatePresence>
-            {project && (
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-lg"
-                    onClick={onClose}
-                >
-                    <motion.div
-                        initial={{ scale: 0.85, y: 30, opacity: 0 }}
-                        animate={{ scale: 1, y: 0, opacity: 1 }}
-                        exit={{ scale: 0.85, y: 30, opacity: 0 }}
-                        transition={{ type: "spring", stiffness: 260, damping: 25 }}
-                        className="relative w-full max-w-xl md:max-w-3xl lg:max-w-4xl"
-                        onClick={(e) => e.stopPropagation()}
-                        onMouseMove={handleMouseMove}
-                    >
-                        <Card className={`relative overflow-hidden shadow-2xl
-                            ${theme === 'dark'
-                                ? 'bg-white/10 backdrop-blur-2xl text-morandi-dark'
-                                : 'bg-white/95 text-morandi-dark'
-                            } border ${theme === 'dark' ? 'border-white/15' : 'border-morandi-accent/30'}`}
-                            style={{
-                                borderRadius: '28px',
-                                backdropFilter: 'blur(30px)'
-                            }}
-                        >
-                            {/* 动态光晕效果 - 参考Experience */}
-                            <div className="absolute inset-0 pointer-events-none">
-                                <motion.div
-                                    className="absolute inset-0"
-                                    animate={{
-                                        background: `radial-gradient(800px circle at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, ${colors.glow}, transparent 50%)`
-                                    }}
-                                    transition={{ type: 'tween', duration: 0.3, ease: 'easeOut' }}
-                                    style={{ opacity: 0.6 }}
-                                />
+                        <div className="p-7 md:p-10">
+                            <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-black/34">
+                                {project.id} / 06
+                            </div>
+                            <h3 className="mt-5 text-4xl font-medium tracking-[-0.05em] text-black md:text-5xl">
+                                {project.title}
+                            </h3>
+                            <div className="mt-4 flex flex-wrap items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] text-black/42">
+                                <span>{project.category}</span>
+                                <span className="text-black/20">/</span>
+                                <span>{project.year}</span>
+                                <span className="text-black/20">/</span>
+                                <span>{project.status}</span>
                             </div>
 
-                            <div className="relative max-h-[85vh] overflow-y-auto text-morandi-dark dark:text-morandi-dark">
-                                {/* 头部区域 */}
-                                <div className="p-8 md:p-10">
-                                    <div className="flex items-start gap-6 mb-8">
-                                        {/* 动态图标 - 参考Experience设计 */}
-                                        <motion.div
-                                            className={`p-4 md:p-5 rounded-xl transition-all duration-300
-                                                ${theme === 'dark' ? 'bg-morandi-accent/15' : 'bg-morandi-accent/10'}
-                                            `}
-                                            initial={{ rotate: -90, scale: 0.5 }}
-                                            animate={{ rotate: 0, scale: 1 }}
-                                            transition={{ type: "spring", stiffness: 180, delay: 0.1 }}
-                                            style={{
-                                                border: `2px solid ${colors.primary}30`,
-                                                boxShadow: `0 8px 32px ${colors.primary}15`
-                                            }}
+                            <p className="mt-8 max-w-2xl text-base leading-8 text-black/68">
+                                {project.summary}
+                            </p>
+
+                            <div className="mt-8">
+                                <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-black/34">
+                                    Stack
+                                </div>
+                                <div className="mt-4 flex flex-wrap gap-3">
+                                    {project.stack.map((item) => (
+                                        <span
+                                            key={item}
+                                            className="rounded-full border border-black/10 bg-white/78 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.24em] text-black/56"
                                         >
-                                            <CategoryIcon
-                                                size={32}
-                                                style={{ color: colors.primary }}
-                                            />
-
-                                            {/* 环形脉动效果 */}
-                                            <motion.div
-                                                className="absolute inset-0 rounded-xl"
-                                                style={{
-                                                    border: `2px solid ${colors.primary}`,
-                                                    opacity: 0.3
-                                                }}
-                                                animate={{
-                                                    scale: [1, 1.3, 1],
-                                                    opacity: [0.3, 0, 0.3]
-                                                }}
-                                                transition={{
-                                                    duration: 2,
-                                                    repeat: Infinity,
-                                                    ease: "easeOut"
-                                                }}
-                                            />
-                                        </motion.div>
-
-                                        <div className="flex-1">
-                                            <motion.h2
-                                                className="text-3xl md:text-4xl font-bold text-morandi-dark dark:text-morandi-dark mb-2"
-                                                initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.2 }}
-                                            >
-                                                {project.title}
-                                            </motion.h2>
-                                            <motion.div
-                                                className="text-morandi-text/80 dark:text-morandi-dark/80 text-lg mb-3"
-                                                initial={{ opacity: 0, x: -20 }}
-                                                animate={{ opacity: 1, x: 0 }}
-                                                transition={{ delay: 0.25 }}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <Clock className="w-5 h-5" />
-                                                    {project.date}
-                                                </div>
-                                            </motion.div>
-
-                                            <motion.div
-                                                initial={{ opacity: 0, scale: 0 }}
-                                                animate={{ opacity: 1, scale: 1 }}
-                                                transition={{ delay: 0.3, type: "spring" }}
-                                            >
-                                                <div
-                                                    className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium backdrop-blur-md ${project.status === "In Progress"
-                                                        ? "bg-amber-100/20 text-amber-700 dark:text-amber-700 border border-amber-200/30"
-                                                        : "bg-emerald-100/20 text-emerald-700 dark:text-emerald-700 border border-emerald-200/30"
-                                                        }`}
-                                                >
-                                                    {project.status === "In Progress" ? (
-                                                        <motion.div
-                                                            animate={{ rotate: 360 }}
-                                                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                                                        >
-                                                            <Clock size={14} />
-                                                        </motion.div>
-                                                    ) : (
-                                                        <CheckCircle size={14} />
-                                                    )}
-                                                    {project.status}
-                                                </div>
-                                            </motion.div>
-                                        </div>
-
-                                        {/* 关闭按钮 */}
-                                        <motion.button
-                                            className="p-2 rounded-full backdrop-blur-md transition-all duration-300"
-                                            onClick={onClose}
-                                            whileHover={{ scale: 1.1, rotate: 90 }}
-                                            whileTap={{ scale: 0.9 }}
-                                            style={{
-                                                background: theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)',
-                                                border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
-                                            }}
-                                        >
-                                            <X size={20} className="text-morandi-text dark:text-morandi-dark" />
-                                        </motion.button>
-                                    </div>
-
-                                    {/* 项目描述 */}
-                                    <motion.div
-                                        className="mb-8 p-6 rounded-2xl"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.4 }}
-                                        style={{
-                                            background: theme === 'dark'
-                                                ? 'rgba(255, 255, 255, 0.03)'
-                                                : 'rgba(0, 0, 0, 0.02)',
-                                            border: `1px solid ${theme === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)'}`
-                                        }}
-                                    >
-                                        <p className="text-lg text-morandi-text dark:text-morandi-dark leading-relaxed">
-                                            {project.description}
-                                        </p>
-                                    </motion.div>
-
-                                    {/* 主要特性 */}
-                                    {project.features && (
-                                        <motion.div
-                                            className="mb-8"
-                                            initial={{ opacity: 0 }}
-                                            animate={{ opacity: 1 }}
-                                            transition={{ delay: 0.5 }}
-                                        >
-                                            <h3 className="text-xl font-semibold mb-4 text-morandi-dark dark:text-morandi-dark">
-                                                Key Features
-                                            </h3>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                                {project.features.map((feature, index) => (
-                                                    <motion.div
-                                                        key={index}
-                                                        initial={{ opacity: 0, x: -20 }}
-                                                        animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: 0.6 + index * 0.05 }}
-                                                        className="flex items-center gap-3 p-4 rounded-xl"
-                                                        style={{
-                                                            background: theme === 'dark'
-                                                                ? `linear-gradient(135deg, ${colors.primary}05, ${colors.secondary}03)`
-                                                                : `linear-gradient(135deg, ${colors.primary}03, ${colors.secondary}02)`,
-                                                            border: `1px solid ${colors.primary}10`
-                                                        }}
-                                                    >
-                                                        <motion.div
-                                                            className="w-2 h-2 rounded-full flex-shrink-0"
-                                                            style={{ backgroundColor: colors.primary }}
-                                                            animate={{
-                                                                scale: [1, 1.2, 1],
-                                                                opacity: [0.8, 1, 0.8]
-                                                            }}
-                                                            transition={{
-                                                                duration: 2,
-                                                                repeat: Infinity,
-                                                                delay: index * 0.2
-                                                            }}
-                                                        />
-                                                        <span className="text-morandi-text dark:text-morandi-dark">
-                                                            {feature}
-                                                        </span>
-                                                    </motion.div>
-                                                ))}
-                                            </div>
-                                        </motion.div>
-                                    )}
-
-                                    {/* 技术栈 */}
-                                    <motion.div
-                                        className="mb-8"
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        transition={{ delay: 0.7 }}
-                                    >
-                                        <h3 className="text-xl font-semibold mb-4 text-morandi-dark dark:text-morandi-dark">
-                                            Tech Stack
-                                        </h3>
-                                        <div className="flex flex-wrap gap-3">
-                                            {project.techStack.map((tech, index) => {
-                                                const { icon: IconComponent, color } = techStackIcons[tech] || {};
-                                                return (
-                                                    <motion.div
-                                                        key={tech}
-                                                        initial={{ opacity: 0, scale: 0.8 }}
-                                                        animate={{ opacity: 1, scale: 1 }}
-                                                        transition={{
-                                                            delay: 0.8 + index * 0.03,
-                                                            type: "spring",
-                                                            stiffness: 200
-                                                        }}
-                                                    >
-                                                        <motion.div
-                                                            className="px-4 py-2 rounded-xl backdrop-blur-md flex items-center gap-2 cursor-pointer"
-                                                            whileHover={{ scale: 1.05, y: -2 }}
-                                                            transition={{ type: "spring", stiffness: 400 }}
-                                                            style={{
-                                                                background: theme === 'dark'
-                                                                    ? `linear-gradient(135deg, ${color}15, ${color}08)`
-                                                                    : `linear-gradient(135deg, ${color}08, ${color}04)`,
-                                                                border: `1px solid ${color}30`,
-                                                                boxShadow: `0 2px 8px ${color}10`
-                                                            }}
-                                                        >
-                                                            {IconComponent && <IconComponent size={16} style={{ color }} />}
-                                                            <span className="text-sm font-medium" style={{ color }}>
-                                                                {tech}
-                                                            </span>
-                                                        </motion.div>
-                                                    </motion.div>
-                                                );
-                                            })}
-                                        </div>
-                                    </motion.div>
-
-                                    {/* GitHub链接 */}
-                                    <motion.a
-                                        href={project.githubLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center gap-3 px-6 py-3 rounded-xl font-medium text-base backdrop-blur-md transition-all duration-300"
-                                        initial={{ opacity: 0, y: 20 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        transition={{ delay: 0.9 }}
-                                        whileHover={{
-                                            scale: 1.05,
-                                            boxShadow: `0 8px 24px ${colors.primary}20`
-                                        }}
-                                        whileTap={{ scale: 0.95 }}
-                                        style={{
-                                            background: `linear-gradient(135deg, ${colors.primary}, ${colors.secondary})`,
-                                            color: 'white',
-                                            border: 'none'
-                                        }}
-                                    >
-                                        <Github size={20} />
-                                        <span>View Source Code</span>
-                                        <ExternalLink size={16} />
-                                    </motion.a>
+                                            {item}
+                                        </span>
+                                    ))}
                                 </div>
                             </div>
-                        </Card>
-                    </motion.div>
+
+                            <div className="mt-10">
+                                <div className="font-mono text-[11px] uppercase tracking-[0.28em] text-black/34">
+                                    What mattered
+                                </div>
+                                <div className="mt-5 space-y-4">
+                                    {project.features.map((item, index) => (
+                                        <div
+                                            key={item}
+                                            className="grid gap-3 border-t border-dashed border-black/10 pt-4 md:grid-cols-[44px_1fr]"
+                                        >
+                                            <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-black/34">
+                                                0{index + 1}
+                                            </div>
+                                            <p className="text-sm leading-7 text-black/68">{item}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="mt-10 flex flex-wrap gap-4">
+                                <a
+                                    href={project.githubLink}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    data-cursor="open"
+                                    className="inline-flex h-12 items-center gap-3 rounded-full bg-black px-6 font-mono text-[11px] uppercase tracking-[0.24em] text-[#f7f5f1] transition-transform hover:-translate-y-0.5"
+                                >
+                                    <FaGithub className="h-4 w-4" />
+                                    open repo
+                                </a>
+                                <button
+                                    type="button"
+                                    onClick={onClose}
+                                    data-cursor="jump"
+                                    className="inline-flex h-12 items-center gap-3 rounded-full border border-black/10 bg-white/82 px-6 font-mono text-[11px] uppercase tracking-[0.24em] text-black/68 transition-transform hover:-translate-y-0.5 hover:text-black"
+                                >
+                                    close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </motion.div>
-            )}
-        </AnimatePresence>
-    );
+            </motion.div>
+        </AnimatePresence>,
+        document.body
+    )
+}
 
-    return createPortal(modal, document.body);
-};
-
-const Projects: React.FC = () => {
-    const ref = useRef(null);
-    const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-    const { scrollYProgress } = useScroll({
-        target: ref,
-        offset: ["start start", "end start"]
-    });
-    const { theme } = useTheme();
-    const prefersReducedMotion = useReducedMotion();
-    const sectionInView = useInView(ref, { once: false, amount: 0.3 });
-    const enableMotion = sectionInView && !prefersReducedMotion;
-    const [decorVisible, setDecorVisible] = useState(false);
-
-    const backgroundY = useTransform(scrollYProgress, [0, 1], [0, -200]);
-
-    // 防止body滚动当模态框打开时
-    useEffect(() => {
-        if (selectedProject) {
-            document.body.style.overflow = 'hidden';
-        } else {
-            document.body.style.overflow = 'unset';
-        }
-
-        return () => {
-            document.body.style.overflow = 'unset';
-        };
-    }, [selectedProject]);
-
-    useEffect(() => {
-        if (sectionInView && !decorVisible) {
-            setDecorVisible(true);
-        }
-    }, [sectionInView, decorVisible]);
-
-    const floatingShapes = useMemo(() => {
-        const rand = createSeededRandom(2000)
-        return Array.from({ length: 6 }, (_, i) => ({
-            key: i,
-            width: rand() * 200 + 100,
-            height: rand() * 200 + 100,
-            left: rand() * 100,
-            top: rand() * 100,
-            xDelta: rand() * 100 - 50,
-            yDelta: rand() * 100 - 50,
-            duration: 15 + rand() * 10,
-            delay: i * 2,
-        }))
-    }, [])
-
-    const glowParticles = useMemo(() => {
-        const rand = createSeededRandom(3000)
-        return Array.from({ length: 12 }, (_, i) => ({
-            key: i,
-            left: rand() * 100,
-            top: rand() * 100,
-            xDelta: rand() * 200 - 100,
-            yDelta: rand() * 200 - 100,
-            duration: 8 + rand() * 4,
-            delay: i * 0.8,
-        }))
-    }, [])
-
+function ProjectCard({
+    project,
+    onOpen,
+}: {
+    project: Project
+    onOpen: () => void
+}) {
     return (
-        <section
-            id="projects"
-            ref={ref}
-            className="relative min-h-screen py-20 px-4 overflow-hidden bg-morandi-bg dark:bg-[#03040a] transition-colors duration-500"
+        <button
+            type="button"
+            onClick={onOpen}
+            data-cursor="open"
+            className="group relative h-[450px] w-[86vw] max-w-[520px] shrink-0 overflow-hidden rounded-[30px] border border-black/10 bg-[#f7f5f1] text-left transition-[transform,box-shadow,border-color] duration-500 hover:-translate-y-2 hover:border-black/16 hover:shadow-[0_20px_44px_rgba(10,10,10,0.06)]"
         >
-            {/* CSS动画定义 */}
-            <style jsx>{`
-                @keyframes gradient-shift {
-                    0% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                    100% { background-position: 0% 50%; }
-                }
-                @keyframes float-up {
-                    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-                    10% { opacity: 1; }
-                    90% { opacity: 1; }
-                    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
-                }
-            `}</style>
-
-            {/* 现代化动态背景 */}
-            {decorVisible && (
-                <motion.div
-                    className="absolute inset-0 -z-10 opacity-40"
-                    style={{ y: backgroundY }}
-                >
-                    {/* 主背景渐变 */}
-                    <div className="absolute inset-0"
-                        style={{
-                            background: theme === 'dark'
-                                ? 'radial-gradient(circle at 30% 20%, rgba(79, 138, 157, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(164, 114, 132, 0.06) 0%, transparent 50%), radial-gradient(circle at 40% 70%, rgba(122, 155, 126, 0.05) 0%, transparent 50%)'
-                                : 'radial-gradient(circle at 30% 20%, rgba(79, 138, 157, 0.04) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(164, 114, 132, 0.03) 0%, transparent 50%), radial-gradient(circle at 40% 70%, rgba(122, 155, 126, 0.025) 0%, transparent 50%)'
-                        }}
-                    />
-
-                    {/* 浮动装饰元素 */}
-                    {floatingShapes.map((shape) => (
-                        <motion.div
-                            key={shape.key}
-                            className="absolute rounded-full opacity-20"
-                            style={{
-                                width: shape.width,
-                                height: shape.height,
-                                left: `${shape.left}%`,
-                                top: `${shape.top}%`,
-                                background: shape.key % 3 === 0
-                                    ? 'linear-gradient(135deg, rgba(79, 138, 157, 0.1), rgba(79, 138, 157, 0.05))'
-                                    : shape.key % 3 === 1
-                                        ? 'linear-gradient(135deg, rgba(164, 114, 132, 0.08), rgba(164, 114, 132, 0.04))'
-                                        : 'linear-gradient(135deg, rgba(122, 155, 126, 0.06), rgba(122, 155, 126, 0.03))',
-                                filter: 'blur(40px)'
-                            }}
-                            animate={{
-                                x: [0, shape.xDelta, 0],
-                                y: [0, shape.yDelta, 0],
-                                scale: [1, 1.2, 1]
-                            }}
-                            transition={{
-                                duration: shape.duration,
-                                repeat: enableMotion ? Infinity : 0,
-                                ease: "easeInOut",
-                                delay: shape.delay
-                            }}
-                        />
-                    ))}
-
-                    {/* 发光粒子效果 */}
-                    {glowParticles.map((particle) => (
-                        <motion.div
-                            key={`particle-${particle.key}`}
-                            className="absolute w-1 h-1 rounded-full"
-                            style={{
-                                left: `${particle.left}%`,
-                                top: `${particle.top}%`,
-                                background: ['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][particle.key % 4],
-                                boxShadow: `0 0 10px ${['#4F8A9D', '#A47284', '#7A9B7E', '#B8956A'][particle.key % 4]}40`
-                            }}
-                            animate={{
-                                scale: [0, 1, 0],
-                                opacity: [0, 1, 0],
-                                x: [0, particle.xDelta],
-                                y: [0, particle.yDelta]
-                            }}
-                            transition={{
-                                duration: particle.duration,
-                                repeat: enableMotion ? Infinity : 0,
-                                ease: "easeOut",
-                                delay: particle.delay
-                            }}
-                        />
-                    ))}
-                </motion.div>
-            )}
-
-            <div className="relative z-10 max-w-7xl mx-auto">
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-                    className="text-center mb-16"
-                >
-                    <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 text-morandi-dark dark:text-morandi-light">
-                        My Projects
-                    </h2>
-                    <p className="text-lg md:text-xl text-morandi-text dark:text-morandi-light/80 max-w-3xl mx-auto">
-                        Exploring creativity through code, building solutions that make a difference
-                    </p>
-                </motion.div>
-
-                {/* 项目网格 - 响应式布局 */}
-                <motion.div
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                >
-                    {projects.map((project, index) => (
-                        <ProjectCard
-                            key={project.title}
-                            project={project}
-                            index={index}
-                            onSelect={setSelectedProject}
-                        />
-                    ))}
-                </motion.div>
-
-                {/* 底部装饰 */}
-                <motion.div
-                    className="mt-20 text-center"
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    transition={{ duration: 0.6 }}
-                >
-                    <motion.div
-                        className="inline-flex items-center gap-2 text-sm text-morandi-text/50 dark:text-morandi-light/50"
-                        whileHover={{ scale: 1.05 }}
-                    >
-                        <Sparkles size={16} />
-                        <span>More projects coming soon</span>
-                    </motion.div>
-                </motion.div>
+            <div className="relative h-[58%] overflow-hidden border-b border-black/8 bg-[#f7f5f1]">
+                <Image
+                    src={project.image}
+                    alt={project.title}
+                    fill
+                    className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                    sizes="(max-width: 768px) 86vw, 520px"
+                />
             </div>
 
-            {/* 详情弹窗 */}
-            <ProjectDetail
-                project={selectedProject}
-                onClose={() => setSelectedProject(null)}
-            />
-        </section>
-    );
-};
+            <div className="flex h-[42%] flex-col p-6 transition-transform duration-500 group-hover:-translate-y-1">
+                <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.24em] text-black/34">
+                    <span>
+                        {project.id} / 06
+                    </span>
+                    <span className="inline-flex items-center gap-2 text-black/54">
+                        open
+                        <ArrowUpRight className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+                    </span>
+                </div>
 
-export default Projects;
+                <div className="mt-5">
+                    <div className="font-mono text-[10px] uppercase tracking-[0.24em] text-black/34">
+                        {project.category}
+                    </div>
+                    <h3 className="mt-2 text-3xl font-medium tracking-[-0.05em] text-black">
+                        {project.title}
+                    </h3>
+                </div>
+
+                <p className="mt-4 line-clamp-3 text-sm leading-7 text-black/66">
+                    {project.description}
+                </p>
+
+                <div className="mt-auto flex flex-wrap gap-2 pt-5">
+                    {project.stack.slice(0, 4).map((item) => (
+                        <span
+                            key={item}
+                            className="rounded-full border border-black/10 bg-[#f7f5f1] px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.22em] text-black/52 transition-transform duration-500 group-hover:-translate-y-0.5"
+                        >
+                            {item}
+                        </span>
+                    ))}
+                </div>
+            </div>
+        </button>
+    )
+}
+
+function DragLane({
+    items,
+    lane,
+    initialEdge,
+    direction,
+    onOpen,
+}: {
+    items: Project[]
+    lane: string
+    initialEdge: "start" | "end"
+    direction: "left" | "right"
+    onOpen: (project: Project) => void
+}) {
+    const viewportRef = useRef<HTMLDivElement>(null)
+    const trackRef = useRef<HTMLDivElement>(null)
+    const dragX = useMotionValue(0)
+    const hasDraggedRef = useRef(false)
+    const singleWidthRef = useRef(0)
+    const [dragBounds, setDragBounds] = useState({ left: 0, right: 0 })
+    const [isPaused, setIsPaused] = useState(false)
+    const [isDragging, setIsDragging] = useState(false)
+    const duplicated = useMemo(() => [...items, ...items], [items])
+
+    useEffect(() => {
+        const measure = () => {
+            if (!viewportRef.current || !trackRef.current) return
+
+            const viewportWidth = viewportRef.current.offsetWidth
+            const singleWidth = trackRef.current.scrollWidth / 2
+            const overflow = Math.max(singleWidth, viewportWidth)
+            const startX = initialEdge === "end" ? -singleWidth : 0
+
+            singleWidthRef.current = singleWidth
+            setDragBounds({ left: -overflow, right: overflow })
+            dragX.set(startX)
+        }
+
+        measure()
+        window.addEventListener("resize", measure)
+        return () => window.removeEventListener("resize", measure)
+    }, [dragX, duplicated, initialEdge])
+
+    useEffect(() => {
+        let frameId = 0
+        let lastTime = performance.now()
+
+        const step = (time: number) => {
+            const elapsed = time - lastTime
+            lastTime = time
+
+            if (!isPaused && !isDragging && singleWidthRef.current > 0) {
+                const speed = direction === "left" ? -0.05 : 0.05
+                const next = dragX.get() + elapsed * speed
+                const wrapWidth = singleWidthRef.current
+
+                if (direction === "left") {
+                    dragX.set(next <= -wrapWidth ? next + wrapWidth : next)
+                } else {
+                    dragX.set(next >= 0 ? next - wrapWidth : next)
+                }
+            }
+
+            frameId = requestAnimationFrame(step)
+        }
+
+        frameId = requestAnimationFrame(step)
+        return () => cancelAnimationFrame(frameId)
+    }, [direction, dragX, isDragging, isPaused])
+
+    const handleCardOpen = (project: Project) => {
+        if (hasDraggedRef.current) return
+        onOpen(project)
+    }
+
+    return (
+        <div className="space-y-4">
+            <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.28em] text-black/34">
+                <span>{lane}</span>
+                <span className="inline-flex items-center gap-2 text-black/50 transition-transform duration-300 hover:translate-x-1">
+                    <MoveHorizontal className="h-4 w-4" />
+                    drag to explore
+                </span>
+            </div>
+
+            <div
+                ref={viewportRef}
+                className="overflow-hidden"
+                onMouseEnter={() => setIsPaused(true)}
+                onMouseLeave={() => setIsPaused(false)}
+            >
+                <motion.div
+                    ref={trackRef}
+                    drag="x"
+                    dragConstraints={dragBounds}
+                    dragElastic={0.08}
+                    dragTransition={{ bounceStiffness: 180, bounceDamping: 26 }}
+                    style={{ x: dragX }}
+                    data-cursor="drag"
+                    onDragStart={() => {
+                        hasDraggedRef.current = true
+                        setIsDragging(true)
+                    }}
+                    onDragEnd={() => {
+                        setIsDragging(false)
+                        const wrapWidth = singleWidthRef.current
+                        if (wrapWidth > 0) {
+                            let next = dragX.get()
+                            while (next <= -wrapWidth) next += wrapWidth
+                            while (next > 0) next -= wrapWidth
+                            dragX.set(next)
+                        }
+                        window.setTimeout(() => {
+                            hasDraggedRef.current = false
+                        }, 80)
+                    }}
+                    className="flex w-max gap-6 active:cursor-grabbing"
+                >
+                    {duplicated.map((project, index) => (
+                        <ProjectCard
+                            key={`${project.id}-${index}`}
+                            project={project}
+                            onOpen={() => handleCardOpen(project)}
+                        />
+                    ))}
+                </motion.div>
+            </div>
+        </div>
+    )
+}
+
+export default function Projects() {
+    const [activeProject, setActiveProject] = useState<Project | null>(null)
+    const topRow = useMemo(() => projects.slice(0, 3), [])
+    const bottomRow = useMemo(() => projects.slice(3), [])
+
+    return (
+        <>
+            <section id="projects" className="showcase-section bg-[#f7f5f1] px-4 py-24 text-[#0a0a0a]">
+                <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, amount: 0.2 }}
+                        transition={{ duration: 0.5 }}
+                        className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between"
+                    >
+                        <div>
+                            <div className="font-mono text-[11px] uppercase tracking-[0.34em] text-black/36">
+                                /03 Selected Work
+                            </div>
+                            <h2 className="mt-6 max-w-5xl text-5xl font-medium leading-[0.9] tracking-[-0.06em] text-black md:text-7xl">
+                                Six case studies,
+                                <span className="block text-black/48">stacked into two lanes,</span>
+                                <span className="block text-black/72">meant to be dragged through.</span>
+                            </h2>
+                        </div>
+
+                        <p className="max-w-md text-sm leading-7 text-black/58">
+                            Each row keeps moving on its own. Hover to pause, drag to inspect, and open any card for
+                            the full system story behind it.
+                        </p>
+                    </motion.div>
+
+                    <div className="mt-16 space-y-10">
+                        <DragLane
+                            items={topRow}
+                            lane="row 1 / 2"
+                            direction="right"
+                            initialEdge="start"
+                            onOpen={setActiveProject}
+                        />
+                        <DragLane
+                            items={bottomRow}
+                            lane="row 2 / 2"
+                            direction="left"
+                            initialEdge="end"
+                            onOpen={setActiveProject}
+                        />
+                    </div>
+                </div>
+            </section>
+
+            <ProjectOverlay project={activeProject} onClose={() => setActiveProject(null)} />
+        </>
+    )
+}
