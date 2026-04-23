@@ -28,6 +28,7 @@ const socialLinks = [
 export default function Navbar() {
     const { scrollYProgress } = useScroll()
     const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 22, mass: 0.3 })
+
     return (
         <motion.header
             initial={{ y: -14, opacity: 0 }}
@@ -57,13 +58,14 @@ export default function Navbar() {
 
                 <nav className="hidden items-center justify-center gap-2 lg:flex">
                     {navLinks.map((item) => (
-                        <a
+                        <button
                             key={item.href}
-                            href={item.href}
+                            type="button"
+                            onClick={() => document.querySelector(item.href)?.scrollIntoView()}
                             className="inline-flex h-10 items-center rounded-full border border-transparent px-4 font-mono text-[10px] uppercase tracking-[0.24em] text-black transition-all hover:-translate-y-0.5 hover:border-black/10 hover:bg-[#f7f5f1]"
                         >
                             {item.label}
-                        </a>
+                        </button>
                     ))}
                 </nav>
 

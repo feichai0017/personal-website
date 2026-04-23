@@ -6,7 +6,7 @@ import Navbar from '@/components/Navbar'
 import SmoothScroll from '@/components/SmoothScroll'
 import CursorBlob from '@/components/CursorBlob'
 import ScrollBackdrop from '@/components/ScrollBackdrop'
-import IntroCurtain from '@/components/IntroCurtain'
+import EntryPortal from '@/components/EntryPortal'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 
@@ -111,7 +111,7 @@ export default function RootLayout({
                 >
                     <ScrollBackdrop />
                     <CursorBlob />
-                    <IntroCurtain />
+                    <EntryPortal />
                     <SmoothScroll>
                         <div className="flex min-h-screen flex-col">
                             <Navbar />

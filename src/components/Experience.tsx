@@ -436,11 +436,13 @@ export default function Experience() {
                                             >
                                                 <g>
                                                     <motion.circle
+                                                        initial={false}
                                                         animate={{ r: isActive ? 34 : 21, opacity: isActive ? 0.2 : 0.1 }}
                                                         transition={{ duration: 0.28 }}
                                                         fill={accent}
                                                     />
                                                     <motion.circle
+                                                        initial={false}
                                                         animate={{ r: isActive ? 10 : 7.5 }}
                                                         transition={{ duration: 0.28 }}
                                                         fill={accent}
