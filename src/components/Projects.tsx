@@ -306,7 +306,7 @@ function ProjectCard({
             style={{ rotateX, rotateY, transformPerspective: 1200, transformStyle: "preserve-3d" }}
             whileHover={{ y: -8 }}
             transition={{ type: "spring", stiffness: 220, damping: 20 }}
-            className="group relative h-[450px] w-[86vw] max-w-[520px] shrink-0 overflow-hidden rounded-[30px] border border-black/10 bg-[#f7f5f1] text-left will-change-transform hover:border-black/16 hover:shadow-[0_20px_44px_rgba(10,10,10,0.06)]"
+            className="group relative h-[450px] w-[86vw] max-w-[520px] shrink-0 overflow-hidden rounded-[30px] border border-black/10 bg-[#f7f5f1] text-left will-change-transform hover:border-black/14"
         >
             <div className="relative h-[58%] overflow-hidden border-b border-black/8 bg-[#f7f5f1]">
                 <Image
@@ -375,22 +375,28 @@ function DragLane({
     const dragX = useMotionValue(0)
     const hasDraggedRef = useRef(false)
     const singleWidthRef = useRef(0)
-    const [dragBounds, setDragBounds] = useState({ left: 0, right: 0 })
     const [isPaused, setIsPaused] = useState(false)
     const [isDragging, setIsDragging] = useState(false)
-    const duplicated = useMemo(() => [...items, ...items], [items])
+    const duplicated = useMemo(() => [...items, ...items, ...items], [items])
+
+    const normalizePosition = (value: number) => {
+        const wrapWidth = singleWidthRef.current
+        if (wrapWidth <= 0) return value
+
+        let next = value
+        while (next <= -2 * wrapWidth) next += wrapWidth
+        while (next >= 0) next -= wrapWidth
+        return next
+    }
 
     useEffect(() => {
         const measure = () => {
             if (!viewportRef.current || !trackRef.current) return
 
-            const viewportWidth = viewportRef.current.offsetWidth
-            const singleWidth = trackRef.current.scrollWidth / 2
-            const overflow = Math.max(singleWidth, viewportWidth)
-            const startX = initialEdge === "end" ? -singleWidth : 0
+            const singleWidth = trackRef.current.scrollWidth / 3
+            const startX = initialEdge === "end" ? -singleWidth * 1.24 : -singleWidth
 
             singleWidthRef.current = singleWidth
-            setDragBounds({ left: -overflow, right: overflow })
             dragX.set(startX)
         }
 
@@ -408,15 +414,9 @@ function DragLane({
             lastTime = time
 
             if (!isPaused && !isDragging && singleWidthRef.current > 0) {
-                const speed = direction === "left" ? -0.05 : 0.05
+                const speed = direction === "left" ? -0.065 : 0.065
                 const next = dragX.get() + elapsed * speed
-                const wrapWidth = singleWidthRef.current
-
-                if (direction === "left") {
-                    dragX.set(next <= -wrapWidth ? next + wrapWidth : next)
-                } else {
-                    dragX.set(next >= 0 ? next - wrapWidth : next)
-                }
+                dragX.set(normalizePosition(next))
             }
 
             frameId = requestAnimationFrame(step)
@@ -450,24 +450,23 @@ function DragLane({
                 <motion.div
                     ref={trackRef}
                     drag="x"
-                    dragConstraints={dragBounds}
-                    dragElastic={0.08}
-                    dragTransition={{ bounceStiffness: 180, bounceDamping: 26 }}
+                    dragMomentum
+                    dragElastic={0.02}
+                    dragTransition={{ power: 0.12, timeConstant: 220, bounceStiffness: 120, bounceDamping: 20 }}
                     style={{ x: dragX }}
                     data-cursor="drag"
+                    onDrag={(_, info) => {
+                        const next = normalizePosition(dragX.get())
+                        if (next !== dragX.get()) dragX.set(next)
+                        if (Math.abs(info.offset.x) > 8) hasDraggedRef.current = true
+                    }}
                     onDragStart={() => {
                         hasDraggedRef.current = true
                         setIsDragging(true)
                     }}
                     onDragEnd={() => {
                         setIsDragging(false)
-                        const wrapWidth = singleWidthRef.current
-                        if (wrapWidth > 0) {
-                            let next = dragX.get()
-                            while (next <= -wrapWidth) next += wrapWidth
-                            while (next > 0) next -= wrapWidth
-                            dragX.set(next)
-                        }
+                        dragX.set(normalizePosition(dragX.get()))
                         window.setTimeout(() => {
                             hasDraggedRef.current = false
                         }, 80)
