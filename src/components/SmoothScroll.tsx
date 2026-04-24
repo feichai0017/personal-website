@@ -23,7 +23,18 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
         }
         rafId = requestAnimationFrame(raf)
 
+        const handlePortalVisibility = (event: Event) => {
+            const detail = (event as CustomEvent<{ visible?: boolean }>).detail
+            if (detail?.visible) {
+                lenis.stop()
+            } else {
+                lenis.start()
+            }
+        }
+        window.addEventListener("entry-portal-visibility", handlePortalVisibility)
+
         return () => {
+            window.removeEventListener("entry-portal-visibility", handlePortalVisibility)
             cancelAnimationFrame(rafId)
             lenis.destroy()
         }
