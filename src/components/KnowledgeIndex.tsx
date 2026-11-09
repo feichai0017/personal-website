@@ -307,7 +307,7 @@ export default function KnowledgeIndex({ posts, filters }: { posts: BlogPostSumm
                     <div className="text-[13px] font-medium text-black/40">{header.kicker}</div>
                     <h1 className="mt-2 text-[34px] font-semibold leading-[1.15] tracking-[-0.025em] text-black md:text-[44px]">
                         {header.title}
-                        {header.zh ? <span className="ml-3 align-middle text-[0.5em] font-normal tracking-normal text-black/34">{header.zh}</span> : null}
+                        {header.zh ? <span className="mt-1 block whitespace-nowrap align-middle text-[0.5em] font-normal tracking-normal text-black/34 sm:ml-3 sm:mt-0 sm:inline-block">{header.zh}</span> : null}
                     </h1>
                     <p className="mt-3 max-w-2xl text-[16px] leading-8 text-black/56">{header.description}</p>
                     {!scoped ? (
