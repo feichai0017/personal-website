@@ -1,6 +1,7 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
+import Script from 'next/script'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { SITE_URL, absoluteUrl } from "@/lib/site"
@@ -17,6 +18,12 @@ const geistMono = localFont({
     weight: '100 900',
 })
 const ogImage = absoluteUrl('/img/logo.png')
+
+// Missing /_next/static files are served as 404s cacheable for hours. If one is
+// fetched mid-deploy (old/new deployment skew), browsers and Cloudflare keep the
+// 404 and the page stays unstyled; refetching with a fresh query string bypasses it.
+// Chrome still attaches an empty sheet to a failed stylesheet, so check for rules.
+const stylesheetRecovery = `addEventListener("load",function(){document.querySelectorAll('link[rel="stylesheet"]').forEach(function(l){if(l.dataset.retried)return;try{if(l.sheet&&l.sheet.cssRules.length)return}catch(e){return}l.dataset.retried="1";var r=l.cloneNode();r.href=l.href+(l.href.indexOf("?")<0?"?":"&")+"retry="+Date.now();l.after(r)})})`
 
 export const metadata: Metadata = {
     metadataBase: new URL(SITE_URL),
@@ -100,6 +107,9 @@ export default function RootLayout({
                 />
             </head>
             <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
+                <Script id="stylesheet-recovery" strategy="beforeInteractive">
+                    {stylesheetRecovery}
+                </Script>
                 {children}
                 <Analytics />
                 <SpeedInsights />

@@ -38,67 +38,8 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --morandi-bg: #eef4fb;
-    --morandi-accent: #8f877d;
-    --morandi-text: #142033;
-    --morandi-muted: #d5dfec;
-    --morandi-hover: #132038;
-    --morandi-light: #f5fbff;
-    --morandi-dark: #07111f;
-    --morandi-primary: #8cf2d6;
-    --morandi-secondary: #ffb86b;
-    --morandi-accent-rgb: 143, 135, 125;
-    --morandi-muted-rgb: 213, 223, 236;
   }
 
-  .dark {
-    --background: 221 53% 6%;
-    --foreground: 210 40% 96%;
-
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 96%;
-
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 96%;
-
-    --primary: 196 100% 66%;
-    --primary-foreground: 221 53% 6%;
-
-    --secondary: 32 100% 69%;
-    --secondary-foreground: 221 53% 6%;
-
-    --muted: 220 30% 16%;
-    --muted-foreground: 214 16% 72%;
-
-    --accent: 161 68% 61%;
-    --accent-foreground: 221 53% 6%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 220 31% 19%;
-    --input: 220 31% 19%;
-    --ring: 196 100% 66%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-    --morandi-bg: #030712;
-    --morandi-accent: #b4aa9e;
-    --morandi-text: #dce9f7;
-    --morandi-muted: #132238;
-    --morandi-hover: #16253d;
-    --morandi-light: #f5fbff;
-    --morandi-dark: #02050b;
-    --morandi-primary: #7af2cd;
-    --morandi-secondary: #ffb868;
-    --morandi-accent-rgb: 180, 170, 158;
-    --morandi-muted-rgb: 19, 34, 56;
-  }
-}
-
-@layer base {
   html {
     scroll-behavior: auto;
     background: #f7f5f1;
@@ -107,30 +48,12 @@
   * {
     border-color: hsl(var(--border));
   }
+
   body {
     color: hsl(var(--foreground));
     margin: 0;
     min-height: 100vh;
     background-color: #f7f5f1;
-  }
-
-  body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background: none;
-    opacity: 0;
-    z-index: -1;
-  }
-
-  body::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    background: none;
-    z-index: -1;
   }
 
   ::selection {
@@ -139,189 +62,15 @@
   }
 }
 
-.loader {
-  width: 48px;
-  height: 48px;
-  border: 5px solid #FFF;
-  border-bottom-color: transparent;
-  border-radius: 50%;
-  display: inline-block;
-  box-sizing: border-box;
-  animation: rotation 1s linear infinite;
-}
-
-@keyframes rotation {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-@keyframes bounce-x {
-  0%, 100% {
-    transform: translateX(0);
-  }
-  50% {
-    transform: translateX(5px);
-  }
-}
-
-@keyframes marquee-left {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes marquee-right {
-  from {
-    transform: translateX(-50%);
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-
 @layer utilities {
-  .animate-bounce-x {
-    animation: bounce-x 1s ease-in-out infinite;
-  }
-  
-  .perspective-1000 {
-    perspective: 1000px;
-  }
-  
   .preserve-3d {
     transform-style: preserve-3d;
-  }
-  
-  .backface-hidden {
-    backface-visibility: hidden;
-  }
-
-  .custom-scrollbar {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(var(--morandi-accent-rgb), 0.4) transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(var(--morandi-accent-rgb), 0.5);
-    border-radius: 9999px;
-  }
-
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(var(--morandi-accent-rgb), 0.7);
-  }
-
-  .bg-grid-pattern {
-    background-image:
-      linear-gradient(rgba(var(--morandi-accent-rgb), 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(var(--morandi-accent-rgb), 0.08) 1px, transparent 1px);
-    background-size: 32px 32px;
-  }
-
-  .panel-shell {
-    border: 1px solid rgba(var(--morandi-accent-rgb), 0.18);
-    background: rgba(255, 255, 255, 0.72);
-    box-shadow:
-      0 18px 60px rgba(7, 17, 31, 0.12);
-    backdrop-filter: blur(18px);
-  }
-
-  .dark .panel-shell {
-    background: rgba(6, 12, 22, 0.82);
-    box-shadow:
-      0 24px 70px rgba(0, 0, 0, 0.42);
-  }
-
-  .terminal-line {
-    position: relative;
-    padding-left: 1.1rem;
-  }
-
-  .terminal-line::before {
-    content: ">";
-    position: absolute;
-    left: 0;
-    color: rgb(var(--morandi-accent-rgb));
-  }
-
-  .text-glow {
-    text-shadow: 0 0 18px rgba(var(--morandi-accent-rgb), 0.28);
-  }
-
-  .scanline-overlay {
-    background-image: linear-gradient(
-      to bottom,
-      rgba(255, 255, 255, 0.05),
-      rgba(255, 255, 255, 0.01) 45%,
-      rgba(255, 255, 255, 0.06) 50%,
-      rgba(255, 255, 255, 0.01) 55%,
-      rgba(255, 255, 255, 0.05)
-    );
-    background-size: 100% 6px;
   }
 
   .showcase-section {
     position: relative;
     scroll-margin-top: 6rem;
     isolation: isolate;
-  }
-
-  .showcase-section::before {
-    content: "";
-    position: absolute;
-    inset-inline: 5%;
-    top: 0;
-    height: clamp(120px, 18vw, 220px);
-    pointer-events: none;
-    background: none;
-    opacity: 0;
-    z-index: 0;
-  }
-
-  .showcase-surface {
-    border: 1px solid rgba(10, 10, 10, 0.08);
-    background: rgba(255, 255, 255, 0.84);
-    box-shadow:
-      0 20px 50px rgba(10, 10, 10, 0.06);
-    backdrop-filter: blur(22px);
-  }
-
-  .showcase-title-kicker {
-    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
-    font-size: 11px;
-    letter-spacing: 0.28em;
-    text-transform: uppercase;
-    color: rgba(10, 10, 10, 0.38);
-  }
-
-  .marquee-track-left {
-    animation: marquee-left 32s linear infinite;
-  }
-
-  .marquee-track-right {
-    animation: marquee-right 32s linear infinite;
-  }
-
-  .marquee-track-soft {
-    animation: marquee-left 42s linear infinite;
-  }
-
-  .marquee-track-soft-reverse {
-    animation: marquee-right 42s linear infinite;
   }
 
   .section-stage {
