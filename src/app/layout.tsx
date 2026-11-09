@@ -1,9 +1,6 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
-import { ThemeProvider } from "@/components/theme-provider"
-import Navbar from '@/components/Navbar'
-import SmoothScroll from '@/components/SmoothScroll'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
 import { SITE_URL, absoluteUrl } from "@/lib/site"
@@ -74,7 +71,7 @@ export default function RootLayout({
     children: React.ReactNode
 }) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="en">
             <head>
                 <link rel="icon" href="/img/logo.png" />
                 <link rel="apple-touch-icon" href="/img/logo.png" />
@@ -103,23 +100,9 @@ export default function RootLayout({
                 />
             </head>
             <body className={`${geistSans.variable} ${geistMono.variable} font-sans antialiased`}>
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="light"
-                    enableSystem={false}
-                    disableTransitionOnChange
-                >
-                    <SmoothScroll>
-                        <div className="flex min-h-screen flex-col">
-                            <Navbar />
-                            <div className="flex-grow">
-                                {children}
-                            </div>
-                        </div>
-                    </SmoothScroll>
-                    <Analytics />
-                    <SpeedInsights />
-                </ThemeProvider>
+                {children}
+                <Analytics />
+                <SpeedInsights />
             </body>
         </html>
     )

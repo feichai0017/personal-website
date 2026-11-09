@@ -2,16 +2,9 @@
 
 import { ReactNode, useEffect } from "react"
 import Lenis from "lenis"
-import { usePathname } from "next/navigation"
-
-import { isKnowledgePath } from "@/lib/knowledge"
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
-    const pathname = usePathname()
-
     useEffect(() => {
-        if (pathname.startsWith("/studio") || isKnowledgePath(pathname)) return
-
         const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
         const hasFinePointer = window.matchMedia("(pointer: fine)").matches
         if (prefersReduced || !hasFinePointer) return
@@ -35,7 +28,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
             cancelAnimationFrame(rafId)
             lenis.destroy()
         }
-    }, [pathname])
+    }, [])
 
     return <>{children}</>
 }

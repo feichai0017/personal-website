@@ -1,14 +1,12 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
 import { useEffect, useState } from "react"
 import { motion, useReducedMotion, useScroll, useSpring } from "framer-motion"
 import { BookOpenText, Calendar } from "lucide-react"
 import { FaGithub, FaLinkedinIn } from "react-icons/fa6"
 import MagneticButton from "@/components/MagneticButton"
 import KnowledgeCommandPalette from "@/components/KnowledgeCommandPalette"
-import { isKnowledgePath } from "@/lib/knowledge"
 import { meetingHref, meetingIsExternal } from "@/lib/site-links"
 
 const navLinks = [
@@ -33,16 +31,12 @@ const socialLinks = [
 ]
 
 export default function Navbar() {
-    const pathname = usePathname()
-    const hideNavbar = pathname.startsWith("/studio") || isKnowledgePath(pathname)
     const { scrollYProgress } = useScroll()
     const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 22, mass: 0.3 })
     const reduceMotion = useReducedMotion()
     const [activeSection, setActiveSection] = useState<string | null>(null)
 
     useEffect(() => {
-        if (hideNavbar) return
-
         let frame = 0
 
         const updateActiveSection = () => {
@@ -81,9 +75,7 @@ export default function Navbar() {
             window.removeEventListener("scroll", scheduleUpdate)
             window.removeEventListener("resize", scheduleUpdate)
         }
-    }, [hideNavbar])
-
-    if (hideNavbar) return null
+    }, [])
 
     return (
         <motion.header
