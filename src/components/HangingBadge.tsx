@@ -236,7 +236,7 @@ export default function HangingBadge() {
                                             </div>
                                             <div className="flex justify-between gap-3">
                                                 <span>systems</span>
-                                                <span className="text-right text-black/76">NoKV · Holt · QuillCache</span>
+                                                <span className="text-right text-black/76">NoKV · Holt · OrbitKV</span>
                                             </div>
                                             <div className="flex justify-between gap-3">
                                                 <span>open source</span>
@@ -317,7 +317,7 @@ export default function HangingBadge() {
                                             </div>
                                             <div className="flex justify-between border-t border-white/10 pt-2.5">
                                                 <span>builds</span>
-                                                <span className="text-white/78">NoKV / Holt / QuillCache</span>
+                                                <span className="text-white/78">NoKV / Holt / OrbitKV</span>
                                             </div>
                                         </div>
                                     </div>

@@ -28,7 +28,7 @@ export const metadata: Metadata = {
         template: '%s | Guocheng Song',
     },
     description: 'Portfolio of Guocheng Song: machine learning systems, AI infra, storage engines, distributed systems, and interactive engineering work.',
-    keywords: ['Guocheng Song', 'ML Systems Engineer', 'AI Infra', 'Distributed Systems', 'Storage Engine', 'DuckDB', 'Mooncake', 'Portfolio'],
+    keywords: ['Guocheng Song', 'ML Systems Engineer', 'AI Infra', 'Distributed Systems', 'Storage Engine', 'DuckDB', 'Mooncake', 'OrbitKV', 'KV Cache', 'Portfolio'],
     openGraph: {
         type: 'website',
         url: SITE_URL,
