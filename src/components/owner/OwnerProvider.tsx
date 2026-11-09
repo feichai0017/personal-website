@@ -7,7 +7,7 @@ import type { SupabaseClient } from "@supabase/supabase-js"
 import { toBlogPostSummary, type BlogPostSummary, type BlogPostSummaryRow } from "@/lib/blog"
 
 const POST_SUMMARY_COLUMNS =
-    "id,version,title,slug,summary,tags,status,kind,series,project,related_ids,reading_minutes,cover_url,published_at,created_at,updated_at"
+    "id,version,title,slug,summary,tags,status,series,project,related_ids,reading_minutes,cover_url,published_at,created_at,updated_at"
 
 export type OwnerStatus = "unknown" | "checking" | "visitor" | "owner"
 

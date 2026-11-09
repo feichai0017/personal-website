@@ -10,7 +10,7 @@ export async function GET() {
     const { supabase } = await requireBlogAdmin()
     const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, slug, title, summary, content, tags, status, kind, series, project, related_ids, cover_url, published_at, created_at, updated_at, version")
+        .select("id, slug, title, summary, content, tags, status, series, project, related_ids, cover_url, published_at, created_at, updated_at, version")
         .order("updated_at", { ascending: false })
 
     if (error) throw new Error(error.message)

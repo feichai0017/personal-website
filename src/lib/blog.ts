@@ -1,5 +1,4 @@
 export type BlogStatus = "published" | "draft"
-export type BlogKind = "essay" | "note" | "lab"
 
 export const BLOG_TOPICS = [
     "AI Infra",
@@ -34,7 +33,6 @@ export type BlogPostSummary = {
     summary: string
     tags: string[]
     status: BlogStatus
-    kind: BlogKind
     series?: string | null
     project?: string | null
     relatedIds: string[]
@@ -51,7 +49,7 @@ export type BlogPost = BlogPostSummary & {
 
 export type BlogSearchResult = Pick<
     BlogPostSummary,
-    "id" | "slug" | "title" | "summary" | "tags" | "kind" | "series" | "project" | "readingMinutes" | "publishedAt" | "updatedAt"
+    "id" | "slug" | "title" | "summary" | "tags" | "series" | "project" | "readingMinutes" | "publishedAt" | "updatedAt"
 > & {
     rank: number
     snippet: string
@@ -66,7 +64,6 @@ export type BlogPostRow = {
     content: string
     tags: string[]
     status: BlogStatus
-    kind: BlogKind
     series: string | null
     project: string | null
     related_ids: string[]
@@ -108,7 +105,6 @@ export function toBlogPost(row: BlogPostRow): BlogPost {
         content: row.content,
         tags: row.tags ?? [],
         status: row.status,
-        kind: row.kind ?? "essay",
         series: row.series,
         project: row.project,
         relatedIds: row.related_ids ?? [],
@@ -129,7 +125,6 @@ export function toBlogPostSummary(row: BlogPostSummaryRow): BlogPostSummary {
         summary: row.summary,
         tags: row.tags ?? [],
         status: row.status,
-        kind: row.kind ?? "essay",
         series: row.series,
         project: row.project,
         relatedIds: row.related_ids ?? [],

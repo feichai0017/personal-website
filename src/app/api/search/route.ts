@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server"
 
-import type { BlogKind, BlogSearchResult } from "@/lib/blog"
+import type { BlogSearchResult } from "@/lib/blog"
 import { getSupabaseAdmin } from "@/lib/supabase/admin"
 
 export const dynamic = "force-dynamic"
@@ -11,7 +11,6 @@ type SearchRow = {
     title: string
     summary: string
     tags: string[] | null
-    kind: BlogKind
     series: string | null
     project: string | null
     reading_minutes: number
@@ -26,7 +25,6 @@ export async function GET(request: NextRequest) {
     const supabase = getSupabaseAdmin()
     const { data, error } = await supabase.rpc("search_published_blog_posts", {
         search_query: query,
-        content_kind: null,
         result_limit: 12,
     })
 
@@ -40,7 +38,6 @@ export async function GET(request: NextRequest) {
         title: row.title,
         summary: row.summary,
         tags: row.tags ?? [],
-        kind: row.kind,
         series: row.series,
         project: row.project,
         readingMinutes: Math.max(1, Number(row.reading_minutes) || 1),

@@ -20,7 +20,6 @@ const BLOG_POST_SUMMARY_COLUMNS = [
     "summary",
     "tags",
     "status",
-    "kind",
     "series",
     "project",
     "related_ids",
