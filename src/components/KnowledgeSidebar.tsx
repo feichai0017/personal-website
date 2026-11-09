@@ -1,6 +1,4 @@
-import Image from "next/image"
 import Link from "next/link"
-import type { ReactNode } from "react"
 import {
     ArrowLeft,
     Boxes,
@@ -14,40 +12,9 @@ import {
 } from "lucide-react"
 
 import { KnowledgeSearchButton } from "@/components/KnowledgeCommandPalette"
+import { SectionLabel, SidebarHeader, SidebarLink } from "@/components/NotebookSidebarParts"
 import { BLOG_KIND_META, type BlogPostSummary } from "@/lib/blog"
 import { knowledgeHref, type KnowledgeIndexData, type KnowledgeLocation } from "@/lib/knowledge"
-
-function SidebarLink({
-    href,
-    icon,
-    label,
-    count,
-    active,
-}: {
-    href: string
-    icon: ReactNode
-    label: ReactNode
-    count?: number
-    active?: boolean
-}) {
-    return (
-        <Link
-            href={href}
-            aria-current={active ? "page" : undefined}
-            className={`flex items-center gap-2.5 rounded-lg px-2 py-[5px] text-[14px] transition-colors ${
-                active ? "bg-black/[0.07] font-medium text-black" : "text-black/62 hover:bg-black/[0.04] hover:text-black"
-            }`}
-        >
-            <span className="flex h-4 w-4 shrink-0 items-center justify-center text-black/42">{icon}</span>
-            <span className="min-w-0 flex-1 truncate">{label}</span>
-            {count !== undefined ? <span className="text-[11px] tabular-nums text-black/32">{count}</span> : null}
-        </Link>
-    )
-}
-
-function SectionLabel({ children }: { children: ReactNode }) {
-    return <div className="mb-1 mt-5 px-2 text-[11px] font-medium text-black/38">{children}</div>
-}
 
 function PostLink({ post, active }: { post: BlogPostSummary; active: boolean }) {
     const Icon = post.kind === "note" ? NotebookPen : FileText
@@ -80,10 +47,7 @@ export default function KnowledgeSidebar({
     return (
         <nav aria-label="Notebook" className="flex h-full flex-col">
             <div className="px-3 pt-3">
-                <Link href="/blog" className="flex items-center gap-2.5 rounded-lg px-2 py-1.5 transition-colors hover:bg-black/[0.04]">
-                    <Image src="/img/my.png" alt="" width={24} height={24} className="h-6 w-6 rounded-md border border-black/10" />
-                    <span className="min-w-0 truncate text-[14px] font-semibold tracking-[-0.01em]">Guocheng&rsquo;s Notebook</span>
-                </Link>
+                <SidebarHeader href="/blog" />
                 <KnowledgeSearchButton className="mt-0.5 flex w-full items-center gap-2.5 rounded-lg px-2 py-[5px] text-[14px] text-black/56 transition-colors hover:bg-black/[0.04] hover:text-black">
                     <Search className="h-4 w-4 text-black/42" />
                     <span className="flex-1 text-left">Search</span>

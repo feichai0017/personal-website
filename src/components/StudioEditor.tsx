@@ -1,9 +1,17 @@
 "use client"
 
 import Link from "next/link"
-import { startTransition, useCallback, useEffect, useRef, useState } from "react"
 import {
-    ArrowLeft,
+    startTransition,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
+    type ReactNode,
+    type TextareaHTMLAttributes,
+} from "react"
+import {
     ArrowUpRight,
     Check,
     CircleAlert,
@@ -27,7 +35,12 @@ import {
     type StudioMutationResult,
     type StudioPostInput,
 } from "@/app/studio/actions"
+import KindBadge from "@/components/KindBadge"
+import KnowledgeMobileNav from "@/components/KnowledgeMobileNav"
 import MarkdownStudioEditor from "@/components/MarkdownStudioEditor"
+import NotebookTopBar from "@/components/NotebookTopBar"
+import StudioShell from "@/components/StudioShell"
+import StudioStatusBadge from "@/components/StudioStatusBadge"
 import { uploadBlogAsset } from "@/lib/blog-assets"
 import {
     BLOG_KIND_META,
@@ -77,14 +90,46 @@ function getDocumentMetrics(markdown: string): DocumentMetrics {
     }
 }
 
+const propertyFieldClass =
+    "w-full rounded-md border border-transparent bg-transparent px-2 py-1.5 text-[13px] text-black/80 outline-none transition-colors placeholder:text-black/28 hover:bg-black/[0.04] focus:border-black/15 focus:bg-white"
+
+function PropertyRow({ label, children }: { label: string; children: ReactNode }) {
+    return (
+        <label className="grid grid-cols-[72px_minmax(0,1fr)] items-center gap-2">
+            <span className="text-[13px] text-black/44">{label}</span>
+            {children}
+        </label>
+    )
+}
+
+function AutoGrowTextarea({ value, className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement> & { value: string }) {
+    const ref = useRef<HTMLTextAreaElement | null>(null)
+
+    useLayoutEffect(() => {
+        const element = ref.current
+        if (!element) return
+        const fit = () => {
+            element.style.height = "0px"
+            element.style.height = `${element.scrollHeight}px`
+        }
+        fit()
+        window.addEventListener("resize", fit)
+        return () => window.removeEventListener("resize", fit)
+    }, [value])
+
+    return <textarea ref={ref} rows={1} value={value} className={`block resize-none overflow-hidden ${className ?? ""}`} {...props} />
+}
+
 export default function StudioEditor({
     post,
     relatedPosts,
     revisions,
+    sidebar,
 }: {
     post: BlogPost
     relatedPosts: BlogPostSummary[]
     revisions: BlogRevisionSummary[]
+    sidebar: ReactNode
 }) {
     const initialTopic = post.series ?? getBlogTopic(post)
     const [title, setTitle] = useState(post.title)
@@ -425,124 +470,181 @@ export default function StudioEditor({
                 ? CircleAlert
                 : CloudUpload
 
+    const kindMeta = BLOG_KIND_META[kind]
+
     return (
-        <main className="min-h-screen pb-20">
-            <header className="sticky top-0 z-40 border-b border-black/10 bg-[#eeebe4]/94 px-4 py-3 backdrop-blur-xl md:px-6">
-                <div className="mx-auto flex w-full max-w-[1720px] flex-wrap items-center justify-between gap-3">
-                    <div className="flex min-w-0 items-center gap-3">
-                        <Link
-                            href="/studio"
-                            aria-label="Back to documents"
-                            className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-black/12 bg-[#fbfaf7] hover:border-black/30"
-                        >
-                            <ArrowLeft className="h-4 w-4" />
-                        </Link>
-                        <div className="min-w-0">
-                            <div className="truncate text-sm font-medium">{title || "Untitled Post"}</div>
-                            <div aria-live="polite" className={`mt-0.5 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.18em] ${savePhase === "error" ? "text-red-800" : "text-black/42"}`}>
-                                <SaveIcon className={`h-3 w-3 ${savePhase === "saving" ? "animate-spin" : ""}`} />
-                                {saveMessage}
-                            </div>
-                        </div>
+        <StudioShell sidebar={sidebar}>
+            <NotebookTopBar
+                leading={<KnowledgeMobileNav>{sidebar}</KnowledgeMobileNav>}
+                breadcrumbs={[
+                    { label: "Studio", href: "/studio" },
+                    { label: kindMeta.plural, href: `/studio?kind=${kind}` },
+                    { label: title || "Untitled" },
+                ]}
+            >
+                <span
+                    aria-live="polite"
+                    className={`hidden items-center gap-1.5 text-[12px] md:inline-flex ${savePhase === "error" ? "text-red-800" : "text-black/42"}`}
+                >
+                    <SaveIcon className={`h-3.5 w-3.5 shrink-0 ${savePhase === "saving" ? "animate-spin" : ""}`} />
+                    <span className="max-w-[220px] truncate">{saveMessage}</span>
+                </span>
+                <button
+                    type="button"
+                    disabled={previewing}
+                    onClick={() => void handlePreview()}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] text-black/60 transition hover:bg-black/[0.05] hover:text-black disabled:opacity-50"
+                >
+                    {previewing ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
+                    <span className="hidden sm:inline">{previewing ? "Preparing" : "Preview"}</span>
+                </button>
+                <button
+                    type="button"
+                    disabled={!isDirty || savePhase === "saving"}
+                    onClick={() => {
+                        if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current)
+                        void queueSave()
+                    }}
+                    className="hidden h-8 items-center gap-1.5 rounded-lg px-2.5 text-[13px] text-black/60 transition hover:bg-black/[0.05] hover:text-black disabled:cursor-default disabled:opacity-40 disabled:hover:bg-transparent sm:inline-flex"
+                >
+                    {savePhase === "saving" ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                    {savePhase === "saving" ? "Saving" : isDirty ? "Save" : "Saved"}
+                </button>
+                <button
+                    type="button"
+                    disabled={publishing}
+                    onClick={() => void handleStatusChange()}
+                    className={`inline-flex h-8 items-center gap-1.5 rounded-lg px-3 text-[13px] font-medium transition disabled:opacity-50 ${
+                        status === "published"
+                            ? "border border-black/12 bg-white text-black/72 hover:border-black/30 hover:text-black"
+                            : "bg-black text-[#f7f5f1] hover:bg-black/80"
+                    }`}
+                >
+                    {publishing ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : status === "published" ? <Undo2 className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
+                    {status === "published" ? "Unpublish" : "Publish"}
+                </button>
+            </NotebookTopBar>
+
+            <div className="mx-auto w-full max-w-[1120px] px-5 pb-24 pt-10 md:px-10 md:pt-12 xl:grid xl:grid-cols-[minmax(0,720px)_288px] xl:justify-between xl:gap-12">
+                <article className="mx-auto w-full min-w-0 max-w-[720px] xl:mx-0">
+                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-black/44">
+                        <KindBadge kind={kind} />
+                        <span>{series}</span>
+                        {project ? (
+                            <>
+                                <span aria-hidden>·</span>
+                                <span>{project}</span>
+                            </>
+                        ) : null}
+                        <span aria-hidden>·</span>
+                        <StudioStatusBadge status={status} />
+                        <span className="ml-auto hidden text-[12px] text-black/30 sm:inline">⌘S to save</span>
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-end gap-2">
-                        <button
-                            type="button"
-                            disabled={previewing}
-                            onClick={() => void handlePreview()}
-                            className="inline-flex items-center gap-2 rounded-full border border-black/12 bg-[#fbfaf7] px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.2em] transition hover:border-black/30 disabled:opacity-50"
-                        >
-                            {previewing ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Eye className="h-3.5 w-3.5" />}
-                            {previewing ? "Preparing" : "Preview"}
-                        </button>
-                        <button
-                            type="button"
-                            disabled={!isDirty || savePhase === "saving"}
-                            onClick={() => {
-                                if (autosaveTimerRef.current) clearTimeout(autosaveTimerRef.current)
-                                void queueSave()
-                            }}
-                            className="inline-flex items-center gap-2 rounded-full border border-black/12 bg-[#fbfaf7] px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.2em] transition hover:border-black/30 disabled:cursor-default disabled:opacity-45"
-                        >
-                            {savePhase === "saving" ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                            {savePhase === "saving" ? "Saving" : isDirty ? "Save" : "Saved"}
-                        </button>
-                        <button
-                            type="button"
-                            disabled={publishing}
-                            onClick={() => void handleStatusChange()}
-                            className={`inline-flex items-center gap-2 rounded-full px-5 py-2.5 font-mono text-[9px] uppercase tracking-[0.2em] transition disabled:opacity-50 ${status === "published" ? "border border-black/14 bg-transparent text-black hover:bg-[#fbfaf7]" : "bg-black text-white hover:bg-black/80"}`}
-                        >
-                            {publishing ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : status === "published" ? <Undo2 className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
-                            {status === "published" ? "Unpublish" : "Publish"}
-                        </button>
-                    </div>
-                </div>
-            </header>
+                    <AutoGrowTextarea
+                        value={title}
+                        onChange={(event) => {
+                            const value = event.target.value
+                            setTitle(value)
+                            latestDraftRef.current.title = value
+                            markDirty()
+                        }}
+                        aria-label="Title"
+                        placeholder="Untitled"
+                        className="mt-4 w-full bg-transparent text-[30px] font-semibold leading-[1.28] tracking-[-0.022em] text-black outline-none placeholder:text-black/22 md:text-[40px] md:leading-[1.22]"
+                    />
+                    <AutoGrowTextarea
+                        value={summary}
+                        onChange={(event) => {
+                            const value = event.target.value
+                            setSummary(value)
+                            latestDraftRef.current.summary = value
+                            markDirty()
+                        }}
+                        aria-label="Summary"
+                        placeholder="Add a summary — it shows under the title and in link previews."
+                        className="mt-3 w-full bg-transparent text-[17px] leading-8 text-black/58 outline-none placeholder:text-black/26"
+                    />
+                    <div className="mt-6 border-b border-black/[0.07]" />
 
-            <div className="mx-auto grid w-full max-w-[1720px] gap-5 px-4 pt-5 md:px-6 xl:grid-cols-[340px_minmax(0,1fr)]">
-                <aside className="space-y-4 xl:sticky xl:top-[86px] xl:h-[calc(100vh-110px)] xl:overflow-y-auto xl:pr-1">
-                    <section className="rounded-[30px] border border-black/10 bg-[#fbfaf7] p-5">
-                        <div className="flex items-center justify-between border-b border-black/10 pb-4">
-                            <span className="font-mono text-[10px] uppercase tracking-[0.24em]">Document</span>
-                            <span className={`rounded-full px-3 py-1.5 font-mono text-[8px] uppercase tracking-[0.2em] ${status === "published" ? "bg-black text-white" : "border border-black/12 text-black/48"}`}>
-                                {status}
+                    <div className="pt-8">
+                        <MarkdownStudioEditor
+                            postId={post.id}
+                            initialContent={post.content}
+                            onChange={handleContentChange}
+                        />
+                    </div>
+
+                    <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-black/[0.07] pt-4 text-[12px] text-black/40">
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+                            <span>{metrics.characters.toLocaleString()} characters</span>
+                            <span>{metrics.words.toLocaleString()} words</span>
+                            <span>{metrics.readingMinutes} min read</span>
+                            <span className="inline-flex items-center gap-1.5">
+                                <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? "bg-[#4c7a43]" : "bg-red-700"}`} />
+                                {isOnline ? "Online" : "Offline"}
                             </span>
                         </div>
+                        {status === "published" ? (
+                            <Link href={`/blog/${slug}`} target="_blank" className="inline-flex items-center gap-1 text-black/60 hover:text-black">
+                                View live <ArrowUpRight className="h-3.5 w-3.5" />
+                            </Link>
+                        ) : (
+                            <span>Private draft</span>
+                        )}
+                    </footer>
+                </article>
 
-                        <div className="mt-5 space-y-5">
-                            <div>
-                                <span className="studio-field-label">Type</span>
-                                <div role="radiogroup" aria-label="Document type" className="mt-2 grid grid-cols-2 gap-1 rounded-2xl border border-black/10 bg-white p-1">
-                                    {EDITABLE_BLOG_KINDS.map((value) => {
-                                        const selected = kind === value
-                                        return (
-                                            <button
-                                                key={value}
-                                                type="button"
-                                                role="radio"
-                                                aria-checked={selected}
-                                                onClick={() => {
-                                                    if (selected) return
-                                                    setKind(value)
-                                                    latestDraftRef.current.kind = value
-                                                    markDirty()
-                                                }}
-                                                className={`rounded-xl px-3 py-2 text-sm transition ${selected ? "bg-black text-white" : "text-black/56 hover:bg-black/[0.04] hover:text-black"}`}
-                                            >
-                                                {BLOG_KIND_META[value].label}
-                                                <span className={`ml-1.5 text-xs ${selected ? "text-white/60" : "text-black/36"}`}>{BLOG_KIND_META[value].zh}</span>
-                                            </button>
-                                        )
-                                    })}
+                <aside className="mt-14 border-t border-black/[0.07] pt-8 xl:mt-0 xl:border-t-0 xl:pt-0">
+                    <div data-lenis-prevent className="space-y-8 xl:sticky xl:top-[72px] xl:max-h-[calc(100vh-96px)] xl:overflow-y-auto xl:pb-6 xl:pr-1">
+                        <section aria-labelledby="studio-properties">
+                            <h2 id="studio-properties" className="mb-2 text-[12px] font-medium text-black/44">Properties</h2>
+                            <div className="space-y-0.5">
+                                <div className="grid grid-cols-[72px_minmax(0,1fr)] items-center gap-2">
+                                    <span className="text-[13px] text-black/44">Type</span>
+                                    <div role="radiogroup" aria-label="Document type" className="grid grid-cols-2 gap-0.5 rounded-md bg-black/[0.05] p-0.5">
+                                        {EDITABLE_BLOG_KINDS.map((value) => {
+                                            const selected = kind === value
+                                            return (
+                                                <button
+                                                    key={value}
+                                                    type="button"
+                                                    role="radio"
+                                                    aria-checked={selected}
+                                                    onClick={() => {
+                                                        if (selected) return
+                                                        setKind(value)
+                                                        latestDraftRef.current.kind = value
+                                                        markDirty()
+                                                    }}
+                                                    className={`rounded px-2 py-1 text-[12px] transition ${selected ? "bg-white font-medium text-black shadow-sm" : "text-black/52 hover:text-black"}`}
+                                                >
+                                                    {BLOG_KIND_META[value].label} <span className={selected ? "text-black/40" : "text-black/30"}>{BLOG_KIND_META[value].zh}</span>
+                                                </button>
+                                            )
+                                        })}
+                                    </div>
                                 </div>
-                                <span className="mt-2 block text-xs leading-5 text-black/40">{BLOG_KIND_META[kind].blurb}</span>
-                            </div>
 
-                            <label className="block">
-                                <span className="studio-field-label">Primary topic</span>
-                                <select
-                                    value={series}
-                                    onChange={(event) => {
-                                        const value = event.target.value
-                                        setSeries(value)
-                                        latestDraftRef.current.series = value
-                                        markDirty()
-                                    }}
-                                    className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-black/28"
-                                >
-                                    {!BLOG_TOPICS.includes(series as (typeof BLOG_TOPICS)[number]) ? <option value={series}>{series}</option> : null}
-                                    {BLOG_TOPICS.map((value) => (
-                                        <option key={value} value={value}>{value}</option>
-                                    ))}
-                                </select>
-                                <span className="mt-2 block text-xs leading-5 text-black/40">One stable category for navigation. Use tags for narrower concepts.</span>
-                            </label>
+                                <PropertyRow label="Topic">
+                                    <select
+                                        value={series}
+                                        onChange={(event) => {
+                                            const value = event.target.value
+                                            setSeries(value)
+                                            latestDraftRef.current.series = value
+                                            markDirty()
+                                        }}
+                                        className={`${propertyFieldClass} cursor-pointer`}
+                                    >
+                                        {!BLOG_TOPICS.includes(series as (typeof BLOG_TOPICS)[number]) ? <option value={series}>{series}</option> : null}
+                                        {BLOG_TOPICS.map((value) => (
+                                            <option key={value} value={value}>{value}</option>
+                                        ))}
+                                    </select>
+                                </PropertyRow>
 
-                            <div>
-                                <label className="block">
-                                    <span className="studio-field-label">Project</span>
+                                <PropertyRow label="Project">
                                     <input
                                         value={project}
                                         onChange={(event) => {
@@ -551,228 +653,162 @@ export default function StudioEditor({
                                             latestDraftRef.current.project = value
                                             markDirty()
                                         }}
-                                        placeholder="QuillCache"
-                                        className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-black/28"
+                                        placeholder="OrbitKV"
+                                        className={propertyFieldClass}
                                     />
-                                </label>
-                            </div>
+                                </PropertyRow>
 
-                            <label className="block">
-                                <span className="studio-field-label">Slug</span>
-                                <div className="mt-2 flex items-center rounded-2xl border border-black/10 bg-white px-3">
-                                    <span className="font-mono text-xs text-black/28">/blog/</span>
-                                    <input
-                                        value={slug}
-                                        onChange={(event) => {
-                                            const value = event.target.value
-                                            setSlug(value)
-                                            latestDraftRef.current.slug = value
-                                            markDirty()
-                                        }}
-                                        className="min-w-0 flex-1 bg-transparent py-3 text-sm outline-none"
-                                    />
-                                </div>
-                            </label>
-
-                            <label className="block">
-                                <span className="studio-field-label">Summary</span>
-                                <textarea
-                                    value={summary}
-                                    onChange={(event) => {
-                                        const value = event.target.value
-                                        setSummary(value)
-                                        latestDraftRef.current.summary = value
-                                        markDirty()
-                                    }}
-                                    rows={5}
-                                    placeholder="A concise reason to read this post."
-                                    className="mt-2 w-full resize-y rounded-2xl border border-black/10 bg-white px-3 py-3 text-sm leading-6 outline-none focus:border-black/28"
-                                />
-                            </label>
-
-                            <label className="block">
-                                <span className="studio-field-label">Tags</span>
-                                <input
-                                    value={tags}
-                                    onChange={(event) => {
-                                        const value = event.target.value
-                                        setTags(value)
-                                        latestDraftRef.current.tags = value
-                                            .split(",")
-                                            .map((tag) => tag.trim())
-                                            .filter(Boolean)
-                                        markDirty()
-                                    }}
-                                    placeholder="storage, rust, systems"
-                                    className="mt-2 w-full rounded-2xl border border-black/10 bg-white px-3 py-3 text-sm outline-none focus:border-black/28"
-                                />
-                                <span className="mt-2 block text-xs leading-5 text-black/38">Separate specific concepts with commas.</span>
-                            </label>
-                        </div>
-                    </section>
-
-                    <section className="rounded-[30px] border border-black/10 bg-[#fbfaf7] p-5">
-                        <div className="font-mono text-[10px] uppercase tracking-[0.24em]">Cover</div>
-                        {coverUrl ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={coverUrl} alt="Current cover" className="mt-4 aspect-[16/9] w-full rounded-2xl border border-black/10 object-cover" />
-                        ) : (
-                            <div className="mt-4 flex aspect-[16/9] items-center justify-center rounded-2xl border border-dashed border-black/16 bg-white text-black/28">
-                                <ImagePlus className="h-6 w-6" />
-                            </div>
-                        )}
-                        <label className="mt-3 flex cursor-pointer items-center justify-center gap-2 rounded-full border border-black/12 px-4 py-2.5 font-mono text-[9px] uppercase tracking-[0.2em] hover:border-black/30">
-                            {uploadingCover ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
-                            {uploadingCover ? "Uploading" : "Upload cover"}
-                            <input
-                                type="file"
-                                accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
-                                className="sr-only"
-                                onChange={(event) => void handleCoverUpload(event.target.files?.[0])}
-                            />
-                        </label>
-                        {coverUrl ? (
-                            <button
-                                type="button"
-                                onClick={() => {
-                                    setCoverUrl("")
-                                    latestDraftRef.current.coverUrl = null
-                                    markDirty()
-                                }}
-                                className="mt-2 w-full text-center font-mono text-[8px] uppercase tracking-[0.18em] text-black/38 hover:text-black"
-                            >
-                                remove cover
-                            </button>
-                        ) : null}
-                    </section>
-
-                    <section className="rounded-[30px] border border-black/10 bg-[#fbfaf7] p-5">
-                        <div className="flex items-center justify-between">
-                            <div className="font-mono text-[10px] uppercase tracking-[0.24em]">Related posts</div>
-                            <span className="font-mono text-[9px] text-black/34">{relatedIds.length}/12</span>
-                        </div>
-                        <div className="mt-4 max-h-56 space-y-2 overflow-y-auto pr-1">
-                            {relatedPosts.length ? relatedPosts.map((candidate) => {
-                                const checked = relatedIds.includes(candidate.id)
-                                return (
-                                    <label
-                                        key={candidate.id}
-                                        className={`flex cursor-pointer items-start gap-3 rounded-2xl border px-3 py-3 transition ${checked ? "border-black/28 bg-white" : "border-black/8 bg-transparent hover:border-black/18"}`}
-                                    >
+                                <PropertyRow label="Slug">
+                                    <span className="flex items-center rounded-md border border-transparent px-2 transition-colors focus-within:border-black/15 focus-within:bg-white hover:bg-black/[0.04]">
+                                        <span className="text-[12px] text-black/30">/blog/</span>
                                         <input
-                                            type="checkbox"
-                                            checked={checked}
-                                            onChange={() => {
-                                                const next = checked
-                                                    ? relatedIds.filter((id) => id !== candidate.id)
-                                                    : [...relatedIds, candidate.id].slice(0, 12)
-                                                setRelatedIds(next)
-                                                latestDraftRef.current.relatedIds = next
+                                            value={slug}
+                                            onChange={(event) => {
+                                                const value = event.target.value
+                                                setSlug(value)
+                                                latestDraftRef.current.slug = value
                                                 markDirty()
                                             }}
-                                            className="mt-0.5 h-3.5 w-3.5 accent-black"
+                                            className="min-w-0 flex-1 bg-transparent py-1.5 text-[13px] text-black/80 outline-none"
                                         />
+                                    </span>
+                                </PropertyRow>
+
+                                <PropertyRow label="Tags">
+                                    <input
+                                        value={tags}
+                                        onChange={(event) => {
+                                            const value = event.target.value
+                                            setTags(value)
+                                            latestDraftRef.current.tags = value
+                                                .split(",")
+                                                .map((tag) => tag.trim())
+                                                .filter(Boolean)
+                                            markDirty()
+                                        }}
+                                        placeholder="storage, rust, systems"
+                                        className={propertyFieldClass}
+                                    />
+                                </PropertyRow>
+                            </div>
+                            <p className="mt-2 text-[12px] leading-5 text-black/36">
+                                One stable topic for navigation; comma-separated tags for narrower concepts.
+                            </p>
+                        </section>
+
+                        <section aria-labelledby="studio-cover">
+                            <div className="mb-2 flex items-center justify-between">
+                                <h2 id="studio-cover" className="text-[12px] font-medium text-black/44">Cover</h2>
+                                {coverUrl ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setCoverUrl("")
+                                            latestDraftRef.current.coverUrl = null
+                                            markDirty()
+                                        }}
+                                        className="text-[12px] text-black/40 hover:text-black"
+                                    >
+                                        Remove
+                                    </button>
+                                ) : null}
+                            </div>
+                            {coverUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
+                                <img src={coverUrl} alt="Current cover" className="aspect-[16/9] w-full rounded-lg border border-black/[0.08] object-cover" />
+                            ) : null}
+                            <label className="mt-2 flex cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-black/56 transition-colors hover:bg-black/[0.04] hover:text-black">
+                                {uploadingCover ? <LoaderCircle className="h-3.5 w-3.5 animate-spin" /> : <ImagePlus className="h-3.5 w-3.5" />}
+                                {uploadingCover ? "Uploading…" : coverUrl ? "Replace cover" : "Add cover image"}
+                                <input
+                                    type="file"
+                                    accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml"
+                                    className="sr-only"
+                                    onChange={(event) => void handleCoverUpload(event.target.files?.[0])}
+                                />
+                            </label>
+                        </section>
+
+                        <section aria-labelledby="studio-related">
+                            <div className="mb-2 flex items-center justify-between">
+                                <h2 id="studio-related" className="text-[12px] font-medium text-black/44">Related</h2>
+                                <span className="text-[11px] tabular-nums text-black/32">{relatedIds.length}/12</span>
+                            </div>
+                            <div className="max-h-56 space-y-px overflow-y-auto">
+                                {relatedPosts.length ? relatedPosts.map((candidate) => {
+                                    const checked = relatedIds.includes(candidate.id)
+                                    return (
+                                        <label
+                                            key={candidate.id}
+                                            className={`flex cursor-pointer items-start gap-2.5 rounded-md px-2 py-1.5 transition-colors ${checked ? "bg-black/[0.05]" : "hover:bg-black/[0.035]"}`}
+                                        >
+                                            <input
+                                                type="checkbox"
+                                                checked={checked}
+                                                onChange={() => {
+                                                    const next = checked
+                                                        ? relatedIds.filter((id) => id !== candidate.id)
+                                                        : [...relatedIds, candidate.id].slice(0, 12)
+                                                    setRelatedIds(next)
+                                                    latestDraftRef.current.relatedIds = next
+                                                    markDirty()
+                                                }}
+                                                className="mt-[3px] h-3.5 w-3.5 accent-black"
+                                            />
+                                            <span className="min-w-0">
+                                                <span className="block truncate text-[13px] text-black/80">{candidate.title}</span>
+                                                <span className="mt-0.5 block text-[11px] text-black/36">
+                                                    {BLOG_KIND_META[candidate.kind]?.label} · {getBlogTopic(candidate)}
+                                                </span>
+                                            </span>
+                                        </label>
+                                    )
+                                }) : (
+                                    <p className="px-2 text-[12px] leading-5 text-black/38">Create another document to link related reading.</p>
+                                )}
+                            </div>
+                        </section>
+
+                        <section aria-labelledby="studio-history">
+                            <div className="mb-2 flex items-center justify-between">
+                                <h2 id="studio-history" className="text-[12px] font-medium text-black/44">Version history</h2>
+                                <span className="text-[11px] tabular-nums text-black/32">{revisions.length}</span>
+                            </div>
+                            <div className="space-y-px">
+                                {revisions.length ? revisions.map((revision) => (
+                                    <button
+                                        key={revision.id}
+                                        type="button"
+                                        disabled={restoringRevision !== null}
+                                        onClick={() => void handleRestoreRevision(revision)}
+                                        className="group flex w-full items-center justify-between gap-3 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-black/[0.04] disabled:opacity-50"
+                                    >
                                         <span className="min-w-0">
-                                            <span className="block truncate text-xs font-medium">{candidate.title}</span>
-                                            <span className="mt-1 block font-mono text-[8px] uppercase tracking-[0.16em] text-black/36">
-                                                {getBlogTopic(candidate)}{candidate.project ? ` · ${candidate.project}` : ""}
+                                            <span className="block truncate text-[13px] text-black/80">v{revision.version} · {revision.title}</span>
+                                            <span className="mt-0.5 block text-[11px] text-black/36">
+                                                {formatRevisionDate(revision.createdAt)} · {BLOG_KIND_META[revision.kind]?.label ?? "document"}
                                             </span>
                                         </span>
-                                    </label>
-                                )
-                            }) : (
-                                <p className="text-xs leading-5 text-black/38">Create another document to build explicit links.</p>
-                            )}
-                        </div>
-                    </section>
+                                        {restoringRevision === revision.id
+                                            ? <LoaderCircle className="h-3.5 w-3.5 shrink-0 animate-spin" />
+                                            : <RotateCcw className="h-3.5 w-3.5 shrink-0 text-black/30 transition group-hover:text-black" />}
+                                    </button>
+                                )) : (
+                                    <p className="px-2 text-[12px] leading-5 text-black/38">Earlier states appear after the first meaningful save.</p>
+                                )}
+                            </div>
+                        </section>
 
-                    <section className="rounded-[30px] border border-black/10 bg-[#fbfaf7] p-5">
-                        <div className="flex items-center justify-between">
-                            <div className="font-mono text-[10px] uppercase tracking-[0.24em]">Version history</div>
-                            <span className="font-mono text-[9px] text-black/34">{revisions.length}</span>
-                        </div>
-                        <div className="mt-4 space-y-2">
-                            {revisions.length ? revisions.map((revision) => (
-                                <button
-                                    key={revision.id}
-                                    type="button"
-                                    disabled={restoringRevision !== null}
-                                    onClick={() => void handleRestoreRevision(revision)}
-                                    className="group flex w-full items-center justify-between gap-3 rounded-2xl border border-black/8 px-3 py-3 text-left transition hover:border-black/22 hover:bg-white disabled:opacity-50"
-                                >
-                                    <span className="min-w-0">
-                                        <span className="block truncate text-xs font-medium">v{revision.version} · {revision.title}</span>
-                                        <span className="mt-1 block font-mono text-[8px] uppercase tracking-[0.16em] text-black/34">
-                                            {formatRevisionDate(revision.createdAt)} · {BLOG_KIND_META[revision.kind]?.label ?? "document"}
-                                        </span>
-                                    </span>
-                                    {restoringRevision === revision.id
-                                        ? <LoaderCircle className="h-3.5 w-3.5 shrink-0 animate-spin" />
-                                        : <RotateCcw className="h-3.5 w-3.5 shrink-0 text-black/34 transition group-hover:text-black" />}
-                                </button>
-                            )) : (
-                                <p className="text-xs leading-5 text-black/38">Earlier states appear after the first meaningful save.</p>
-                            )}
-                        </div>
-                    </section>
-
-                    <button
-                        type="button"
-                        onClick={() => void handleDelete()}
-                        className="flex w-full items-center justify-center gap-2 rounded-full border border-red-900/15 px-4 py-3 font-mono text-[9px] uppercase tracking-[0.2em] text-red-900/65 hover:border-red-900/30 hover:text-red-900"
-                    >
-                        <Trash2 className="h-3.5 w-3.5" /> Delete document
-                    </button>
+                        <button
+                            type="button"
+                            onClick={() => void handleDelete()}
+                            className="inline-flex items-center gap-2 rounded-md px-2 py-1.5 text-[13px] text-red-900/70 transition-colors hover:bg-red-50 hover:text-red-900"
+                        >
+                            <Trash2 className="h-3.5 w-3.5" /> Delete document
+                        </button>
+                    </div>
                 </aside>
-
-                <article className="min-w-0 overflow-hidden rounded-[36px] border border-black/10 bg-[#fbfaf7] shadow-[0_18px_60px_rgba(10,10,10,0.05)]">
-                    <div className="border-b border-black/10 px-6 py-8 sm:px-10 lg:px-16 lg:py-12">
-                        <div className="flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.24em] text-black/36">
-                            <span>{BLOG_KIND_META[kind].label} · Markdown document</span>
-                            <span>⌘S to save</span>
-                        </div>
-                        <textarea
-                            value={title}
-                            onChange={(event) => {
-                                const value = event.target.value
-                                setTitle(value)
-                                latestDraftRef.current.title = value
-                                markDirty()
-                            }}
-                            rows={2}
-                            className="mt-8 w-full resize-none overflow-hidden bg-transparent text-5xl font-medium leading-[0.92] tracking-[-0.06em] text-black outline-none md:text-7xl"
-                            placeholder="Untitled Post"
-                        />
-                    </div>
-                    <div className="px-5 py-8 sm:px-8 lg:px-14 lg:py-12">
-                        <MarkdownStudioEditor
-                            postId={post.id}
-                            initialContent={post.content}
-                            onChange={handleContentChange}
-                        />
-                    </div>
-                    <footer className="flex flex-wrap items-center justify-between gap-4 border-t border-black/10 px-6 py-5 font-mono text-[9px] uppercase tracking-[0.2em] text-black/38 sm:px-10 lg:px-14">
-                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-                            <span>{metrics.characters.toLocaleString()} characters</span>
-                            <span>{metrics.words.toLocaleString()} words</span>
-                            <span>{metrics.readingMinutes} min read</span>
-                            {series ? <span>topic · {series}</span> : null}
-                            {project ? <span>project · {project}</span> : null}
-                            <span className="inline-flex items-center gap-1.5">
-                                <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? "bg-emerald-700" : "bg-red-700"}`} />
-                                {isOnline ? "online" : "offline"}
-                            </span>
-                        </div>
-                        {status === "published" ? (
-                            <Link href={`/blog/${slug}`} target="_blank" className="inline-flex items-center gap-2 text-black hover:underline">
-                                Open published article <ArrowUpRight className="h-3.5 w-3.5" />
-                            </Link>
-                        ) : (
-                            <span>Private draft</span>
-                        )}
-                    </footer>
-                </article>
             </div>
-        </main>
+        </StudioShell>
     )
 }

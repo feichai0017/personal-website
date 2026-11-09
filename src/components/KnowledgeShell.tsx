@@ -1,17 +1,13 @@
 import Link from "next/link"
 import type { ReactNode } from "react"
-import { ArrowUpRight, ChevronRight } from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
 
 import KnowledgeCommandPalette from "@/components/KnowledgeCommandPalette"
 import KnowledgeMobileNav from "@/components/KnowledgeMobileNav"
 import KnowledgeSidebar from "@/components/KnowledgeSidebar"
+import NotebookTopBar, { type NotebookCrumb } from "@/components/NotebookTopBar"
 import type { BlogPostSummary } from "@/lib/blog"
 import { buildKnowledgeIndex, type KnowledgeLocation } from "@/lib/knowledge"
-
-export type KnowledgeCrumb = {
-    label: string
-    href?: string
-}
 
 export default function KnowledgeShell({
     posts,
@@ -21,7 +17,7 @@ export default function KnowledgeShell({
 }: {
     posts: BlogPostSummary[]
     location: KnowledgeLocation
-    breadcrumbs: KnowledgeCrumb[]
+    breadcrumbs: NotebookCrumb[]
     children: ReactNode
 }) {
     const index = buildKnowledgeIndex(posts)
@@ -34,29 +30,7 @@ export default function KnowledgeShell({
             </aside>
 
             <div className="flex min-h-screen min-w-0 flex-col">
-                <header className="sticky top-0 z-40 flex h-12 items-center gap-2 border-b border-black/[0.06] bg-[#f7f5f1]/90 px-3 backdrop-blur-md md:px-5">
-                    <KnowledgeMobileNav>{sidebar}</KnowledgeMobileNav>
-                    <nav aria-label="Breadcrumb" className="min-w-0 flex-1">
-                        <ol className="flex min-w-0 items-center gap-1 text-[13px] text-black/48">
-                            {breadcrumbs.map((crumb, position) => {
-                                const last = position === breadcrumbs.length - 1
-                                return (
-                                    <li key={`${crumb.label}-${position}`} className={`items-center gap-1 ${last ? "flex min-w-0" : "hidden shrink-0 sm:flex"}`}>
-                                        {position > 0 ? <ChevronRight className="hidden h-3.5 w-3.5 shrink-0 text-black/24 sm:block" /> : null}
-                                        {crumb.href && !last ? (
-                                            <Link href={crumb.href} className="truncate rounded-md px-1.5 py-0.5 transition-colors hover:bg-black/[0.05] hover:text-black">
-                                                {crumb.label}
-                                            </Link>
-                                        ) : (
-                                            <span aria-current={last ? "page" : undefined} className="truncate px-1.5 py-0.5 text-black/78">
-                                                {crumb.label}
-                                            </span>
-                                        )}
-                                    </li>
-                                )
-                            })}
-                        </ol>
-                    </nav>
+                <NotebookTopBar leading={<KnowledgeMobileNav>{sidebar}</KnowledgeMobileNav>} breadcrumbs={breadcrumbs}>
                     <KnowledgeCommandPalette variant="topbar" />
                     <Link
                         href="/"
@@ -65,7 +39,7 @@ export default function KnowledgeShell({
                         Portfolio
                         <ArrowUpRight className="h-3.5 w-3.5" />
                     </Link>
-                </header>
+                </NotebookTopBar>
 
                 <div className="flex-1">{children}</div>
 

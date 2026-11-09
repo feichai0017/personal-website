@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation"
 
 import StudioEditor from "@/components/StudioEditor"
+import StudioSidebar from "@/components/StudioSidebar"
 import { requireBlogAdmin } from "@/lib/blog-admin"
 import {
     type BlogPostRow,
@@ -16,7 +17,7 @@ type StudioEditorPageProps = {
 
 export default async function StudioEditorPage({ params }: StudioEditorPageProps) {
     const { id } = await params
-    const { supabase } = await requireBlogAdmin()
+    const { supabase, email } = await requireBlogAdmin()
     const [{ data, error }, { data: relatedRows, error: relatedError }, { data: revisionRows, error: revisionError }] = await Promise.all([
         supabase
             .from("blog_posts")
@@ -50,5 +51,8 @@ export default async function StudioEditorPage({ params }: StudioEditorPageProps
         createdAt: revision.created_at,
     }))
 
-    return <StudioEditor post={toBlogPost(data as BlogPostRow)} relatedPosts={relatedPosts} revisions={revisions} />
+    const post = toBlogPost(data as BlogPostRow)
+    const sidebar = <StudioSidebar posts={[post, ...relatedPosts]} email={email} activeId={post.id} />
+
+    return <StudioEditor post={post} relatedPosts={relatedPosts} revisions={revisions} sidebar={sidebar} />
 }

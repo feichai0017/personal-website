@@ -3,44 +3,27 @@
   min-height: 100vh;
 }
 
-.studio-shell * {
-  border-color: rgba(10, 10, 10, 0.1);
-}
-
-.studio-dot-field {
-  background-image: radial-gradient(rgba(255, 255, 255, 0.24) 0.8px, transparent 0.8px);
-  background-size: 15px 15px;
-}
-
-.studio-field-label {
-  display: block;
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
-  font-size: 9px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: rgba(10, 10, 10, 0.42);
-}
-
+/* Editor typography mirrors .notebook-prose so writing looks like the published page. */
 .studio-editor .milkdown {
-  --crepe-color-background: #fbfaf7;
-  --crepe-color-on-background: #0a0a0a;
+  --crepe-color-background: #f7f5f1;
+  --crepe-color-on-background: #191714;
   --crepe-color-surface: #f1eee7;
-  --crepe-color-surface-low: #e8e4dc;
-  --crepe-color-on-surface: #0a0a0a;
-  --crepe-color-on-surface-variant: #56524c;
-  --crepe-color-outline: #aaa49a;
+  --crepe-color-surface-low: #ebe7df;
+  --crepe-color-on-surface: #191714;
+  --crepe-color-on-surface-variant: #5b544a;
+  --crepe-color-outline: #b3ada3;
   --crepe-color-primary: #0a0a0a;
-  --crepe-color-secondary: #ded9d0;
+  --crepe-color-secondary: #e3ded5;
   --crepe-color-on-secondary: #0a0a0a;
   --crepe-color-inverse: #0a0a0a;
   --crepe-color-on-inverse: #fbfaf7;
-  --crepe-color-inline-code: #6f3024;
-  --crepe-color-error: #8b1e1e;
-  --crepe-color-hover: #ece8e0;
-  --crepe-color-selected: #ddd8cf;
-  --crepe-color-inline-area: #d4cec4;
-  --crepe-font-title: var(--font-geist-sans), sans-serif;
-  --crepe-font-default: var(--font-geist-sans), sans-serif;
+  --crepe-color-inline-code: #7a3324;
+  --crepe-color-error: #8c2e20;
+  --crepe-color-hover: rgba(10, 10, 10, 0.04);
+  --crepe-color-selected: rgba(10, 10, 10, 0.08);
+  --crepe-color-inline-area: #ece8df;
+  --crepe-font-title: var(--font-geist-sans), "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
+  --crepe-font-default: var(--font-geist-sans), "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
   --crepe-font-code: var(--font-geist-mono), ui-monospace, monospace;
   --crepe-shadow-1: 0 10px 30px rgba(10, 10, 10, 0.08);
   --crepe-shadow-2: 0 18px 50px rgba(10, 10, 10, 0.12);
@@ -48,11 +31,11 @@
 }
 
 .studio-editor .milkdown .ProseMirror {
-  min-height: 720px;
+  min-height: 60vh;
   padding: 0;
-  color: #171512;
+  color: rgba(25, 23, 20, 0.84);
   font-size: 17px;
-  line-height: 1.85;
+  line-height: 1.86;
   caret-color: #0a0a0a;
 }
 
@@ -60,68 +43,90 @@
   outline: none;
 }
 
+.studio-editor .milkdown .ProseMirror > p {
+  margin: 1.05em 0;
+}
+
 .studio-editor .milkdown .ProseMirror h1,
 .studio-editor .milkdown .ProseMirror h2,
-.studio-editor .milkdown .ProseMirror h3 {
-  color: #0a0a0a;
-  font-weight: 560;
-  letter-spacing: -0.045em;
+.studio-editor .milkdown .ProseMirror h3,
+.studio-editor .milkdown .ProseMirror h4 {
+  color: #191714;
+  font-weight: 600;
 }
 
 .studio-editor .milkdown .ProseMirror h1 {
-  margin-top: 1.4em;
-  font-size: 2.65rem;
-  line-height: 1;
+  margin-top: 2em;
+  font-size: 1.75em;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
 }
 
 .studio-editor .milkdown .ProseMirror h2 {
-  margin-top: 1.8em;
-  font-size: 2rem;
-  line-height: 1.08;
+  margin-top: 2.1em;
+  font-size: 1.42em;
+  line-height: 1.38;
+  letter-spacing: -0.015em;
 }
 
 .studio-editor .milkdown .ProseMirror h3 {
-  margin-top: 1.6em;
-  font-size: 1.45rem;
-  line-height: 1.15;
+  margin-top: 1.8em;
+  font-size: 1.18em;
+  line-height: 1.45;
 }
 
 .studio-editor .milkdown .ProseMirror blockquote {
-  margin-block: 2rem;
-  border-left: 2px solid #0a0a0a;
-  padding: 0.6rem 0 0.6rem 1.35rem;
-  color: rgba(10, 10, 10, 0.62);
+  margin-block: 1.4em;
+  border-left: 3px solid rgba(10, 10, 10, 0.16);
+  padding: 0.1em 0 0.1em 1.1em;
+  color: rgba(25, 23, 20, 0.56);
+}
+
+.studio-editor .milkdown .ProseMirror code {
+  border-radius: 5px;
+  background: #ece8df;
+  color: #7a3324;
+  font-size: 0.86em;
 }
 
 .studio-editor .milkdown .ProseMirror pre {
   overflow-x: auto;
-  border: 1px solid rgba(10, 10, 10, 0.1);
-  border-radius: 22px;
-  background: #11110f;
-  padding: 1.2rem 1.35rem;
-  color: #f7f5f1;
+  border: 1px solid rgba(10, 10, 10, 0.08);
+  border-radius: 10px;
+  background: #f3f0ea;
+  padding: 1rem 1.1rem;
+  color: #2a2620;
+  font-size: 13.5px;
+  line-height: 1.75;
+}
+
+.studio-editor .milkdown .ProseMirror pre code {
+  background: transparent;
+  color: inherit;
+  font-size: inherit;
 }
 
 .studio-editor .milkdown .ProseMirror img {
-  border-radius: 22px;
+  border: 1px solid rgba(10, 10, 10, 0.09);
+  border-radius: 10px;
+}
+
+.studio-editor .milkdown .ProseMirror hr {
+  border-color: rgba(10, 10, 10, 0.09);
 }
 
 .studio-editor .milkdown .milkdown-toolbar,
 .studio-editor .milkdown [data-milkdown-component="toolbar"] {
   border: 1px solid rgba(10, 10, 10, 0.1);
-  border-radius: 999px;
-  background: rgba(251, 250, 247, 0.94);
-  box-shadow: 0 16px 44px rgba(10, 10, 10, 0.1);
+  border-radius: 10px;
+  background: rgba(251, 250, 247, 0.96);
+  box-shadow: 0 12px 32px rgba(10, 10, 10, 0.1);
   backdrop-filter: blur(16px);
 }
 
 @media (max-width: 767px) {
   .studio-editor .milkdown .ProseMirror {
-    min-height: 560px;
     font-size: 16px;
-  }
-
-  .studio-editor .milkdown .ProseMirror h1 {
-    font-size: 2.1rem;
+    line-height: 1.82;
   }
 }

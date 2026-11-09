@@ -3,7 +3,8 @@ import Link from "next/link"
 import { FileText, NotebookPen, Rss, X } from "lucide-react"
 
 import KindBadge from "@/components/KindBadge"
-import KnowledgeShell, { type KnowledgeCrumb } from "@/components/KnowledgeShell"
+import KnowledgeShell from "@/components/KnowledgeShell"
+import type { NotebookCrumb } from "@/components/NotebookTopBar"
 import { BLOG_KIND_META, getBlogTopic, type BlogPostSummary } from "@/lib/blog"
 import {
     buildKnowledgeIndex,
@@ -296,7 +297,7 @@ export default function KnowledgeIndex({ posts, filters }: { posts: BlogPostSumm
         return counts
     }, new Map())
 
-    const breadcrumbs: KnowledgeCrumb[] = [{ label: "Notebook", href: "/blog" }]
+    const breadcrumbs: NotebookCrumb[] =[{ label: "Notebook", href: "/blog" }]
     if (filters.view !== "all") breadcrumbs.push({ label: BLOG_KIND_META[filters.view].plural, href: knowledgeHref({ view: filters.view }) })
     if (scoped) breadcrumbs.push({ label: header.title })
 
