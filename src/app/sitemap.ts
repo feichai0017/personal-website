@@ -7,7 +7,6 @@ export const revalidate = 300
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const posts = await getPublishedBlogPosts()
-    const notes = posts.filter((post) => post.kind === "note")
 
     return [
         {
@@ -21,12 +20,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             lastModified: posts[0]?.updatedAt ? new Date(posts[0].updatedAt) : new Date(),
             changeFrequency: "weekly",
             priority: 0.85,
-        },
-        {
-            url: absoluteUrl("/notes"),
-            lastModified: notes[0]?.updatedAt ? new Date(notes[0].updatedAt) : new Date(),
-            changeFrequency: "weekly",
-            priority: 0.8,
         },
         ...posts.map((post) => ({
             url: absoluteUrl(`/blog/${post.slug}`),

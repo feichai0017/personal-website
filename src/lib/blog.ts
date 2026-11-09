@@ -1,36 +1,6 @@
 export type BlogStatus = "published" | "draft"
 export type BlogKind = "essay" | "note" | "lab"
 
-export const BLOG_KIND_META: Record<BlogKind, { label: string; plural: string; zh: string; href: string; blurb: string }> = {
-    essay: {
-        label: "Essay",
-        plural: "Essays",
-        zh: "文章",
-        href: "/blog?kind=essay",
-        blurb: "Long-form writing: arguments, designs, and postmortems worth reading start to finish.",
-    },
-    note: {
-        label: "Note",
-        plural: "Notes",
-        zh: "笔记",
-        href: "/notes",
-        blurb: "Working notes: paper readings, source-code walkthroughs, and things I want to remember.",
-    },
-    lab: {
-        label: "Lab",
-        plural: "Lab",
-        zh: "实验",
-        href: "/blog?kind=lab",
-        blurb: "Experiments and benchmarks.",
-    },
-}
-
-export const EDITABLE_BLOG_KINDS = ["essay", "note"] as const satisfies readonly BlogKind[]
-
-export function isBlogKind(value: unknown): value is BlogKind {
-    return value === "essay" || value === "note" || value === "lab"
-}
-
 export const BLOG_TOPICS = [
     "AI Infra",
     "Large Models",
@@ -87,14 +57,6 @@ export type BlogSearchResult = Pick<
     snippet: string
 }
 
-export type BlogRevisionSummary = {
-    id: string
-    version: number
-    title: string
-    kind: BlogKind
-    createdAt: string
-}
-
 export type BlogPostRow = {
     id: string
     version: number
@@ -117,19 +79,14 @@ export type BlogPostRow = {
 
 export type BlogPostSummaryRow = Omit<BlogPostRow, "content">
 
-export type BlogPostInput = {
-    title?: unknown
-    slug?: unknown
-    summary?: unknown
-    content?: unknown
-    tags?: unknown
-    status?: unknown
-    kind?: unknown
-    series?: unknown
-    project?: unknown
-    relatedIds?: unknown
-    coverUrl?: unknown
-    publishedAt?: unknown
+export type EditablePostFields = {
+    title: string
+    slug: string
+    summary: string
+    content: string
+    tags: string[]
+    topic: string
+    coverUrl: string | null
 }
 
 export function slugify(value: string) {
@@ -184,55 +141,15 @@ export function toBlogPostSummary(row: BlogPostSummaryRow): BlogPostSummary {
     }
 }
 
-export function normalizeBlogPostInput(input: BlogPostInput, fallbackSlug = "untitled-post") {
-    const title = typeof input.title === "string" && input.title.trim()
-        ? input.title.trim()
-        : "Untitled Post"
-    const slugSource =
-        typeof input.slug === "string" && input.slug.trim()
-            ? input.slug
-            : title || fallbackSlug
-    const slug = slugify(slugSource) || fallbackSlug
-    const summary = typeof input.summary === "string" ? input.summary.trim() : ""
-    const content = typeof input.content === "string" ? input.content : ""
-    const tags = Array.isArray(input.tags)
-        ? input.tags
-            .filter((tag): tag is string => typeof tag === "string")
-            .map((tag) => tag.trim())
-            .filter(Boolean)
-        : []
-    const status = input.status === "published" ? "published" : "draft"
-    const kind: BlogKind = isBlogKind(input.kind) ? input.kind : "essay"
-    const series = typeof input.series === "string" && input.series.trim()
-        ? input.series.trim().slice(0, 120)
-        : null
-    const project = typeof input.project === "string" && input.project.trim()
-        ? input.project.trim().slice(0, 120)
-        : null
-    const relatedIds = Array.isArray(input.relatedIds)
-        ? Array.from(new Set(
-            input.relatedIds.filter((value): value is string => typeof value === "string" && value.length > 0),
-        )).slice(0, 12)
-        : []
-    const coverUrl = typeof input.coverUrl === "string" && input.coverUrl.trim()
-        ? input.coverUrl.trim()
-        : null
-    const publishedAt = typeof input.publishedAt === "string" && input.publishedAt.trim()
-        ? input.publishedAt.trim()
-        : null
-
+export function buildPostUpdate(fields: EditablePostFields, fallbackSlug: string) {
+    const title = fields.title.trim().slice(0, 240) || "Untitled"
     return {
         title,
-        slug,
-        summary,
-        content,
-        tags,
-        status,
-        kind,
-        series,
-        project,
-        related_ids: relatedIds,
-        cover_url: coverUrl,
-        published_at: status === "published" ? publishedAt : null,
+        slug: slugify(fields.slug) || slugify(title) || fallbackSlug,
+        summary: fields.summary.trim().slice(0, 800),
+        content: fields.content,
+        tags: Array.from(new Set(fields.tags.map((tag) => tag.trim()).filter(Boolean))).slice(0, 12),
+        series: fields.topic.trim().slice(0, 120) || null,
+        cover_url: fields.coverUrl?.trim() || null,
     }
 }

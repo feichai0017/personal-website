@@ -42,7 +42,7 @@ export default function KnowledgeMobileNav({ children }: { children: ReactNode }
                         aria-label="Notebook navigation"
                         className="absolute inset-y-0 left-0 flex w-[86vw] max-w-[300px] flex-col bg-[#f1eee8] shadow-[0_20px_60px_rgba(10,10,10,0.2)]"
                         onClick={(event) => {
-                            if ((event.target as HTMLElement).closest("a, [data-knowledge-search]")) setOpen(false)
+                            if ((event.target as HTMLElement).closest("a, [data-knowledge-search], [data-close-drawer]")) setOpen(false)
                         }}
                     >
                         <button

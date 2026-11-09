@@ -1,40 +1,18 @@
-import Image from "next/image"
-import Link from "next/link"
+import { CalendarDays, Clock, Hash, Tags } from "lucide-react"
 
-import KindBadge from "@/components/KindBadge"
+import PageProperty from "@/components/PageProperty"
 import { getBlogTopic, type BlogPostSummary } from "@/lib/blog"
-import { formatPostDate, knowledgeHref, postDate } from "@/lib/knowledge"
+import { formatPostDate, postDate } from "@/lib/knowledge"
 
 const DAY_MS = 24 * 60 * 60 * 1000
 
-export default function ArticleHeader({ post, linked = true }: { post: BlogPostSummary; linked?: boolean }) {
-    const topic = getBlogTopic(post)
+export default function ArticleHeader({ post }: { post: BlogPostSummary }) {
     const published = postDate(post)
     const revisedLater = Boolean(post.publishedAt) && new Date(post.updatedAt).getTime() - new Date(published).getTime() > DAY_MS
-    const isNote = post.kind === "note"
 
     return (
         <header>
-            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-black/44">
-                <KindBadge kind={post.kind} />
-                {linked ? (
-                    <Link href={knowledgeHref({ topic })} className="hover:text-black">{topic}</Link>
-                ) : (
-                    <span>{topic}</span>
-                )}
-                {post.project ? (
-                    <>
-                        <span aria-hidden>·</span>
-                        {linked ? (
-                            <Link href={knowledgeHref({ project: post.project })} className="hover:text-black">{post.project}</Link>
-                        ) : (
-                            <span>{post.project}</span>
-                        )}
-                    </>
-                ) : null}
-            </div>
-
-            <h1 className="mt-4 text-[30px] font-semibold leading-[1.28] tracking-[-0.022em] text-black md:text-[40px] md:leading-[1.22]">
+            <h1 className="text-[32px] font-semibold leading-[1.22] tracking-[-0.022em] text-black md:text-[42px]">
                 {post.title}
             </h1>
 
@@ -42,36 +20,35 @@ export default function ArticleHeader({ post, linked = true }: { post: BlogPostS
                 <p className="mt-4 text-[17px] leading-8 text-black/54">{post.summary}</p>
             ) : null}
 
-            <div className="mt-7 flex items-center gap-3 border-b border-black/[0.07] pb-7">
-                <Image
-                    src="/img/my.png"
-                    alt=""
-                    width={40}
-                    height={40}
-                    className="h-10 w-10 shrink-0 rounded-full border border-black/10"
-                />
-                <div className="min-w-0 text-[13px] leading-5">
-                    <div className="font-medium text-black">Guocheng Song</div>
-                    <div className="flex flex-wrap items-center gap-x-1.5 text-black/44">
-                        {isNote ? (
-                            <span>
-                                Updated <time dateTime={post.updatedAt}>{formatPostDate(post.updatedAt)}</time>
-                            </span>
-                        ) : (
-                            <>
-                                <time dateTime={published}>{formatPostDate(published)}</time>
-                                {revisedLater ? (
-                                    <span>
-                                        · Updated <time dateTime={post.updatedAt}>{formatPostDate(post.updatedAt, "short")}</time>
-                                    </span>
-                                ) : null}
-                            </>
-                        )}
-                        <span aria-hidden>·</span>
-                        <span>{post.readingMinutes} min read</span>
-                    </div>
-                </div>
+            <div className="mt-6 space-y-0.5">
+                <PageProperty icon={<CalendarDays className="h-3.5 w-3.5" />} label="Published">
+                    <time dateTime={published}>{formatPostDate(published)}</time>
+                    {revisedLater ? (
+                        <span className="text-black/40">
+                            {" "}· updated <time dateTime={post.updatedAt}>{formatPostDate(post.updatedAt, "short")}</time>
+                        </span>
+                    ) : null}
+                </PageProperty>
+                <PageProperty icon={<Hash className="h-3.5 w-3.5" />} label="Topic">
+                    {getBlogTopic(post)}
+                </PageProperty>
+                {post.tags.length ? (
+                    <PageProperty icon={<Tags className="h-3.5 w-3.5" />} label="Tags">
+                        <span className="flex flex-wrap gap-1">
+                            {post.tags.map((tag) => (
+                                <span key={tag} className="rounded bg-black/[0.055] px-1.5 py-0.5 text-[12px] text-black/60">
+                                    {tag}
+                                </span>
+                            ))}
+                        </span>
+                    </PageProperty>
+                ) : null}
+                <PageProperty icon={<Clock className="h-3.5 w-3.5" />} label="Read time">
+                    {post.readingMinutes} min
+                </PageProperty>
             </div>
+
+            <div className="mt-6 border-b border-black/[0.07]" />
         </header>
     )
 }

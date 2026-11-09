@@ -4,17 +4,11 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { ArrowUpRight, BookOpenText, CornerDownLeft, FileText, LoaderCircle, NotebookPen, Search, X } from "lucide-react"
+import { ArrowUpRight, CornerDownLeft, FileText, LoaderCircle, Search, X } from "lucide-react"
 
-import { BLOG_KIND_META, getBlogTopic, type BlogSearchResult } from "@/lib/blog"
+import { getBlogTopic, type BlogSearchResult } from "@/lib/blog"
 
 const OPEN_SEARCH_EVENT = "knowledge:open-search"
-
-const destinations = [
-    { href: "/blog", label: "Everything", detail: "Essays and notes in one stream", icon: BookOpenText },
-    { href: "/blog?kind=essay", label: "Essays · 文章", detail: "Long-form arguments and designs", icon: FileText },
-    { href: "/notes", label: "Notes · 笔记", detail: "Paper readings and working notes", icon: NotebookPen },
-]
 
 export function KnowledgeSearchButton({ className, children }: { className?: string; children: React.ReactNode }) {
     return (
@@ -160,7 +154,7 @@ export default function KnowledgeCommandPalette({ variant = "navbar" }: { varian
                                 value={query}
                                 onChange={(event) => setQuery(event.target.value)}
                                 onKeyDown={onInputKeyDown}
-                                placeholder="Search essays and notes… 搜索文章和笔记"
+                                placeholder="Search the notebook… 搜索文章"
                                 aria-label="Search query"
                                 className="min-w-0 flex-1 bg-transparent text-[17px] outline-none placeholder:text-black/32"
                             />
@@ -175,31 +169,12 @@ export default function KnowledgeCommandPalette({ variant = "navbar" }: { varian
                         </div>
 
                         <div ref={listRef} data-lenis-prevent className="min-h-0 flex-1 overflow-y-auto p-2">
-                            {!query ? (
-                                <div className="grid gap-1 border-b border-black/[0.06] pb-2 sm:grid-cols-3">
-                                    {destinations.map(({ href, label, detail, icon: Icon }) => (
-                                        <Link
-                                            key={href}
-                                            href={href}
-                                            onClick={close}
-                                            className="rounded-xl px-3 py-2.5 transition hover:bg-black/[0.04]"
-                                        >
-                                            <span className="flex items-center gap-2 text-sm font-medium">
-                                                <Icon className="h-3.5 w-3.5 text-black/45" />
-                                                {label}
-                                            </span>
-                                            <span className="mt-1 block text-xs leading-5 text-black/42">{detail}</span>
-                                        </Link>
-                                    ))}
-                                </div>
-                            ) : null}
 
-                            <div className="px-2 pb-1 pt-3 font-mono text-[10px] uppercase tracking-[0.18em] text-black/36">
+                            <div className="px-2 pb-1 pt-1 font-mono text-[10px] uppercase tracking-[0.18em] text-black/36">
                                 {query ? `${results.length} matches` : "Recent"}
                             </div>
                             <div role="listbox" aria-label="Search results">
                                 {results.map((result, index) => {
-                                    const KindIcon = result.kind === "note" ? NotebookPen : FileText
                                     const active = index === activeIndex
                                     return (
                                         <Link
@@ -212,12 +187,12 @@ export default function KnowledgeCommandPalette({ variant = "navbar" }: { varian
                                             data-result-index={index}
                                             className={`group grid grid-cols-[20px_minmax(0,1fr)_auto] items-start gap-3 rounded-xl px-3 py-2.5 transition ${active ? "bg-black/[0.055]" : ""}`}
                                         >
-                                            <KindIcon className="mt-0.5 h-4 w-4 text-black/40" />
+                                            <FileText className="mt-0.5 h-4 w-4 text-black/40" />
                                             <span className="min-w-0">
                                                 <span className="block truncate text-[15px] font-medium text-black">{result.title}</span>
                                                 <span className="mt-0.5 line-clamp-2 text-[13px] leading-5 text-black/48">{result.snippet}</span>
                                                 <span className="mt-1 block text-[11px] text-black/36">
-                                                    {[BLOG_KIND_META[result.kind]?.label, getBlogTopic(result), result.project].filter(Boolean).join(" · ")}
+                                                    {[getBlogTopic(result), result.project].filter(Boolean).join(" · ")}
                                                 </span>
                                             </span>
                                             {active ? (

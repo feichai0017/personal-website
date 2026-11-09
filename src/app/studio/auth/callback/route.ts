@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const tokenHash = url.searchParams.get("token_hash")
     const type = url.searchParams.get("type")
     const next = url.searchParams.get("next")
-    const safeNext = next?.startsWith("/studio/") && !next.startsWith("//") ? next : "/studio"
+    const safeNext = next?.startsWith("/studio/") && !next.startsWith("//") ? next : "/blog"
     const destination = new URL(safeNext, url.origin)
     const otpType: EmailOtpType | null = type === "magiclink" || type === "recovery" ? type : null
 

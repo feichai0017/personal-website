@@ -6,12 +6,12 @@ import { getBlogAdminSession } from "@/lib/blog-admin"
 
 export default async function StudioLoginPage() {
     const session = await getBlogAdminSession()
-    if (session.isAdmin) redirect("/studio")
+    if (session.isAdmin) redirect("/blog")
 
     return (
         <StudioAuthLayout
-            title="Sign in to Studio"
-            description="The private writing workspace behind Guocheng’s Notebook. Owner account only."
+            title="Sign in to write"
+            description="Once you’re signed in, every page in the notebook becomes editable in place."
         >
             <StudioLoginForm />
         </StudioAuthLayout>

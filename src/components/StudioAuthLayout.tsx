@@ -19,7 +19,6 @@ export default function StudioAuthLayout({
                     <ArrowLeft className="h-3.5 w-3.5" />
                     Notebook
                 </Link>
-                <span className="rounded bg-black/[0.07] px-1.5 py-0.5 text-[11px] font-medium text-black/56">Studio</span>
             </header>
 
             <div className="flex flex-1 items-center justify-center px-5 py-16">

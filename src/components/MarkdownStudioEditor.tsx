@@ -9,20 +9,24 @@ type MarkdownStudioEditorProps = {
     postId: string
     initialContent: string
     onChange: (markdown: string) => void
+    onReady?: () => void
 }
 
 export default function MarkdownStudioEditor({
     postId,
     initialContent,
     onChange,
+    onReady,
 }: MarkdownStudioEditorProps) {
     const rootRef = useRef<HTMLDivElement | null>(null)
     const onChangeRef = useRef(onChange)
+    const onReadyRef = useRef(onReady)
     const [ready, setReady] = useState(false)
 
     useEffect(() => {
         onChangeRef.current = onChange
-    }, [onChange])
+        onReadyRef.current = onReady
+    }, [onChange, onReady])
 
     useEffect(() => {
         if (!rootRef.current) return
@@ -74,6 +78,7 @@ export default function MarkdownStudioEditor({
             lastMarkdown = crepe.getMarkdown()
             editorReady = true
             setReady(true)
+            onReadyRef.current?.()
         })
 
         return () => {
@@ -84,10 +89,10 @@ export default function MarkdownStudioEditor({
     }, [initialContent, postId])
 
     return (
-        <div className="relative min-h-[720px]">
+        <div className="relative min-h-[40vh]">
             <div
                 ref={rootRef}
-                className={`studio-editor min-h-[720px] transition-opacity duration-300 ${ready ? "opacity-100" : "opacity-0"}`}
+                className={`studio-editor min-h-[40vh] transition-opacity duration-200 ${ready ? "opacity-100" : "opacity-0"}`}
             />
             {!ready ? (
                 <div className="pointer-events-none absolute inset-0 space-y-7 py-3" aria-label="Loading editor">
