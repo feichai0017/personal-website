@@ -5,18 +5,19 @@ import { ArrowUpRight, Calendar, Coffee, Mail } from "lucide-react"
 import { FaGithub, FaLinkedinIn } from "react-icons/fa6"
 import RevealHeadline from "@/components/RevealHeadline"
 import MagneticButton from "@/components/MagneticButton"
+import { contactEmail, meetingHref } from "@/lib/site-links"
 
 const contactLinks = [
     {
         label: "Email",
-        value: "Ericsgc@outlook.com",
-        href: "mailto:Ericsgc@outlook.com",
+        value: contactEmail,
+        href: `mailto:${contactEmail}`,
         icon: Mail,
     },
     {
-        label: "Calendly",
+        label: "Meeting",
         value: "Book 15 mins",
-        href: "https://calendly.com/",
+        href: meetingHref,
         icon: Calendar,
     },
 ]
@@ -42,7 +43,7 @@ const supportLink = {
 
 export default function ContactMe() {
     return (
-        <section id="contact" className="showcase-section px-4 py-24 text-[#0a0a0a]">
+        <section id="contact" className="showcase-section px-4 py-20 text-[#0a0a0a]">
             <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
                 <motion.div
                     initial={{ opacity: 0, y: 24 }}

@@ -4,11 +4,9 @@ import localFont from 'next/font/local'
 import { ThemeProvider } from "@/components/theme-provider"
 import Navbar from '@/components/Navbar'
 import SmoothScroll from '@/components/SmoothScroll'
-import CursorBlob from '@/components/CursorBlob'
-import ScrollBackdrop from '@/components/ScrollBackdrop'
-import EntryPortal from '@/components/EntryPortal'
 import { Analytics } from "@vercel/analytics/react"
 import { SpeedInsights } from "@vercel/speed-insights/react"
+import { SITE_URL, absoluteUrl } from "@/lib/site"
 
 const geistSans = localFont({
     src: './fonts/GeistVF.woff',
@@ -21,46 +19,48 @@ const geistMono = localFont({
     variable: '--font-geist-mono',
     weight: '100 900',
 })
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://personal-website.example.com'
-const ogImage = new URL('/img/logo.png', siteUrl).toString()
+const ogImage = absoluteUrl('/img/logo.png')
 
 export const metadata: Metadata = {
-    metadataBase: new URL(siteUrl),
+    metadataBase: new URL(SITE_URL),
     title: {
-        default: 'Eric Song | Full Stack & DevOps Engineer',
-        template: '%s | Eric Song',
+        default: 'Guocheng Song | ML Systems & AI Infra Engineer',
+        template: '%s | Guocheng Song',
     },
-    description: 'Full stack engineer specialising in backend, distributed systems, and DevOps. Projects, experience, and ways to contact Eric.',
-    keywords: ['Eric Song', 'Full Stack Engineer', 'DevOps', 'Backend', 'Go', 'TypeScript', 'Distributed Systems', 'Portfolio'],
+    description: 'Portfolio of Guocheng Song: machine learning systems, AI infra, storage engines, distributed systems, and interactive engineering work.',
+    keywords: ['Guocheng Song', 'ML Systems Engineer', 'AI Infra', 'Distributed Systems', 'Storage Engine', 'DuckDB', 'Mooncake', 'Portfolio'],
     openGraph: {
         type: 'website',
-        url: siteUrl,
-        title: 'Eric Song | Full Stack & DevOps Engineer',
-        description: 'Portfolio of Eric Song: backend, distributed systems, DevOps, and full stack projects.',
-        siteName: 'Eric Song Portfolio',
+        url: SITE_URL,
+        title: 'Guocheng Song | ML Systems & AI Infra Engineer',
+        description: 'Portfolio of Guocheng Song: AI infra, machine learning systems, storage engines, and distributed systems.',
+        siteName: 'Guocheng Song Portfolio',
         images: [
             {
                 url: ogImage,
                 width: 1200,
                 height: 630,
-                alt: 'Eric Song Portfolio',
+                alt: 'Guocheng Song Portfolio',
             },
         ],
     },
     twitter: {
         card: 'summary_large_image',
-        title: 'Eric Song | Full Stack & DevOps Engineer',
-        description: 'Portfolio of Eric Song: backend, distributed systems, DevOps, and full stack projects.',
+        title: 'Guocheng Song | ML Systems & AI Infra Engineer',
+        description: 'Portfolio of Guocheng Song: AI infra, machine learning systems, storage engines, and distributed systems.',
         images: [ogImage],
     },
     alternates: {
         canonical: '/',
+        types: {
+            'application/rss+xml': '/rss.xml',
+        },
     },
     icons: {
         icon: '/img/logo.png',
         apple: '/img/logo.png',
     },
-    authors: [{ name: 'Eric Song', url: 'https://github.com/feichai0017' }],
+    authors: [{ name: 'Guocheng Song', url: 'https://github.com/feichai0017' }],
 }
 
 export const viewport = {
@@ -86,9 +86,9 @@ export default function RootLayout({
                         __html: JSON.stringify({
                             '@context': 'https://schema.org',
                             '@type': 'Person',
-                            name: 'Eric Song',
-                            url: siteUrl,
-                            jobTitle: 'Full Stack / DevOps Engineer',
+                            name: 'Guocheng Song',
+                            url: SITE_URL,
+                            jobTitle: 'Machine Learning Systems Engineer',
                             sameAs: [
                                 'https://github.com/feichai0017',
                                 'https://www.linkedin.com/in/guocheng-song-728580318/',
@@ -96,7 +96,7 @@ export default function RootLayout({
                             image: ogImage,
                             worksFor: {
                                 '@type': 'Organization',
-                                name: 'Independent',
+                                name: 'ByteDance AML',
                             },
                         }),
                     }}
@@ -109,9 +109,6 @@ export default function RootLayout({
                     enableSystem={false}
                     disableTransitionOnChange
                 >
-                    <ScrollBackdrop />
-                    <CursorBlob />
-                    <EntryPortal />
                     <SmoothScroll>
                         <div className="flex min-h-screen flex-col">
                             <Navbar />

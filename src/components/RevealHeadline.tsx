@@ -1,7 +1,7 @@
 "use client"
 
 import { ReactNode, useMemo, useRef } from "react"
-import { motion, useInView } from "framer-motion"
+import { motion, useInView, useReducedMotion } from "framer-motion"
 
 type LineInput = string | { text: string; className?: string }
 
@@ -24,6 +24,7 @@ export default function RevealHeadline({
 }) {
     const ref = useRef<HTMLElement | null>(null)
     const inView = useInView(ref, { once, margin: "-12% 0px -12% 0px" })
+    const reduceMotion = useReducedMotion()
 
     const tokens = useMemo(
         () =>
@@ -48,8 +49,12 @@ export default function RevealHeadline({
                     >
                         <motion.span
                             className="inline-block will-change-transform"
-                            initial={{ y: "110%" }}
-                            animate={inView ? { y: "0%" } : { y: "110%" }}
+                            initial={false}
+                            animate={
+                                inView && !reduceMotion
+                                    ? { y: [18, 0], opacity: [0.72, 1] }
+                                    : undefined
+                            }
                             transition={{
                                 duration,
                                 ease: [0.22, 1, 0.36, 1],

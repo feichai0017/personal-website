@@ -1,0 +1,127 @@
+.studio-shell {
+  color: #0a0a0a;
+  min-height: 100vh;
+}
+
+.studio-shell * {
+  border-color: rgba(10, 10, 10, 0.1);
+}
+
+.studio-dot-field {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.24) 0.8px, transparent 0.8px);
+  background-size: 15px 15px;
+}
+
+.studio-field-label {
+  display: block;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(10, 10, 10, 0.42);
+}
+
+.studio-editor .milkdown {
+  --crepe-color-background: #fbfaf7;
+  --crepe-color-on-background: #0a0a0a;
+  --crepe-color-surface: #f1eee7;
+  --crepe-color-surface-low: #e8e4dc;
+  --crepe-color-on-surface: #0a0a0a;
+  --crepe-color-on-surface-variant: #56524c;
+  --crepe-color-outline: #aaa49a;
+  --crepe-color-primary: #0a0a0a;
+  --crepe-color-secondary: #ded9d0;
+  --crepe-color-on-secondary: #0a0a0a;
+  --crepe-color-inverse: #0a0a0a;
+  --crepe-color-on-inverse: #fbfaf7;
+  --crepe-color-inline-code: #6f3024;
+  --crepe-color-error: #8b1e1e;
+  --crepe-color-hover: #ece8e0;
+  --crepe-color-selected: #ddd8cf;
+  --crepe-color-inline-area: #d4cec4;
+  --crepe-font-title: var(--font-geist-sans), sans-serif;
+  --crepe-font-default: var(--font-geist-sans), sans-serif;
+  --crepe-font-code: var(--font-geist-mono), ui-monospace, monospace;
+  --crepe-shadow-1: 0 10px 30px rgba(10, 10, 10, 0.08);
+  --crepe-shadow-2: 0 18px 50px rgba(10, 10, 10, 0.12);
+  background: transparent;
+}
+
+.studio-editor .milkdown .ProseMirror {
+  min-height: 720px;
+  padding: 0;
+  color: #171512;
+  font-size: 17px;
+  line-height: 1.85;
+  caret-color: #0a0a0a;
+}
+
+.studio-editor .milkdown .ProseMirror:focus {
+  outline: none;
+}
+
+.studio-editor .milkdown .ProseMirror h1,
+.studio-editor .milkdown .ProseMirror h2,
+.studio-editor .milkdown .ProseMirror h3 {
+  color: #0a0a0a;
+  font-weight: 560;
+  letter-spacing: -0.045em;
+}
+
+.studio-editor .milkdown .ProseMirror h1 {
+  margin-top: 1.4em;
+  font-size: 2.65rem;
+  line-height: 1;
+}
+
+.studio-editor .milkdown .ProseMirror h2 {
+  margin-top: 1.8em;
+  font-size: 2rem;
+  line-height: 1.08;
+}
+
+.studio-editor .milkdown .ProseMirror h3 {
+  margin-top: 1.6em;
+  font-size: 1.45rem;
+  line-height: 1.15;
+}
+
+.studio-editor .milkdown .ProseMirror blockquote {
+  margin-block: 2rem;
+  border-left: 2px solid #0a0a0a;
+  padding: 0.6rem 0 0.6rem 1.35rem;
+  color: rgba(10, 10, 10, 0.62);
+}
+
+.studio-editor .milkdown .ProseMirror pre {
+  overflow-x: auto;
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  border-radius: 22px;
+  background: #11110f;
+  padding: 1.2rem 1.35rem;
+  color: #f7f5f1;
+}
+
+.studio-editor .milkdown .ProseMirror img {
+  border-radius: 22px;
+}
+
+.studio-editor .milkdown .milkdown-toolbar,
+.studio-editor .milkdown [data-milkdown-component="toolbar"] {
+  border: 1px solid rgba(10, 10, 10, 0.1);
+  border-radius: 999px;
+  background: rgba(251, 250, 247, 0.94);
+  box-shadow: 0 16px 44px rgba(10, 10, 10, 0.1);
+  backdrop-filter: blur(16px);
+}
+
+@media (max-width: 767px) {
+  .studio-editor .milkdown .ProseMirror {
+    min-height: 560px;
+    font-size: 16px;
+  }
+
+  .studio-editor .milkdown .ProseMirror h1 {
+    font-size: 2.1rem;
+  }
+}

@@ -1,128 +1,65 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { AnimatePresence, motion } from "framer-motion"
+import { useEffect, useState } from "react"
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion"
 import { ArrowUpRight } from "lucide-react"
 import { FaGithub, FaLinkedinIn } from "react-icons/fa6"
 import ShaderPortrait from "@/components/ShaderPortrait"
 import RevealHeadline from "@/components/RevealHeadline"
 import MagneticButton from "@/components/MagneticButton"
 
-const rotatingSuffixes = ["Builder", "Architect", "Engineer", "Debugger"]
-
-type HandoffParticle = {
-    id: string
-    startX: number
-    startY: number
-    endX: number
-    endY: number
-    size: number
-    delay: number
-}
+const rotatingSuffixes = ["Engineer", "Infra", "Contributor", "Builder"]
 
 export default function Home() {
     const [mounted, setMounted] = useState(false)
     const [suffixIndex, setSuffixIndex] = useState(0)
-    const [handoffKey, setHandoffKey] = useState(0)
-    const [handoffParticles, setHandoffParticles] = useState<HandoffParticle[]>([])
-    const clearParticlesRef = useRef<number | null>(null)
+    const reduceMotion = useReducedMotion()
 
     useEffect(() => {
         setMounted(true)
     }, [])
 
     useEffect(() => {
-        if (typeof window === "undefined") return
-        const handleHandoff = (event: Event) => {
-            setHandoffKey((current) => current + 1)
-            const target = document.getElementById("hero-visual-target")
-            const detail = (event as CustomEvent<{ particles?: Array<{ x: number; y: number; size: number; delay?: number }> }>).detail
-            if (!target || !detail?.particles?.length) return
-            const rect = target.getBoundingClientRect()
-            const nextParticles = detail.particles.map((particle, index) => ({
-                id: `${index}-${particle.x}-${particle.y}`,
-                startX: particle.x,
-                startY: particle.y,
-                endX: rect.left + rect.width * (0.18 + ((index * 17) % 56) / 100),
-                endY: rect.top + rect.height * (0.16 + ((index * 13) % 58) / 100),
-                size: particle.size,
-                delay: particle.delay ?? index * 0.02,
-            }))
-            setHandoffParticles(nextParticles)
-            if (clearParticlesRef.current) window.clearTimeout(clearParticlesRef.current)
-            clearParticlesRef.current = window.setTimeout(() => {
-                setHandoffParticles([])
-                clearParticlesRef.current = null
-            }, 1200)
+        if (reduceMotion) return
+
+        let timer: number | null = null
+        const start = () => {
+            if (timer !== null) return
+            timer = window.setInterval(() => {
+                setSuffixIndex((current) => (current + 1) % rotatingSuffixes.length)
+            }, 2600)
         }
-        window.addEventListener("entry-portal-handoff", handleHandoff)
+        const stop = () => {
+            if (timer === null) return
+            window.clearInterval(timer)
+            timer = null
+        }
+        // Hidden tabs throttle rAF but not intervals, so exits would pile up.
+        const onVisibilityChange = () => (document.hidden ? stop() : start())
+
+        if (!document.hidden) start()
+        document.addEventListener("visibilitychange", onVisibilityChange)
         return () => {
-            window.removeEventListener("entry-portal-handoff", handleHandoff)
-            if (clearParticlesRef.current) window.clearTimeout(clearParticlesRef.current)
+            stop()
+            document.removeEventListener("visibilitychange", onVisibilityChange)
         }
-    }, [])
-
-    useEffect(() => {
-        const timer = window.setInterval(() => {
-            setSuffixIndex((current) => (current + 1) % rotatingSuffixes.length)
-        }, 2600)
-        return () => window.clearInterval(timer)
-    }, [])
-
-    const handlePortalOpen = () => {
-        if (typeof window !== "undefined") {
-            window.dispatchEvent(new CustomEvent("entry-portal-open"))
-        }
-    }
+    }, [reduceMotion])
 
     return (
-        <section id="home" className="showcase-section relative overflow-y-hidden px-4 pb-20 pt-32 text-[#0a0a0a]">
-            <AnimatePresence>
-                {handoffParticles.map((particle) => (
-                    <motion.span
-                        key={particle.id}
-                        initial={{
-                            x: particle.startX,
-                            y: particle.startY,
-                            opacity: 0,
-                            scale: 0.4,
-                        }}
-                        animate={{
-                            x: particle.endX,
-                            y: particle.endY,
-                            opacity: [0, 0.95, 0],
-                            scale: [0.4, 1, 0.22],
-                        }}
-                        exit={{ opacity: 0 }}
-                        transition={{
-                            duration: 1.05,
-                            delay: particle.delay,
-                            ease: [0.22, 1, 0.36, 1],
-                        }}
-                        className="pointer-events-none fixed left-0 top-0 z-[240] rounded-full bg-black"
-                        style={{
-                            width: particle.size,
-                            height: particle.size,
-                            boxShadow: "0 0 24px rgba(10,10,10,0.22)",
-                        }}
-                    />
-                ))}
-            </AnimatePresence>
+        <section id="home" className="showcase-section relative overflow-hidden px-4 pb-20 pt-28 text-[#0a0a0a] md:pt-32">
             <div className="relative mx-auto flex min-h-[calc(100vh-6rem)] w-full max-w-[1800px] flex-col justify-between px-2 md:px-4 lg:px-6">
                 <div className="grid items-center gap-12 xl:grid-cols-[1.02fr_0.98fr]">
-                    <div key={`hero-copy-${handoffKey}`} className="order-2 pr-3 xl:order-1 xl:pr-8">
+                    <div className="order-1 pr-1 sm:pr-3 xl:pr-8">
                         <motion.div
-                            initial={{ opacity: 0, y: 14 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.6, delay: 0.08 }}
+                            initial={false}
                             className="font-mono text-[11px] uppercase tracking-[0.34em] text-black/36"
                         >
                             01 / available for select work
                         </motion.div>
 
-                        <div className="mt-8 text-[17vw] font-medium leading-[0.84] tracking-[-0.045em] text-[#0a0a0a] sm:text-[6.4rem] lg:text-[8.35rem] xl:text-[9.65rem]">
+                        <h1 className="mt-7 text-[16.5vw] font-medium leading-[0.84] tracking-[-0.045em] text-[#0a0a0a] sm:mt-8 sm:text-[6.4rem] lg:text-[8.35rem] xl:text-[9.65rem]">
                             <RevealHeadline
-                                as="h1"
+                                as="span"
                                 lines={["Distributed", "Systems"]}
                                 stagger={0.06}
                                 duration={0.95}
@@ -130,46 +67,36 @@ export default function Home() {
                                 once={false}
                                 className="block"
                             />
-                            <span className="relative block overflow-hidden pb-[0.3em] -mb-[0.3em] text-black/78">
-                                <AnimatePresence mode="wait">
+                            <span aria-hidden className="relative grid overflow-hidden pb-[0.3em] -mb-[0.3em] text-black/78">
+                                <AnimatePresence initial={false}>
                                     <motion.span
                                         key={rotatingSuffixes[suffixIndex]}
-                                        initial={{ y: "110%", opacity: 0, filter: "blur(6px)" }}
-                                        animate={{ y: "0%", opacity: 1, filter: "blur(0px)" }}
-                                        exit={{ y: "-70%", opacity: 0, filter: "blur(6px)" }}
-                                        transition={{ duration: 0.65, delay: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                                        className="inline-block"
+                                        initial={mounted ? { y: "110%" } : false}
+                                        animate={{ y: "0%" }}
+                                        exit={{ y: "-110%" }}
+                                        transition={{ duration: 0.46, ease: [0.22, 1, 0.36, 1] }}
+                                        className="col-start-1 row-start-1 inline-block whitespace-nowrap"
                                     >
                                         {rotatingSuffixes[suffixIndex]}
                                     </motion.span>
                                 </AnimatePresence>
                             </span>
-                        </div>
+                            <span className="sr-only">Engineer</span>
+                        </h1>
 
                         <motion.p
-                            initial={{ opacity: 0, y: 18 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.72, delay: 0.82, ease: [0.22, 1, 0.36, 1] }}
+                            initial={false}
                             className="mt-8 max-w-2xl text-lg leading-8 text-black/66 md:text-xl"
                         >
-                            Building storage engines, distributed backends, and product-facing systems with the same
-                            bias: understand the contract first, then make it fast.
+                            Machine learning systems engineer working on AI infra at ByteDance AML in Beijing. I
+                            build storage, cache, and systems software, and I am also a core contributor to DuckDB
+                            and Mooncake.
                         </motion.p>
 
                         <motion.div
-                            initial={{ opacity: 0, y: 18 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.72, delay: 0.98 }}
+                            initial={false}
                             className="mt-10 flex flex-wrap gap-4"
                         >
-                            <MagneticButton
-                                as="button"
-                                onClick={handlePortalOpen}
-                                strength={0.32}
-                                className="inline-flex h-14 items-center gap-3 rounded-full bg-black px-7 font-mono text-[11px] uppercase tracking-[0.24em] text-[#f7f5f1] shadow-[0_16px_36px_rgba(10,10,10,0.14)]"
-                            >
-                                portal
-                            </MagneticButton>
                             <MagneticButton
                                 href="/Resume.pdf"
                                 download
@@ -182,9 +109,7 @@ export default function Home() {
                         </motion.div>
 
                         <motion.div
-                            initial={{ opacity: 0, y: 18 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.72, delay: 1.08 }}
+                            initial={false}
                             className="mt-10 flex items-center gap-3"
                         >
                             <MagneticButton
@@ -212,11 +137,8 @@ export default function Home() {
 
                     <motion.div
                         id="hero-visual-target"
-                        key={`hero-visual-${handoffKey}`}
-                        initial={{ opacity: 0, y: 28 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.9, delay: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                        className="order-1 xl:order-2 xl:pl-10"
+                        initial={false}
+                        className="order-2 mx-auto w-full max-w-[430px] xl:max-w-none xl:pl-10"
                     >
                         <div className="mb-5 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.28em] text-black/36">
                             <span>composite render</span>

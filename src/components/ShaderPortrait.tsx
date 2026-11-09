@@ -2,12 +2,14 @@
 
 import { useEffect, useRef, useState } from "react"
 import Image from "next/image"
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
+import { motion, useInView, useMotionValue, useReducedMotion, useSpring, useTransform } from "framer-motion"
 
 export default function ShaderPortrait() {
     const [hovered, setHovered] = useState(false)
     const [fps, setFps] = useState(60)
     const tiltRef = useRef<HTMLDivElement | null>(null)
+    const isVisible = useInView(tiltRef, { margin: "200px 0px" })
+    const reduceMotion = useReducedMotion()
     const mx = useMotionValue(0)
     const my = useMotionValue(0)
     const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [8, -8]), { stiffness: 160, damping: 18 })
@@ -30,6 +32,8 @@ export default function ShaderPortrait() {
     }
 
     useEffect(() => {
+        if (!isVisible || reduceMotion) return
+
         let frameId = 0
         let lastSample = performance.now()
         let lastFrame = performance.now()
@@ -54,7 +58,7 @@ export default function ShaderPortrait() {
             cancelAnimationFrame(frameId)
             void lastFrame
         }
-    }, [])
+    }, [isVisible, reduceMotion])
 
     return (
         <motion.div
@@ -62,7 +66,7 @@ export default function ShaderPortrait() {
             onMouseEnter={() => setHovered(true)}
             onMouseMove={handleMove}
             onMouseLeave={resetTilt}
-            style={{ rotateX, rotateY, transformPerspective: 1200, transformStyle: "preserve-3d" }}
+            style={reduceMotion ? undefined : { rotateX, rotateY, transformPerspective: 1200, transformStyle: "preserve-3d" }}
             className="group relative aspect-[0.92] w-full overflow-hidden rounded-[36px] border border-black/10 bg-[#ece8df] will-change-transform"
         >
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.34),transparent_18%),radial-gradient(circle_at_50%_40%,rgba(10,10,10,0.08),transparent_52%)]" />

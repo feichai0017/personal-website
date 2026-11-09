@@ -17,7 +17,7 @@ module.exports = {
 		},
 		extend: {
 			fontFamily: {
-				sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
+				sans: ["var(--font-geist-sans)", "ui-sans-serif", "system-ui", "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", "sans-serif"],
 				mono: ["var(--font-geist-mono)", "ui-monospace", "SFMono-Regular", "monospace"],
 			},
 			colors: {

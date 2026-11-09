@@ -1,10 +1,10 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
-import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from "framer-motion"
+import { AnimatePresence, motion, useInView, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform } from "framer-motion"
 import Image from "next/image"
-import { ArrowUpRight, MoveHorizontal, X } from "lucide-react"
+import { ArrowUpRight, MoveHorizontal, Pause, Play, X } from "lucide-react"
 import { FaGithub } from "react-icons/fa6"
 import RevealHeadline from "@/components/RevealHeadline"
 import MagneticButton from "@/components/MagneticButton"
@@ -20,60 +20,64 @@ type Project = {
     stack: string[]
     features: string[]
     image: string
+    imageFit?: "cover" | "contain"
     githubLink: string
 }
 
 const projects: Project[] = [
     {
         id: "01",
-        title: "QuillSQL",
-        category: "Database Engine",
-        year: "2025",
-        status: "Shipped",
-        description: "A relational database in Rust focused on heap storage, B+Tree indexing, and MVCC concurrency control.",
-        summary: "Built to explore storage layout, indexing, concurrency semantics, and query execution as one coherent engine story.",
-        stack: ["Rust", "SQL", "MVCC", "B+Tree"],
+        title: "QuillCache",
+        category: "AI Cache Infra",
+        year: "2026",
+        status: "Active",
+        description: "A Mooncake-faithful distributed KV cache system in Rust, extended with identity-safe reuse, a durable tier, and cache-aware routing.",
+        summary: "QuillCache treats KV cache as first-class infra: transfer engine, store, residency index, and routing logic all shaped for real inference systems rather than toy demos.",
+        stack: ["Rust", "KV Cache", "Mooncake", "HBM", "SSD"],
         features: [
-            "heap and index storage paths designed together",
-            "concurrency semantics treated as first-order design constraints",
-            "query execution shaped by engine invariants rather than toy assumptions",
+            "faithful port of Mooncake's distributed KV cache store and transfer-engine decomposition",
+            "identity-governed safe reuse so cache hits stay correct across models, tenants, and adapters",
+            "persistent residency index and durable disk tier added for cache systems that survive restarts",
         ],
-        image: "/projects/quillsql-logo.png",
-        githubLink: "https://github.com/feichai0017/QuillSQL",
+        image: "/projects/quillcache-repo-logo.svg",
+        imageFit: "contain",
+        githubLink: "https://github.com/feichai0017/quillcache",
     },
     {
         id: "02",
         title: "NoKV",
-        category: "Distributed Storage",
-        year: "2024",
+        category: "AI Native Filesystem",
+        year: "2026",
         status: "Active",
-        description: "A high-performance key-value engine built around LSM trees, lock-free structures, and distributed control paths.",
-        summary: "This is the clearest expression of my interest in storage semantics, distributed behavior, and research-oriented systems engineering.",
-        stack: ["Go", "LSM", "MVCC", "Raft"],
+        description: "An AI-native distributed filesystem and metadata control plane for object-backed agent artifacts, namespaces, and checkpoint-style workloads.",
+        summary: "NoKV turns artifact-heavy AI workflows into a filesystem-shaped namespace with snapshots, watches, object-backed bodies, and a built-in metadata engine instead of a bolted-on external database.",
+        stack: ["Rust", "Filesystem", "Object Storage", "FUSE", "Holt"],
         features: [
-            "lock-free data structures in the hot path",
-            "consensus-aware distributed behavior instead of single-node benchmarking only",
-            "engine design shaped by maintainability and experimental iteration",
+            "metadata control plane for object-backed artifacts, logs, checkpoints, and citable evidence",
+            "path-native Holt metadata engine plus immutable object blocks in S3-compatible storage",
+            "AI-native workflow primitives such as atomic publish, snapshots, watches, and generation-aware cleanup",
         ],
-        image: "/projects/nokv-logo.svg",
+        image: "/projects/nokv-official-logo.svg",
+        imageFit: "contain",
         githubLink: "https://github.com/feichai0017/NoKV",
     },
     {
         id: "03",
-        title: "Plato IM",
-        category: "Realtime System",
-        year: "2024-now",
-        status: "In Progress",
-        description: "A distributed instant messaging system shaped around scale, reliability, and observability.",
-        summary: "Designed as a system exercise in fan-out, asynchronous delivery, state coordination, and production-style monitoring loops.",
-        stack: ["Go", "Kafka", "Redis", "Kubernetes"],
+        title: "Holt",
+        category: "Storage Engine",
+        year: "2026",
+        status: "Active",
+        description: "A persistent Adaptive Radix Tree engine in Rust for path-shaped metadata workloads, prefix scans, and crash-safe persistence.",
+        summary: "Holt is the storage-core expression of my systems bias: path-native keys, low read amplification, WAL-backed durability, and metadata operations designed around real namespace workloads.",
+        stack: ["Rust", "ART", "WAL", "Prefix Scan"],
         features: [
-            "message routing and queue-driven workflow design",
-            "operability treated as part of the product",
-            "large-scale concurrency constraints surfaced directly in the architecture",
+            "persistent ART tuned for metadata paths rather than generic opaque-key workloads",
+            "cheap prefix listing, delimiter rollup, and conditional metadata updates as first-class operations",
+            "crash-safe WAL, checkpointing, and reopen recovery without LSM compaction drag",
         ],
-        image: "/projects/IM-system.png",
-        githubLink: "https://github.com/feichai0017/plato_distributed-IM-system",
+        image: "/projects/holt-logo.png",
+        imageFit: "contain",
+        githubLink: "https://github.com/feichai0017/holt",
     },
     {
         id: "04",
@@ -136,6 +140,10 @@ function ProjectOverlay({
     onClose: () => void
 }) {
     const [mounted, setMounted] = useState(false)
+    const dialogRef = useRef<HTMLDivElement | null>(null)
+    const closeButtonRef = useRef<HTMLButtonElement | null>(null)
+    const previousFocusRef = useRef<HTMLElement | null>(null)
+    const closeOverlay = useEffectEvent(onClose)
 
     useEffect(() => {
         setMounted(true)
@@ -150,11 +158,53 @@ function ProjectOverlay({
         }
     }, [project])
 
-    if (!mounted || !project) return null
+    useEffect(() => {
+        if (!project) return
+
+        previousFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null
+        const focusFrame = window.requestAnimationFrame(() => closeButtonRef.current?.focus())
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key === "Escape") {
+                event.preventDefault()
+                closeOverlay()
+                return
+            }
+
+            if (event.key !== "Tab" || !dialogRef.current) return
+            const focusable = Array.from(
+                dialogRef.current.querySelectorAll<HTMLElement>(
+                    'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'
+                )
+            )
+            if (focusable.length === 0) return
+            const first = focusable[0]
+            const last = focusable[focusable.length - 1]
+
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault()
+                last.focus()
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault()
+                first.focus()
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown)
+        return () => {
+            window.cancelAnimationFrame(focusFrame)
+            window.removeEventListener("keydown", handleKeyDown)
+            previousFocusRef.current?.focus()
+        }
+    }, [project])
+
+    if (!mounted) return null
+    const imageObjectClass = project?.imageFit === "contain" ? "object-contain p-10 md:p-14" : "object-cover"
 
     return createPortal(
         <AnimatePresence>
+            {project ? (
             <motion.div
+                key={project.id}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -162,14 +212,20 @@ function ProjectOverlay({
                 onClick={onClose}
             >
                 <motion.div
+                    ref={dialogRef}
                     initial={{ opacity: 0, y: 24 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 24 }}
                     transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
-                    className="relative w-full max-w-6xl overflow-hidden rounded-[34px] border border-black/10 bg-[#f7f5f1] text-[#0a0a0a] shadow-[0_30px_90px_rgba(10,10,10,0.12)]"
+                    className="relative max-h-[calc(100dvh-2rem)] w-full max-w-6xl overflow-y-auto overscroll-contain rounded-[34px] border border-black/10 bg-[#f7f5f1] text-[#0a0a0a] shadow-[0_30px_90px_rgba(10,10,10,0.12)]"
                     onClick={(event) => event.stopPropagation()}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby="project-dialog-title"
+                    aria-describedby="project-dialog-summary"
                 >
                     <button
+                        ref={closeButtonRef}
                         type="button"
                         onClick={onClose}
                         data-cursor="jump"
@@ -180,21 +236,25 @@ function ProjectOverlay({
                     </button>
 
                     <div className="grid lg:grid-cols-[0.9fr_1.1fr]">
-                        <div className="relative min-h-[320px] border-b border-black/8 bg-[#ece8df] lg:min-h-[640px] lg:border-b-0 lg:border-r">
+                        <motion.div
+                            layoutId={`project-visual-${project.id}`}
+                            className="relative min-h-[320px] border-b border-black/8 bg-[#ece8df] lg:min-h-[640px] lg:border-b-0 lg:border-r"
+                            transition={{ type: "spring", stiffness: 210, damping: 26 }}
+                        >
                             <Image
                                 src={project.image}
                                 alt={project.title}
                                 fill
-                                className="object-cover"
+                                className={imageObjectClass}
                                 sizes="(max-width: 1024px) 100vw, 42vw"
                             />
-                        </div>
+                        </motion.div>
 
                         <div className="p-7 md:p-10">
                             <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-black/34">
                                 {project.id} / 06
                             </div>
-                            <h3 className="mt-5 text-4xl font-medium tracking-[-0.05em] text-black md:text-5xl">
+                            <h3 id="project-dialog-title" className="mt-5 text-4xl font-medium tracking-[-0.05em] text-black md:text-5xl">
                                 {project.title}
                             </h3>
                             <div className="mt-4 flex flex-wrap items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] text-black/42">
@@ -205,7 +265,7 @@ function ProjectOverlay({
                                 <span>{project.status}</span>
                             </div>
 
-                            <p className="mt-8 max-w-2xl text-base leading-8 text-black/68">
+                            <p id="project-dialog-summary" className="mt-8 max-w-2xl text-base leading-8 text-black/68">
                                 {project.summary}
                             </p>
 
@@ -268,6 +328,7 @@ function ProjectOverlay({
                     </div>
                 </motion.div>
             </motion.div>
+            ) : null}
         </AnimatePresence>,
         document.body
     )
@@ -276,11 +337,14 @@ function ProjectOverlay({
 function ProjectCard({
     project,
     onOpen,
+    accessible,
 }: {
     project: Project
     onOpen: () => void
+    accessible: boolean
 }) {
     const cardRef = useRef<HTMLButtonElement | null>(null)
+    const reduceMotion = useReducedMotion()
     const mx = useMotionValue(0)
     const my = useMotionValue(0)
     const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [6, -6]), { stiffness: 180, damping: 20 })
@@ -295,28 +359,38 @@ function ProjectCard({
         mx.set(0)
         my.set(0)
     }
+    const imageObjectClass = project.imageFit === "contain"
+        ? "object-contain p-8 md:p-10"
+        : "object-cover"
+
     return (
         <motion.button
             ref={cardRef}
             type="button"
             onClick={onOpen}
-            onMouseMove={handleMove}
+            onMouseMove={reduceMotion ? undefined : handleMove}
             onMouseLeave={handleLeave}
             data-cursor="open"
-            style={{ rotateX, rotateY, transformPerspective: 1200, transformStyle: "preserve-3d" }}
-            whileHover={{ y: -8 }}
+            style={reduceMotion ? undefined : { rotateX, rotateY, transformPerspective: 1200, transformStyle: "preserve-3d" }}
+            whileHover={reduceMotion ? undefined : { y: -8 }}
             transition={{ type: "spring", stiffness: 220, damping: 20 }}
+            aria-hidden={accessible ? undefined : true}
+            tabIndex={accessible ? 0 : -1}
             className="group relative h-[450px] w-[86vw] max-w-[520px] shrink-0 overflow-hidden rounded-[30px] border border-black/10 bg-[#f7f5f1] text-left will-change-transform hover:border-black/14"
         >
-            <div className="relative h-[58%] overflow-hidden border-b border-black/8 bg-[#f7f5f1]">
+            <motion.div
+                layoutId={accessible ? `project-visual-${project.id}` : undefined}
+                className="relative h-[58%] overflow-hidden border-b border-black/8 bg-[#f7f5f1]"
+                transition={{ type: "spring", stiffness: 210, damping: 26 }}
+            >
                 <Image
                     src={project.image}
                     alt={project.title}
                     fill
-                    className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                    className={`${imageObjectClass} transition-transform duration-700 group-hover:scale-[1.04]`}
                     sizes="(max-width: 768px) 86vw, 520px"
                 />
-            </div>
+            </motion.div>
 
             <div className="flex h-[42%] flex-col p-6 transition-transform duration-500 group-hover:-translate-y-1">
                 <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.24em] text-black/34">
@@ -375,9 +449,17 @@ function DragLane({
     const dragX = useMotionValue(0)
     const hasDraggedRef = useRef(false)
     const singleWidthRef = useRef(0)
-    const [isPaused, setIsPaused] = useState(false)
+    const settleTimerRef = useRef<number | null>(null)
+    const laneInView = useInView(viewportRef, { margin: "240px 0px" })
+    const reduceMotion = useReducedMotion()
+    const [manualPaused, setManualPaused] = useState(false)
+    const [hoverPaused, setHoverPaused] = useState(false)
+    const [focusPaused, setFocusPaused] = useState(false)
+    const [settling, setSettling] = useState(false)
     const [isDragging, setIsDragging] = useState(false)
+    const [activeProjectId, setActiveProjectId] = useState(items[0]?.id ?? "01")
     const duplicated = useMemo(() => [...items, ...items, ...items], [items])
+    const isPaused = manualPaused || hoverPaused || focusPaused || settling
 
     const normalizePosition = (value: number) => {
         const wrapWidth = singleWidthRef.current
@@ -406,6 +488,24 @@ function DragLane({
     }, [dragX, duplicated, initialEdge])
 
     useEffect(() => {
+        return () => {
+            if (settleTimerRef.current) window.clearTimeout(settleTimerRef.current)
+        }
+    }, [])
+
+    useMotionValueEvent(dragX, "change", (latest) => {
+        const wrapWidth = singleWidthRef.current
+        if (wrapWidth <= 0 || items.length === 0) return
+        const itemWidth = wrapWidth / items.length
+        const normalized = ((-latest % wrapWidth) + wrapWidth) % wrapWidth
+        const index = Math.floor(normalized / itemWidth) % items.length
+        const nextId = items[index]?.id
+        if (nextId) setActiveProjectId((current) => (current === nextId ? current : nextId))
+    })
+
+    useEffect(() => {
+        if (!laneInView || reduceMotion) return
+
         let frameId = 0
         let lastTime = performance.now()
 
@@ -413,7 +513,7 @@ function DragLane({
             const elapsed = time - lastTime
             lastTime = time
 
-            if (!isPaused && !isDragging && singleWidthRef.current > 0) {
+            if (!isPaused && !isDragging && !document.hidden && singleWidthRef.current > 0) {
                 const speed = direction === "left" ? -0.065 : 0.065
                 const next = dragX.get() + elapsed * speed
                 dragX.set(normalizePosition(next))
@@ -424,7 +524,7 @@ function DragLane({
 
         frameId = requestAnimationFrame(step)
         return () => cancelAnimationFrame(frameId)
-    }, [direction, dragX, isDragging, isPaused])
+    }, [direction, dragX, isDragging, isPaused, laneInView, reduceMotion])
 
     const handleCardOpen = (project: Project) => {
         if (hasDraggedRef.current) return
@@ -433,24 +533,43 @@ function DragLane({
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.28em] text-black/34">
+            <div className="flex items-center justify-between gap-4 font-mono text-[11px] uppercase tracking-[0.28em] text-black/34">
                 <span>{lane}</span>
-                <span className="inline-flex items-center gap-2 text-black/50 transition-transform duration-300 hover:translate-x-1">
-                    <MoveHorizontal className="h-4 w-4" />
-                    drag to explore
-                </span>
+                <div className="flex items-center gap-3">
+                    <span className="text-black/44">{activeProjectId} / 06</span>
+                    <button
+                        type="button"
+                        onClick={() => setManualPaused((paused) => !paused)}
+                        aria-label={manualPaused ? `Play ${lane} project carousel` : `Pause ${lane} project carousel`}
+                        aria-pressed={manualPaused}
+                        className="inline-flex h-8 items-center gap-2 rounded-full border border-black/10 bg-[#f7f5f1] px-3 text-[9px] tracking-[0.2em] text-black/54 transition-colors hover:border-black/22 hover:text-black"
+                    >
+                        {manualPaused ? <Play className="h-3 w-3" /> : <Pause className="h-3 w-3" />}
+                        {manualPaused ? "play" : "pause"}
+                    </button>
+                    <span className="hidden items-center gap-2 text-black/50 md:inline-flex">
+                        <MoveHorizontal className="h-4 w-4" />
+                        drag to explore
+                    </span>
+                </div>
             </div>
 
             <div
                 ref={viewportRef}
-                className="overflow-hidden"
-                onMouseEnter={() => setIsPaused(true)}
-                onMouseLeave={() => setIsPaused(false)}
+                className="overflow-hidden touch-pan-y"
+                onMouseEnter={() => setHoverPaused(true)}
+                onMouseLeave={() => setHoverPaused(false)}
+                onFocusCapture={() => setFocusPaused(true)}
+                onBlurCapture={(event) => {
+                    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setFocusPaused(false)
+                }}
+                role="region"
+                aria-label={`${lane} project carousel`}
             >
                 <motion.div
                     ref={trackRef}
                     drag="x"
-                    dragMomentum
+                    dragMomentum={!reduceMotion}
                     dragElastic={0.02}
                     dragTransition={{ power: 0.12, timeConstant: 220, bounceStiffness: 120, bounceDamping: 20 }}
                     style={{ x: dragX }}
@@ -467,19 +586,26 @@ function DragLane({
                     onDragEnd={() => {
                         setIsDragging(false)
                         dragX.set(normalizePosition(dragX.get()))
+                        setSettling(true)
+                        if (settleTimerRef.current) window.clearTimeout(settleTimerRef.current)
+                        settleTimerRef.current = window.setTimeout(() => setSettling(false), 1200)
                         window.setTimeout(() => {
                             hasDraggedRef.current = false
                         }, 80)
                     }}
                     className="flex w-max gap-6 active:cursor-grabbing"
                 >
-                    {duplicated.map((project, index) => (
-                        <ProjectCard
-                            key={`${project.id}-${index}`}
-                            project={project}
-                            onOpen={() => handleCardOpen(project)}
-                        />
-                    ))}
+                    {duplicated.map((project, index) => {
+                        const accessible = index >= items.length && index < items.length * 2
+                        return (
+                            <ProjectCard
+                                key={`${project.id}-${index}`}
+                                project={project}
+                                accessible={accessible}
+                                onOpen={() => handleCardOpen(project)}
+                            />
+                        )
+                    })}
                 </motion.div>
             </div>
         </div>
@@ -493,7 +619,7 @@ export default function Projects() {
 
     return (
         <>
-            <section id="projects" className="showcase-section px-4 py-24 text-[#0a0a0a]">
+            <section id="projects" className="showcase-section px-4 py-20 text-[#0a0a0a]">
                 <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}

@@ -2,17 +2,25 @@
 
 import { ReactNode, useEffect } from "react"
 import Lenis from "lenis"
+import { usePathname } from "next/navigation"
+
+import { isKnowledgePath } from "@/lib/knowledge"
 
 export default function SmoothScroll({ children }: { children: ReactNode }) {
+    const pathname = usePathname()
+
     useEffect(() => {
+        if (pathname.startsWith("/studio") || isKnowledgePath(pathname)) return
+
         const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-        if (prefersReduced) return
+        const hasFinePointer = window.matchMedia("(pointer: fine)").matches
+        if (prefersReduced || !hasFinePointer) return
 
         const lenis = new Lenis({
-            duration: 1.15,
+            duration: 0.5,
             easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             wheelMultiplier: 1,
-            touchMultiplier: 1.4,
+            touchMultiplier: 1.15,
             smoothWheel: true,
         })
 
@@ -23,22 +31,11 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
         }
         rafId = requestAnimationFrame(raf)
 
-        const handlePortalVisibility = (event: Event) => {
-            const detail = (event as CustomEvent<{ visible?: boolean }>).detail
-            if (detail?.visible) {
-                lenis.stop()
-            } else {
-                lenis.start()
-            }
-        }
-        window.addEventListener("entry-portal-visibility", handlePortalVisibility)
-
         return () => {
-            window.removeEventListener("entry-portal-visibility", handlePortalVisibility)
             cancelAnimationFrame(rafId)
             lenis.destroy()
         }
-    }, [])
+    }, [pathname])
 
     return <>{children}</>
 }

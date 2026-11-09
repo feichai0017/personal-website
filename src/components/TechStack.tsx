@@ -13,6 +13,8 @@ import {
     SiApachekafka,
 } from "react-icons/si"
 
+const smoothEase = [0.22, 1, 0.36, 1] as const
+
 type StackItem = {
     name: string
     note: string
@@ -35,7 +37,7 @@ const sectionVariants = {
     visible: (delay = 0) => ({
         opacity: 1,
         y: 0,
-        transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] },
+        transition: { duration: 0.55, delay, ease: smoothEase },
     }),
 }
 
@@ -52,13 +54,13 @@ const cardVariants = {
         opacity: 1,
         y: 0,
         scale: 1,
-        transition: { duration: 0.62, ease: [0.22, 1, 0.36, 1] },
+        transition: { duration: 0.62, ease: smoothEase },
     },
 }
 
 export default function TechStack() {
     return (
-        <section id="techstack" className="showcase-section px-4 py-24 text-[#0a0a0a]">
+        <section id="techstack" className="showcase-section px-4 py-20 text-[#0a0a0a]">
             <div className="mx-auto w-full max-w-[1800px] px-2 md:px-4 lg:px-6">
                 <div className="grid gap-12 xl:grid-cols-[0.9fr_1.1fr] xl:items-start">
                     <motion.div
